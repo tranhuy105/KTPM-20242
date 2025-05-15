@@ -123,52 +123,58 @@ async function startServer() {
 
 // Graceful shutdown function
 function setupGracefulShutdown(server) {
-  // Handle CTRL+C
-  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+    // Handle CTRL+C
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-  // Handle nodemon restarts
-  process.on("SIGUSR2", () => gracefulShutdown("SIGUSR2"));
-
-  // Handle termination signals
-  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-
-  // Graceful shutdown function
-  function gracefulShutdown(signal) {
-    logger.info(`Received ${signal}. Shutting down gracefully...`);
-
-    server.close(() => {
-      logger.info("HTTP server closed");
-
-      // Close database connection if needed
-      // Any other cleanup tasks
-
-      process.exit(0);
-    });
-
-    setTimeout(
-      () => {
-        logger.info("Forced shutdown after timeout");
-        process.exit(1);
-      },
-      process.env.NODE_ENV === "production" ? 10000 : 3000
+    // Handle nodemon restarts
+    process.on("SIGUSR2", () =>
+        gracefulShutdown("SIGUSR2")
     );
-  }
+
+    // Handle termination signals
+    process.on("SIGTERM", () =>
+        gracefulShutdown("SIGTERM")
+    );
+
+    // Graceful shutdown function
+    function gracefulShutdown(signal) {
+        logger.info(
+            `Received ${signal}. Shutting down gracefully...`
+        );
+
+        server.close(() => {
+            logger.info("HTTP server closed");
+
+            process.exit(0);
+        });
+
+        setTimeout(
+            () => {
+                logger.info(
+                    "Forced shutdown after timeout"
+                );
+                process.exit(1);
+            },
+            process.env.NODE_ENV === "production"
+                ? 10000
+                : 3000
+        );
+    }
 }
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err) => {
-  logger.error("UNHANDLED REJECTION:", err);
-  // Don't exit the process to allow for recovery
+    logger.error("UNHANDLED REJECTION:", err);
+    // Don't exit the process to allow for recovery
 });
 
 // Handle uncaught exceptions
 process.on("uncaughtException", (err) => {
-  logger.error("UNCAUGHT EXCEPTION:", err);
-  // Exit the process for uncaught exceptions as they can leave the app in an unpredictable state
-  process.exit(1);
+    logger.error("UNCAUGHT EXCEPTION:", err);
+    // Exit the process for uncaught exceptions as they can leave the app in an unpredictable state
+    process.exit(1);
 });
 
-// Start the server
 startServer().catch((err) => logger.error("Error starting server:", err));
 
 module.exports = app; // Export for testing
