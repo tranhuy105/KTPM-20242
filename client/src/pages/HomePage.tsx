@@ -1,10 +1,37 @@
+import HeroSection from "../components/home/HeroSection";
+import StatsSection from "../components/home/StatsSection";
+import BrandsSection from "../components/home/BrandsSection";
+import ProductSection from "../components/home/ProductSection";
+import CategorySection from "../components/home/CategorySection";
+import TestimonialSection from "../components/home/TestimonialSection";
+import { useTranslation } from "react-i18next";
+import productApi from "../api/productApi";
+
 const HomePage = () => {
+  const { t } = useTranslation();
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Welcome to Luxury Shop</h1>
-      <p className="text-lg">
-        Discover our exclusive collection of luxury items.
-      </p>
+    <div className="bg-gray-50">
+      <HeroSection />
+      <CategorySection />
+
+      {/* New Arrivals Section */}
+      <ProductSection
+        title={t("home.newArrivals.title")}
+        viewAllLink="/products?category=new-arrivals"
+        fetchProducts={productApi.getNewArrivals}
+      />
+
+      {/* Top Selling Section */}
+      <ProductSection
+        title={t("home.topSelling.title")}
+        viewAllLink="/products?category=best-sellers"
+        fetchProducts={productApi.getNewArrivals}
+      />
+
+      <BrandsSection />
+      <StatsSection />
+      <TestimonialSection />
     </div>
   );
 };

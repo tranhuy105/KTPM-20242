@@ -77,5 +77,45 @@
     },
     "copyright": "© 2025 NHOM2 All Rights Reserved",
     "language": "Ngôn ngữ"
+  },
+  "home": {
+    "hero": {
+      "title1": "KHÁM PHÁ",
+      "title2": "VẺ ĐẸP",
+      "title3": "VĨNH CỬU",
+      "subtitle": "Chiêm ngưỡng bộ sưu tập sản phẩm cao cấp được tuyển chọn kỹ lưỡng dành cho những người đánh giá cao nghệ thuật chế tác tinh xảo.",
+      "shopNow": "Mua Sắm Ngay"
+    },
+    "stats": {
+      "brands": "Thương Hiệu Danh Giá",
+      "highQualityProducts": "Sản Phẩm Chất Lượng Vượt Trội",
+      "happyCustomers": "Khách Hàng Thượng Lưu"
+    },
+    "newArrivals": {
+      "title": "BỘ SƯU TẬP MỚI"
+    },
+    "topSelling": {
+      "title": "SẢN PHẨM NỔI BẬT"
+    },
+    "categories": {
+      "title": "BỘ SƯU TẬP ĐỘC QUYỀN",
+      "subtitle": "Khám phá các danh mục sản phẩm cao cấp được lựa chọn cẩn thận để phục vụ phong cách sống sang trọng của bạn",
+      "exploreCollection": "Khám phá bộ sưu tập",
+      "casual": "Đồng Hồ",
+      "formal": "Trang Sức",
+      "party": "Túi Xách",
+      "gym": "Nước Hoa"
+    },
+    "testimonials": {
+      "title": "NHẬN XÉT TỪ KHÁCH HÀNG",
+      "sarah": "Tay nghề chế tác của chiếc đồng hồ mới của tôi thật xuất sắc. Sự chú ý đến từng chi tiết và chất liệu cao cấp thực sự phản ánh trải nghiệm sang trọng mà tôi đang tìm kiếm.",
+      "alex": "Món trang sức tôi mua đã vượt quá mong đợi. Trải nghiệm mua sắm cá nhân và dịch vụ gói quà đã làm nó trở nên đặc biệt hơn nữa.",
+      "james": "Chất lượng da của chiếc ví mới của tôi thật đáng kinh ngạc. Đây chính xác là kiểu sản phẩm xa xỉ vượt thời gian mà tôi sẽ trân trọng trong nhiều năm.",
+      "maria": "Nước hoa tôi mua đã trở thành mùi hương đặc trưng của tôi. Mọi chi tiết từ bao bì đến thiết kế chai đều thể hiện chất lượng vượt trội."
+    }
+  },
+  "common": {
+    "viewAll": "Xem Tất Cả",
+    "viewDetails": "Xem Chi Tiết"
   }
 }

@@ -57,6 +57,13 @@ export interface AuthState {
 }
 
 // Product Types
+export interface ProductImage {
+  _id?: string;
+  url: string;
+  alt?: string;
+  isDefault?: boolean;
+}
+
 export interface ProductVariant {
   _id: string;
   name: string;
@@ -64,7 +71,7 @@ export interface ProductVariant {
   price: number;
   salePrice?: number;
   inventoryQuantity: number;
-  images?: string[];
+  images?: string[] | ProductImage[];
 }
 
 export interface ProductReview {
@@ -82,22 +89,24 @@ export interface Product {
   slug: string;
   description: string;
   price: number;
-  salePrice?: number;
-  category: string;
+  salePrice?: number | null;
+  category: string | Category;
   categoryName?: string;
-  images: string[];
-  isFeatured: boolean;
-  isPublished: boolean;
-  status: "in-stock" | "out-of-stock" | "back-order";
-  inventoryQuantity: number;
+  images: string[] | ProductImage[];
+  isFeatured?: boolean;
+  isPublished?: boolean;
+  status: "in-stock" | "out-of-stock" | "back-order" | "active";
+  inventoryQuantity?: number;
+  hasVariants?: boolean;
   // variants?: ProductVariant[];
   tags?: string[];
   specs?: Record<string, string>;
-  averageRating: number;
-  reviewCount: number;
+  averageRating?: number;
+  reviewCount?: number;
   reviews?: ProductReview[];
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  compareAtPrice?: number | null;
 }
 
 // Category Types
@@ -105,13 +114,14 @@ export interface Category {
   _id: string;
   name: string;
   slug: string;
+  id?: string;
   description?: string;
   image?: string;
   parent?: string;
   parentName?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Order Types

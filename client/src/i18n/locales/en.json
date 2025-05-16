@@ -53,7 +53,7 @@
       "emailPlaceholder": "Enter your email address",
       "subscribeButton": "Subscribe to Newsletter"
     },
-    "brandText": "Luxury isn’t about showing off. It’s the quiet confidence, the perfect fit, and the way you carry yourself — effortlessly powerful.",
+    "brandText": "Luxury isn't about showing off. It's the quiet confidence, the perfect fit, and the way you carry yourself — effortlessly powerful.",
     "company": {
       "title": "Company",
       "about": "About",
@@ -77,5 +77,45 @@
     },
     "copyright": "© 2025 NHOM2 All Rights Reserved",
     "language": "Language"
+  },
+  "home": {
+    "hero": {
+      "title1": "DISCOVER",
+      "title2": "TIMELESS",
+      "title3": "LUXURY",
+      "subtitle": "Explore our curated collection of premium products designed for those who appreciate the finest craftsmanship and exquisite details.",
+      "shopNow": "Shop Collection"
+    },
+    "stats": {
+      "brands": "Prestigious Brands",
+      "highQualityProducts": "Exceptional Quality Products",
+      "happyCustomers": "Satisfied Clients"
+    },
+    "newArrivals": {
+      "title": "NEW ARRIVALS"
+    },
+    "topSelling": {
+      "title": "BESTSELLERS"
+    },
+    "categories": {
+      "title": "LUXURY COLLECTIONS",
+      "subtitle": "Explore our carefully curated luxury categories designed to elevate your sophisticated lifestyle",
+      "exploreCollection": "Explore Collection",
+      "casual": "Watches",
+      "formal": "Jewelry",
+      "party": "Handbags",
+      "gym": "Perfumes"
+    },
+    "testimonials": {
+      "title": "CLIENT TESTIMONIALS",
+      "sarah": "The craftsmanship of my new watch is exceptional. The attention to detail and premium materials truly reflect the luxury experience I was looking for.",
+      "alex": "My jewelry purchase exceeded all expectations. The personal shopping experience and gift wrapping made it even more special.",
+      "james": "The leather quality of my new wallet is remarkable. This is exactly the kind of timeless luxury piece that I'll treasure for years.",
+      "maria": "The fragrance I purchased has become my signature scent. Every detail from the packaging to the bottle design speaks of exceptional quality."
+    }
+  },
+  "common": {
+    "viewAll": "View All",
+    "viewDetails": "View Details"
   }
 }
