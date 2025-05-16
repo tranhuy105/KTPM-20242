@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import type { User, AuthState } from "../types";
-import axiosInstance from "../api/axiosInstance";
+import authApi from "../api/authApi";
 import { AxiosError } from "axios";
 
 interface LoginCredentials {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 interface RegisterData {
-  name: string;
+  username: string;
   email: string;
   password: string;
-  username?: string;
 }
 
 interface ErrorResponse {
@@ -34,8 +34,10 @@ interface AuthFunctions {
 const useAuth = (): AuthState & AuthFunctions => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
-    token: localStorage.getItem("token"),
-    isAuthenticated: !!localStorage.getItem("token"),
+    token: localStorage.getItem("token") || sessionStorage.getItem("token"),
+    isAuthenticated: !!(
+      localStorage.getItem("token") || sessionStorage.getItem("token")
+    ),
     isLoading: true,
     error: null,
   });
@@ -43,7 +45,8 @@ const useAuth = (): AuthState & AuthFunctions => {
   // Load user data if token exists
   useEffect(() => {
     const loadUser = async () => {
-      const token = localStorage.getItem("token");
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
 
       if (!token) {
         setAuthState((prev) => ({ ...prev, isLoading: false }));
@@ -51,9 +54,17 @@ const useAuth = (): AuthState & AuthFunctions => {
       }
 
       try {
-        const response = await axiosInstance.get("/users/me");
+        const userData = await authApi.getCurrentUser();
+
+        // Ensure the user object has both _id and id properties
+        if (userData._id && !userData.id) {
+          userData.id = userData._id;
+        } else if (userData.id && !userData._id) {
+          userData._id = userData.id;
+        }
+
         setAuthState({
-          user: response.data,
+          user: userData,
           token,
           isAuthenticated: true,
           isLoading: false,
@@ -62,6 +73,8 @@ const useAuth = (): AuthState & AuthFunctions => {
       } catch {
         // Clear invalid token
         localStorage.removeItem("token");
+        localStorage.removeItem("userEmail");
+        sessionStorage.removeItem("token");
         setAuthState({
           user: null,
           token: null,
@@ -80,11 +93,26 @@ const useAuth = (): AuthState & AuthFunctions => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await axiosInstance.post("/auth/login", credentials);
-      const { user, token } = response.data;
+      const { user, token } = await authApi.login(credentials);
 
-      // Save token to localStorage
+      // Ensure the user object has both _id and id properties
+      if (user._id && !user.id) {
+        user.id = user._id;
+      } else if (user.id && !user._id) {
+        user._id = user.id;
+      }
+
+      // Always store token in both storages to prevent loss during refresh
+      // This ensures token is available regardless of which storage mechanism is checked first
       localStorage.setItem("token", token);
+      sessionStorage.setItem("token", token);
+
+      // Store email only if remember me is enabled
+      if (credentials.rememberMe) {
+        localStorage.setItem("userEmail", credentials.email);
+      } else {
+        localStorage.removeItem("userEmail");
+      }
 
       setAuthState({
         user,
@@ -118,8 +146,14 @@ const useAuth = (): AuthState & AuthFunctions => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await axiosInstance.post("/users/register", data);
-      const { user, token } = response.data;
+      const { user, token } = await authApi.register(data);
+
+      // Ensure the user object has both _id and id properties
+      if (user._id && !user.id) {
+        user.id = user._id;
+      } else if (user.id && !user._id) {
+        user._id = user.id;
+      }
 
       // Save token to localStorage
       localStorage.setItem("token", token);
@@ -154,6 +188,8 @@ const useAuth = (): AuthState & AuthFunctions => {
   // Logout function
   const logout = useCallback(() => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
+    sessionStorage.removeItem("token");
     setAuthState({
       user: null,
       token: null,
@@ -164,11 +200,27 @@ const useAuth = (): AuthState & AuthFunctions => {
   }, []);
 
   // Update user data
-  const updateUserData = useCallback((userData: Partial<User>) => {
-    setAuthState((prev) => ({
-      ...prev,
-      user: prev.user ? { ...prev.user, ...userData } : null,
-    }));
+  const updateUserData = useCallback(async (userData: Partial<User>) => {
+    try {
+      const updatedUser = await authApi.updateProfile(userData);
+
+      // Ensure the user object has both _id and id properties
+      if (updatedUser._id && !updatedUser.id) {
+        updatedUser.id = updatedUser._id;
+      } else if (updatedUser.id && !updatedUser._id) {
+        updatedUser._id = updatedUser.id;
+      }
+
+      setAuthState((prev) => ({
+        ...prev,
+        user: updatedUser,
+      }));
+
+      return updatedUser;
+    } catch (error) {
+      console.error("Failed to update user data:", error);
+      throw error;
+    }
   }, []);
 
   return {

@@ -1,30 +1,33 @@
 import axiosInstance from "./axiosInstance";
-import type { User, ApiResponse } from "../types";
+import type { User } from "../types";
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
 
-interface LoginResponse {
+interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
   user: User;
   token: string;
 }
 
-interface RegisterData {
-  email: string;
-  password: string;
-  username: string;
-}
-
+/**
+ * Authentication API service
+ */
 const authApi = {
   /**
    * Login user
-   * @param credentials User credentials (email and password)
-   * @returns User object and JWT token
+   * @param credentials User credentials
+   * @returns Auth response with user and token
    */
-  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    const response = await axiosInstance.post<LoginResponse>(
+  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    const response = await axiosInstance.post<AuthResponse>(
       "/users/login",
       credentials
     );
@@ -32,12 +35,12 @@ const authApi = {
   },
 
   /**
-   * Register a new user
+   * Register new user
    * @param data User registration data
-   * @returns User object and JWT token
+   * @returns Auth response with user and token
    */
-  register: async (data: RegisterData): Promise<LoginResponse> => {
-    const response = await axiosInstance.post<LoginResponse>(
+  register: async (data: RegisterData): Promise<AuthResponse> => {
+    const response = await axiosInstance.post<AuthResponse>(
       "/users/register",
       data
     );
@@ -49,25 +52,35 @@ const authApi = {
    * @returns User object
    */
   getCurrentUser: async (): Promise<User> => {
-    const response = await axiosInstance.get<User>("/users/me");
+    const response = await axiosInstance.get<User>("/users/profile");
     return response.data;
   },
 
   /**
-   * Update user password
-   * @param userId User ID
-   * @param currentPassword Current password
-   * @param newPassword New password
+   * Update user profile
+   * @param userData Partial user data to update
+   * @returns Updated user object
+   */
+  updateProfile: async (userData: Partial<User>): Promise<User> => {
+    const response = await axiosInstance.patch<User>(
+      "/users/profile",
+      userData
+    );
+    return response.data;
+  },
+
+  /**
+   * Change password
+   * @param data Password change data
    * @returns Success message
    */
-  updatePassword: async (
-    userId: string,
-    currentPassword: string,
-    newPassword: string
-  ): Promise<ApiResponse<string>> => {
-    const response = await axiosInstance.put<ApiResponse<string>>(
-      `/users/${userId}/password`,
-      { currentPassword, newPassword }
+  changePassword: async (data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<{ message: string }> => {
+    const response = await axiosInstance.post<{ message: string }>(
+      "/users/change-password",
+      data
     );
     return response.data;
   },

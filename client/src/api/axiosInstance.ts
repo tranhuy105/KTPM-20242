@@ -15,9 +15,9 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // const token = localStorage.getItem("token");
+    // Check both localStorage and sessionStorage for token
     const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MjYwOTlhMGM0ZThiZjczY2VjNjcxOCIsInVzZXJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGx1eHVyeXN0b3JlLnZuIiwicm9sZSI6ImFkbWluIiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzQ3MzkyMjg3LCJleHAiOjE3NDk5ODQyODd9.LLpPUj3iVlWgzlhjtj0VwgRxT74CWLm7oynqGpZkP9M";
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -43,7 +43,9 @@ axiosInstance.interceptors.response.use(
       !originalRequest.url.includes("/register")
     ) {
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      localStorage.removeItem("userEmail");
+      sessionStorage.removeItem("token");
+      window.location.href = "/auth";
     }
 
     return Promise.reject(error);

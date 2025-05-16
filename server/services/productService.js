@@ -104,7 +104,7 @@ class ProductService {
       images: 1,
       inventoryQuantity: 1,
       hasVariants: 1,
-      variants: 1,
+      // variants: 1,
       status: 1,
       category: 1,
       createdAt: 1,

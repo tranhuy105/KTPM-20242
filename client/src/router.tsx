@@ -8,6 +8,8 @@ import CategoryDetailPage from "./pages/CategoryDetailPage";
 import ApiTestPage from "./pages/ApiTestPage";
 import AuthPage from "./pages/AuthPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ProfilePage from "./pages/ProfilePage";
 
 const routes: RouteObject[] = [
   {
@@ -53,8 +55,25 @@ const routes: RouteObject[] = [
         element: <ApiTestPage />,
       },
       {
-        path: "auth",
-        element: <AuthPage />,
+        // Public routes that redirect authenticated users to home
+        element: <ProtectedRoute requireAuth={false} redirectPath="/" />,
+        children: [
+          {
+            path: "auth",
+            element: <AuthPage />,
+          },
+        ],
+      },
+      {
+        // Protected routes that require authentication
+        element: <ProtectedRoute requireAuth={true} redirectPath="/auth" />,
+        children: [
+          {
+            path: "profile",
+            element: <ProfilePage />,
+          },
+          // Add other protected routes here
+        ],
       },
       {
         path: "*",

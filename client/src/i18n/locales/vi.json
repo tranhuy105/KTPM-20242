@@ -1,0 +1,81 @@
+{
+  "auth": {
+    "login": {
+      "title": "Chào mừng trở lại",
+      "email": "Địa chỉ email",
+      "password": "Mật khẩu",
+      "rememberMe": "Ghi nhớ đăng nhập",
+      "forgotPassword": "Quên mật khẩu?",
+      "signIn": "Đăng nhập",
+      "signingIn": "Đang đăng nhập...",
+      "orSignInWith": "Hoặc đăng nhập bằng",
+      "google": "Google",
+      "facebook": "Facebook"
+    },
+    "register": {
+      "title": "Tạo tài khoản mới",
+      "username": "Tên người dùng",
+      "email": "Địa chỉ email",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "passwordsDoNotMatch": "Mật khẩu không khớp",
+      "termsAgreement": "Tôi đồng ý với",
+      "termsAndConditions": "Điều khoản & Điều kiện",
+      "createAccount": "Tạo tài khoản",
+      "creatingAccount": "Đang tạo tài khoản...",
+      "orSignUpWith": "Hoặc đăng ký bằng",
+      "google": "Google",
+      "facebook": "Facebook"
+    },
+    "tabs": {
+      "login": "Đăng nhập",
+      "register": "Đăng ký"
+    },
+    "validation": {
+      "required": "Trường này là bắt buộc",
+      "emailInvalid": "Địa chỉ email không hợp lệ",
+      "passwordLength": "Mật khẩu phải có ít nhất 6 ký tự",
+      "passwordsDoNotMatch": "Mật khẩu không khớp"
+    }
+  },
+  "header": {
+    "promoText": "Đăng ký và nhận giảm giá lên đến 20% cho đơn hàng đầu tiên.",
+    "signUpNow": "Đăng ký ngay",
+    "shop": "Cửa hàng",
+    "products": "Sản phẩm",
+    "categories": "Danh mục",
+    "searchPlaceholder": "Tìm kiếm sản phẩm..."
+  },
+  "footer": {
+    "newsletter": {
+      "title1": "CẬP NHẬT THÔNG TIN VỀ",
+      "title2": "ƯU ĐÃI MỚI NHẤT CỦA CHÚNG TÔI",
+      "emailPlaceholder": "Nhập địa chỉ email của bạn",
+      "subscribeButton": "Đăng ký nhận bản tin"
+    },
+    "brandText": "Sự sang trọng không cần phải phô trương. Đó là vẻ đẹp đến từ sự tối giản hoàn hảo và thần thái tự tin ở từng bước chân.",
+    "company": {
+      "title": "Công ty",
+      "about": "Giới thiệu",
+      "features": "Tính năng",
+      "works": "Hoạt động",
+      "career": "Tuyển dụng"
+    },
+    "help": {
+      "title": "Trợ giúp",
+      "customerSupport": "Hỗ trợ khách hàng",
+      "deliveryDetails": "Chi tiết giao hàng",
+      "termsAndConditions": "Điều khoản & Điều kiện",
+      "privacyPolicy": "Chính sách bảo mật"
+    },
+    "faq": {
+      "title": "Câu hỏi thường gặp",
+      "account": "Tài khoản",
+      "manageDeliveries": "Quản lý giao hàng",
+      "orders": "Đơn hàng",
+      "payments": "Thanh toán"
+    },
+    "copyright": "© 2025 NHOM2 All Rights Reserved",
+    "language": "Ngôn ngữ"
+  }
+}

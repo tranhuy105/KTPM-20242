@@ -1,0 +1,81 @@
+{
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "email": "Email Address",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot Password?",
+      "signIn": "Sign In",
+      "signingIn": "Signing in...",
+      "orSignInWith": "Or Sign In With",
+      "google": "Google",
+      "facebook": "Facebook"
+    },
+    "register": {
+      "title": "Create an account",
+      "username": "Username",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "termsAgreement": "I agree to the",
+      "termsAndConditions": "Terms & Conditions",
+      "createAccount": "Create Account",
+      "creatingAccount": "Creating Account...",
+      "orSignUpWith": "Or Sign Up With",
+      "google": "Google",
+      "facebook": "Facebook"
+    },
+    "tabs": {
+      "login": "Login",
+      "register": "Register"
+    },
+    "validation": {
+      "required": "This field is required",
+      "emailInvalid": "Invalid email address",
+      "passwordLength": "Password must be at least 6 characters",
+      "passwordsDoNotMatch": "Passwords do not match"
+    }
+  },
+  "header": {
+    "promoText": "Sign up and get up to 20% off on your first order.",
+    "signUpNow": "Sign Up Now",
+    "shop": "Shop",
+    "products": "Products",
+    "categories": "Categories",
+    "searchPlaceholder": "Search for products..."
+  },
+  "footer": {
+    "newsletter": {
+      "title1": "STAY UPTO DATE ABOUT",
+      "title2": "OUR LATEST OFFERS",
+      "emailPlaceholder": "Enter your email address",
+      "subscribeButton": "Subscribe to Newsletter"
+    },
+    "brandText": "Luxury isn’t about showing off. It’s the quiet confidence, the perfect fit, and the way you carry yourself — effortlessly powerful.",
+    "company": {
+      "title": "Company",
+      "about": "About",
+      "features": "Features",
+      "works": "Works",
+      "career": "Career"
+    },
+    "help": {
+      "title": "Help",
+      "customerSupport": "Customer Support",
+      "deliveryDetails": "Delivery Details",
+      "termsAndConditions": "Terms & Conditions",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "faq": {
+      "title": "FAQ",
+      "account": "Account",
+      "manageDeliveries": "Manage Deliveries",
+      "orders": "Orders",
+      "payments": "Payments"
+    },
+    "copyright": "© 2025 NHOM2 All Rights Reserved",
+    "language": "Language"
+  }
+}
