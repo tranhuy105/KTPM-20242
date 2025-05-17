@@ -15,9 +15,7 @@ const Header = () => {
         {/* Top Banner */}
         {!isAuthenticated && (
           <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-gray-200 text-xs text-center py-2 px-4">
-            <span className="font-serif tracking-wider">
-              {t("header.promoText")}
-            </span>{" "}
+            <span className="tracking-wider">{t("header.promoText")}</span>{" "}
             <Link
               to="/auth"
               className="text-amber-400 hover:text-amber-300 transition-colors duration-300 border-b border-amber-400 pb-px"

@@ -321,7 +321,7 @@ const ProductDetailPage = () => {
         {/* Footer Banner */}
         <div className="bg-gradient-to-r from-amber-700 to-amber-900 text-white py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-serif mb-6">
+            <h2 className="text-3xl italic mb-6">
               {t("products.luxuryExperience")}
             </h2>
             <p className="max-w-2xl mx-auto text-amber-100 mb-8">

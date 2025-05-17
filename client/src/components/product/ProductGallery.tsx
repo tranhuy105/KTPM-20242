@@ -1,371 +1,195 @@
-import { useState, useEffect, useRef } from "react";
-import type { ProductImage } from "../../types";
+import { useState, useEffect } from "react";
+import { ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
+
+interface ProductImage {
+  url: string;
+  alt?: string;
+}
 
 interface ProductGalleryProps {
   images: (ProductImage | string)[];
   productName: string;
 }
 
-const ProductGallery = ({ images, productName }: ProductGalleryProps) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
-
-  const mainImageRef = useRef<HTMLDivElement>(null);
-  const zoomImageRef = useRef<HTMLDivElement>(null);
-
-  // Get the image URL, handling both string and object formats
-  const getImageUrl = (image: ProductImage | string): string => {
-    if (typeof image === "string") {
-      return image;
-    }
-    return image.url;
-  };
-
-  // Get the image alt text, handling both formats
-  const getImageAlt = (image: ProductImage | string, index: number): string => {
-    if (typeof image === "string") {
-      return `${productName} - Image ${index + 1}`;
-    }
-    return image.alt || `${productName} - Image ${index + 1}`;
-  };
-
-  // Process images to ensure we have valid URLs
-  const processedImages = images.filter((img) => {
-    const url = getImageUrl(img);
-    return url && url.length > 0;
+const ProductGallery: React.FC<ProductGalleryProps> = ({
+  images,
+  productName,
+}) => {
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [zoomPosition, setZoomPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
   });
+  const [showZoom, setShowZoom] = useState<boolean>(false);
 
-  // Preload images for smoother experience
+  // Process images
+  const getImageUrl = (image: ProductImage | string): string =>
+    typeof image === "string" ? image : image.url;
+
+  const getImageAlt = (image: ProductImage | string, index: number): string =>
+    typeof image === "string"
+      ? `${productName} - Image ${index + 1}`
+      : image.alt || `${productName} - Image ${index + 1}`;
+
+  const processedImages = images.filter((img) => getImageUrl(img));
+
+  // Preload images
   useEffect(() => {
-    if (processedImages.length === 0) return;
+    if (!processedImages.length) return;
 
-    setIsLoading(true);
     let loadedCount = 0;
+    setIsLoading(true);
 
     processedImages.forEach((img) => {
       const imgEl = new Image();
       imgEl.src = getImageUrl(img);
-      imgEl.onload = () => {
+      imgEl.onload = imgEl.onerror = () => {
         loadedCount++;
-        if (loadedCount === processedImages.length) {
-          setIsLoading(false);
-        }
-      };
-      imgEl.onerror = () => {
-        loadedCount++;
-        if (loadedCount === processedImages.length) {
-          setIsLoading(false);
-        }
+        if (loadedCount === processedImages.length) setIsLoading(false);
       };
     });
   }, [processedImages]);
 
-  // Handle keyboard navigation in lightbox mode
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!lightboxOpen) return;
-
-      if (e.key === "Escape") {
-        setLightboxOpen(false);
-      } else if (e.key === "ArrowRight") {
-        nextImage();
-      } else if (e.key === "ArrowLeft") {
-        prevImage();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, currentImageIndex]);
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === processedImages.length - 1 ? 0 : prev + 1
-    );
+  // Handle zoom effect
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPosition({ x, y });
   };
 
-  const prevImage = () => {
-    setCurrentImageIndex((prev) =>
+  // Navigation
+  const goToPrevious = () => {
+    setSelectedImageIndex((prev) =>
       prev === 0 ? processedImages.length - 1 : prev - 1
     );
   };
 
-  // Handle image zoom
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!mainImageRef.current || !zoomImageRef.current || !isZoomed) return;
-
-    const { left, top, width, height } =
-      mainImageRef.current.getBoundingClientRect();
-
-    // Calculate cursor position as percentages
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-
-    // Update zoom position
-    setZoomPosition({ x, y });
+  const goToNext = () => {
+    setSelectedImageIndex((prev) =>
+      prev === processedImages.length - 1 ? 0 : prev + 1
+    );
   };
 
-  // If no images, show placeholder
-  if (processedImages.length === 0) {
+  if (!processedImages.length) {
     return (
-      <div className="aspect-square bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg overflow-hidden flex items-center justify-center">
-        <div className="text-amber-800 font-serif italic text-lg">
-          No image available
-        </div>
+      <div className="flex items-center justify-center h-[550px] bg-white border border-gray-200 rounded-2xl">
+        <p className="text-gray-600 font-semibold text-lg">
+          No images available
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="product-gallery">
-      {/* Main image display */}
-      <div
-        className="relative mb-6 overflow-hidden bg-gradient-to-br from-gray-50 to-white rounded-lg shadow-lg aspect-square"
-        ref={mainImageRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsZoomed(true)}
-        onMouseLeave={() => setIsZoomed(false)}
-      >
-        {/* Loading state */}
+    <div className="max-w-5xl mx-auto py-8 px-4">
+      {/* Main Image Container */}
+      <div className="relative bg-white border border-gray-200 rounded-2xl overflow-hidden mb-6 hover:scale-[1.01] transition-transform duration-200">
+        {/* Loading Overlay */}
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 backdrop-blur-sm z-10">
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 border-4 border-amber-300 border-t-amber-600 rounded-full animate-spin mb-4"></div>
-              <span className="text-amber-800 text-sm font-medium">
-                Loading gallery
-              </span>
-            </div>
+          <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-400 border-t-transparent"></div>
           </div>
         )}
 
-        {/* Main image */}
+        {/* Main Image */}
         <div
-          className="w-full h-full flex items-center justify-center p-4 cursor-zoom-in"
-          onClick={() => setLightboxOpen(true)}
+          className="relative w-full h-[550px]"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={() => setShowZoom(true)}
+          onMouseLeave={() => setShowZoom(false)}
         >
           <img
-            src={getImageUrl(processedImages[currentImageIndex])}
+            src={getImageUrl(processedImages[selectedImageIndex])}
             alt={getImageAlt(
-              processedImages[currentImageIndex],
-              currentImageIndex
+              processedImages[selectedImageIndex],
+              selectedImageIndex
             )}
-            className={`max-w-full max-h-full object-contain transition-all duration-500 ${
+            className={`w-full h-full object-contain p-6 transition-opacity duration-500 ${
               isLoading ? "opacity-0" : "opacity-100"
             }`}
           />
+
+          {/* Zoom Square */}
+          {showZoom && !isLoading && (
+            <div
+              className="absolute w-48 h-48 border-4 border-blue-400 rounded-xl pointer-events-none bg-white/70 shadow-lg"
+              style={{
+                top: `calc(${zoomPosition.y}% - 96px)`,
+                left: `calc(${zoomPosition.x}% - 96px)`,
+                backgroundImage: `url(${getImageUrl(
+                  processedImages[selectedImageIndex]
+                )})`,
+                backgroundSize: "300%",
+                backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+              }}
+            />
+          )}
         </div>
 
-        {/* Zoom overlay */}
-        {isZoomed && !isLoading && (
-          <div
-            ref={zoomImageRef}
-            className="absolute inset-0 pointer-events-none z-20 opacity-0 hover:opacity-100 transition-opacity duration-300"
-            style={{
-              backgroundImage: `url(${getImageUrl(
-                processedImages[currentImageIndex]
-              )})`,
-              backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
-              backgroundSize: "200%",
-              backgroundRepeat: "no-repeat",
-            }}
-          ></div>
-        )}
-
-        {/* Navigation controls */}
+        {/* Navigation Controls */}
         {processedImages.length > 1 && !isLoading && (
           <>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                prevImage();
-              }}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white bg-opacity-80 backdrop-blur-sm rounded-full flex items-center justify-center text-amber-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-amber-500 z-30"
+              onClick={goToPrevious}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white p-2.5 rounded-full hover:scale-110 transition-transform duration-200"
               aria-label="Previous image"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-6 h-6"
-              >
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
+              <ChevronLeft className="w-5 h-5 text-gray-700" />
             </button>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                nextImage();
-              }}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white bg-opacity-80 backdrop-blur-sm rounded-full flex items-center justify-center text-amber-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-amber-500 z-30"
+              onClick={goToNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2.5 rounded-full hover:scale-110 transition-transform duration-200"
               aria-label="Next image"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-6 h-6"
-              >
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              <ChevronRight className="w-5 h-5 text-gray-700" />
             </button>
           </>
         )}
 
-        {/* Image counter */}
-        {processedImages.length > 1 && !isLoading && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-80 backdrop-blur-sm px-4 py-2 rounded-full text-amber-800 text-xs font-medium shadow-md">
-            {currentImageIndex + 1} / {processedImages.length}
+        {/* Zoom Hint */}
+        {!isLoading && (
+          <div className="absolute bottom-4 right-4 bg-white rounded-lg px-3 py-1 flex items-center text-xs text-gray-600 border border-gray-200">
+            <ZoomIn className="w-3.5 h-3.5 mr-1" />
+            Hover to zoom
           </div>
         )}
-
-        {/* Zoom hint */}
-        <div className="absolute bottom-4 right-4 bg-white bg-opacity-80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-xs font-medium shadow-md flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          Hover to zoom
-        </div>
       </div>
 
-      {/* Thumbnail gallery - modern horizontal scrolling design */}
+      {/* Thumbnail Carousel */}
       {processedImages.length > 1 && !isLoading && (
-        <div className="relative">
-          <div className="overflow-x-auto pb-2 hide-scrollbar">
-            <div className="flex space-x-3">
-              {processedImages.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`relative flex-shrink-0 w-20 h-20 overflow-hidden rounded-md focus:outline-none transition-all duration-300 ${
-                    index === currentImageIndex
-                      ? "ring-2 ring-amber-600 scale-105 shadow-md"
-                      : "ring-1 ring-gray-200 hover:ring-amber-400 opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={getImageUrl(image)}
-                    alt={getImageAlt(image, index)}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Lightbox */}
-      {lightboxOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-          <button
-            onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 text-white hover:text-amber-300 transition-colors"
-            aria-label="Close lightbox"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        <div className="flex justify-center gap-2 overflow-x-auto py-2 scrollbar-hide">
+          {processedImages.map((image, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedImageIndex(index)}
+              className={`w-20 h-20 rounded-lg overflow-hidden transition-all duration-200 ${
+                index === selectedImageIndex
+                  ? "ring-2 ring-blue-400 scale-105 border border-blue-200"
+                  : "opacity-80 hover:opacity-100 hover:scale-105"
+              }`}
+              aria-label={`Select image ${index + 1}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
+              <img
+                src={getImageUrl(image)}
+                alt={getImageAlt(image, index)}
+                className="w-full h-full object-cover"
               />
-            </svg>
-          </button>
-
-          <div className="relative max-w-4xl max-h-[80vh] w-full">
-            <img
-              src={getImageUrl(processedImages[currentImageIndex])}
-              alt={getImageAlt(
-                processedImages[currentImageIndex],
-                currentImageIndex
-              )}
-              className="w-full h-full object-contain"
-            />
-          </div>
-
-          {processedImages.length > 1 && (
-            <>
-              <button
-                onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all"
-                aria-label="Previous image"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all"
-                aria-label="Next image"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </>
-          )}
+            </button>
+          ))}
         </div>
       )}
 
-      {/* Add custom styling for hiding scrollbars while maintaining functionality */}
+      {/* Hide Scrollbar Styling */}
       <style>{`
-        .hide-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;  /* Chrome, Safari, Opera */
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </div>

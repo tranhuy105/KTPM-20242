@@ -1,10 +1,33 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { Product } from "../../types";
 import ProductCard from "./ProductCard";
 import productApi from "../../api/productApi";
 import LoadingSpinner from "../common/LoadingSpinner";
+
+// Custom link component that scrolls to top on navigation
+const ProductLink = ({
+  to,
+  children,
+}: {
+  to: string;
+  children: React.ReactNode;
+}) => {
+  const navigate = useNavigate();
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(to);
+    window.scrollTo(0, 0);
+  };
+
+  return (
+    <a href={to} onClick={handleClick}>
+      {children}
+    </a>
+  );
+};
 
 interface RelatedProductsProps {
   productId: string;
@@ -64,26 +87,25 @@ const RelatedProducts = ({ productId, limit = 4 }: RelatedProductsProps) => {
           <h2 className="text-2xl font-serif font-medium text-gray-900">
             {t("products.relatedProducts")}
           </h2>
-          <Link
-            to="/products"
-            className="text-amber-800 hover:text-amber-900 font-medium transition-colors flex items-center group"
-          >
-            <span>{t("common.viewAll")}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 ml-1 transform group-hover:translate-x-1 transition-transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
-          </Link>
+          <ProductLink to="/products">
+            <span className="text-amber-800 hover:text-amber-900 font-medium transition-colors flex items-center group">
+              <span>{t("common.viewAll")}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 ml-1 transform group-hover:translate-x-1 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+            </span>
+          </ProductLink>
         </div>
       </div>
 
@@ -93,7 +115,9 @@ const RelatedProducts = ({ productId, limit = 4 }: RelatedProductsProps) => {
             key={product._id}
             className="transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
           >
-            <ProductCard key={product._id} product={product} />
+            <ProductLink to={`/products/${product.slug}`}>
+              <ProductCard key={product._id} product={product} />
+            </ProductLink>
           </div>
         ))}
       </div>

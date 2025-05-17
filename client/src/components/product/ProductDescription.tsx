@@ -232,7 +232,7 @@ const ProductDescription = ({ description }: ProductDescriptionProps) => {
       </div>
 
       {/* Decorative footer */}
-      <div className="mt-12 pt-6 border-t border-amber-100 text-right text-sm text-amber-800 italic font-serif">
+      <div className="mt-12 pt-6 border-t border-amber-100 text-right text-sm text-amber-800 italic">
         &mdash; {t("products.luxuryExperience")}
       </div>
 
