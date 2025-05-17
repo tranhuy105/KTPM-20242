@@ -6,13 +6,6 @@ interface ProductCardProps {
   product: Product;
 }
 
-interface ImageObject {
-  url: string;
-  alt?: string;
-  isDefault?: boolean;
-  _id?: string;
-}
-
 const ProductCard = ({ product }: ProductCardProps) => {
   const { t } = useTranslation();
 
@@ -33,23 +26,15 @@ const ProductCard = ({ product }: ProductCardProps) => {
     }).format(price);
   };
 
-  // Get the image URL, handling both old and new API response format
+  // Get the image URL from the product images
   const getImageUrl = () => {
-    if (Array.isArray(product.images)) {
-      // Find default image or use first image
-      if (typeof product.images[0] === "string") {
-        return product.images[0];
-      } else if (product.images[0] && typeof product.images[0] === "object") {
-        // Find default image if exists
-        const defaultImage = (product.images as unknown as ImageObject[]).find(
-          (img) => img.isDefault
-        );
-        if (defaultImage) return defaultImage.url;
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      // Find default image if exists
+      const defaultImage = product.images.find((img) => img.isDefault);
+      if (defaultImage) return defaultImage.url;
 
-        // Otherwise use first image
-        const image = product.images[0] as unknown as ImageObject;
-        return image.url;
-      }
+      // Otherwise use first image
+      return product.images[0].url;
     }
     return "https://placehold.co/300x400/png?text=No+Image";
   };

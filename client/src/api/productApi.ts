@@ -1,9 +1,10 @@
 import axiosInstance from "./axiosInstance";
 import type {
   Product,
-  PaginatedResponse,
   ProductFilters,
   ApiResponse,
+  ProductListResponse,
+  AvailableProductFilters,
 } from "../types";
 
 const productApi = {
@@ -14,10 +15,20 @@ const productApi = {
    */
   getAllProducts: async (
     filters?: ProductFilters
-  ): Promise<PaginatedResponse<Product>> => {
-    const response = await axiosInstance.get<PaginatedResponse<Product>>(
-      "/products",
-      { params: filters }
+  ): Promise<ProductListResponse> => {
+    const response = await axiosInstance.get<ProductListResponse>("/products", {
+      params: filters,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get all product filters
+   * @returns All product filters
+   */
+  getAllProductFilters: async (): Promise<AvailableProductFilters> => {
+    const response = await axiosInstance.get<AvailableProductFilters>(
+      "/products/filters"
     );
     return response.data;
   },

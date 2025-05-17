@@ -98,9 +98,9 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
 
       {/* Brand and Category Badge */}
       <div className="flex items-center space-x-2 mb-4">
-        {product.brand && (
+        {product.brandName && (
           <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">
-            {product.brand}
+            {product.brandName}
           </span>
         )}
         {typeof product.category === "object" && (
@@ -291,12 +291,12 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
           {t("products.details")}
         </h3>
         <div className="grid grid-cols-1 gap-3 text-sm">
-          {product.brand && (
+          {product.brandName && (
             <div className="flex py-2 border-b border-gray-100">
               <span className="text-gray-600 w-32 font-medium">
                 {t("products.brand")}
               </span>
-              <span className="text-gray-800">{product.brand}</span>
+              <span className="text-gray-800">{product.brandName}</span>
             </div>
           )}
           {selectedVariant && selectedVariant.sku && (
@@ -313,6 +313,18 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
                 {t("categories.all")}
               </span>
               <span className="text-gray-800">{product.category.name}</span>
+            </div>
+          )}
+
+          {/* Release date if available */}
+          {product.releaseDate && (
+            <div className="flex py-2 border-b border-gray-100">
+              <span className="text-gray-600 w-32 font-medium">
+                {t("products.releaseDate")}
+              </span>
+              <span className="text-gray-800">
+                {new Date(product.releaseDate).toLocaleDateString()}
+              </span>
             </div>
           )}
         </div>

@@ -124,6 +124,14 @@
     "loading": "Đang tải..."
   },
   "products": {
+    "addedToCart": "Đã thêm vào giỏ hàng",
+    "releaseDate": "Ngày ra mắt",
+    "products": "Sản phẩm",
+    "origin": "Xuất xứ",
+    "color": "Màu sắc",
+    "size": "Kích cỡ",
+    "material": "Chất liệu",
+    "warranty": "Bảo hành",
     "title": "Sản phẩm",
     "features": "Đặc điểm",
     "quantity": "Số lượng",
@@ -159,6 +167,13 @@
     "uncategorized": "Chưa phân loại",
     "relatedProducts": "Sản phẩm liên quan",
     "luxuryExperience": "Trải nghiệm đẳng cấp xa xỉ",
+    "verifiedPurchase": "Đã xác nhận mua hàng",
+    "userReview": {
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "fullName": "Họ và tên",
+      "username": "Tên người dùng"
+    },
     "reviews": {
       "title": "Đánh giá",
       "noReviews": "Sản phẩm này chưa có đánh giá nào.",
@@ -174,7 +189,13 @@
       "submitting": "Đang gửi...",
       "thankYou": "Cảm ơn bạn đã đánh giá!",
       "error": "Có lỗi xảy ra khi gửi đánh giá.",
-      "commentRequired": "Vui lòng nhập bình luận"
+      "commentRequired": "Vui lòng nhập bình luận",
+      "titleRequired": "Vui lòng nhập tiêu đề",
+      "titlePlaceholder": "Đặt tiêu đề cho đánh giá của bạn",
+      "ratingDistribution": "Phân bố xếp hạng",
+      "verifiedPurchase": "Đã xác nhận mua hàng",
+      "helpful": "Hữu ích",
+      "reply": "Trả lời"
     },
     "errors": {
       "notFound": "Không tìm thấy sản phẩm",

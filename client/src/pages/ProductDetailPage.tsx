@@ -87,6 +87,14 @@ const ProductDetailPage = () => {
   useEffect(() => {
     if (product) {
       document.title = product.seo?.title || product.name;
+
+      // Also update meta description if exists
+      const metaDescription = document.querySelector(
+        'meta[name="description"]'
+      );
+      if (metaDescription && product.seo?.description) {
+        metaDescription.setAttribute("content", product.seo.description);
+      }
     }
   }, [product]);
 
@@ -192,6 +200,41 @@ const ProductDetailPage = () => {
                 ? product.category.name
                 : product.categoryName || t("products.uncategorized")}
             </p>
+
+            {/* Display product tags in hero section */}
+            {product.tags && product.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {product.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Display price in hero section */}
+            <div className="flex items-center">
+              <span className="text-white text-2xl font-medium mr-2">
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                  maximumFractionDigits: 0,
+                }).format(product.price)}
+              </span>
+              {product.compareAtPrice &&
+                product.compareAtPrice > product.price && (
+                  <span className="text-amber-300 line-through text-lg">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                      maximumFractionDigits: 0,
+                    }).format(product.compareAtPrice)}
+                  </span>
+                )}
+            </div>
           </div>
         </div>
       </div>
@@ -242,13 +285,24 @@ const ProductDetailPage = () => {
               items={[
                 { label: t("common.home"), path: "/" },
                 {
+                  label: t("products.products"),
+                  path: "/products",
+                },
+                ...(typeof product.category === "object" &&
+                product.category.ancestors
+                  ? product.category.ancestors.map((ancestor) => ({
+                      label: ancestor.name,
+                      path: `/products?category=${ancestor._id}`,
+                    }))
+                  : []),
+                {
                   label:
                     typeof product.category === "object"
                       ? product.category.name
                       : product.categoryName || t("products.uncategorized"),
                   path: `/products?category=${
                     typeof product.category === "object"
-                      ? product.category.slug
+                      ? product.category._id
                       : ""
                   }`,
                 },
@@ -294,7 +348,10 @@ const ProductDetailPage = () => {
           {/* Product Description Section */}
           <section id="description" className="mb-24 scroll-mt-24">
             <div className="bg-white rounded-lg shadow-xl p-8">
-              <ProductDescription description={product.description} />
+              <ProductDescription
+                description={product.description || ""}
+                attributes={product.attributes}
+              />
             </div>
           </section>
 

@@ -3,9 +3,13 @@ import { useTranslation } from "react-i18next";
 
 interface ProductDescriptionProps {
   description: string;
+  attributes?: Record<string, string | undefined>;
 }
 
-const ProductDescription = ({ description }: ProductDescriptionProps) => {
+const ProductDescription = ({
+  description,
+  attributes = {},
+}: ProductDescriptionProps) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
@@ -19,18 +23,15 @@ const ProductDescription = ({ description }: ProductDescriptionProps) => {
   // Determine if there's more content to show
   const hasMoreContent = paragraphs.length > 2;
 
-  // Mock data for other tabs
-  const specifications = [
-    { name: "Material", value: "Premium leather" },
-    { name: "Dimensions", value: '12" x 8" x 4"' },
-    { name: "Weight", value: "1.2 kg" },
-    { name: "Country of Origin", value: "Italy" },
-    {
-      name: "Care Instructions",
-      value: "Wipe with damp cloth, avoid direct sunlight",
-    },
-  ];
+  // Convert attributes to specifications format for display
+  const specifications = Object.entries(attributes)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => ({
+      name: t(`products.${key}`, key.charAt(0).toUpperCase() + key.slice(1)),
+      value: value || "",
+    }));
 
+  // Mock data for shipping info (add real data later if available)
   const shippingInfo = [
     "Free shipping on all orders over $100",
     "Express shipping available (2-3 business days)",

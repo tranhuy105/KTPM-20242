@@ -124,6 +124,14 @@
     "loading": "Loading..."
   },
   "products": {
+    "addedToCart": "Added to cart",
+    "releaseDate": "Release Date",
+    "origin": "Origin",
+    "color": "Color",
+    "products": "Products",
+    "size": "Size",
+    "material": "Material",
+    "warranty": "Warranty",
     "title": "Products",
     "features": "Features",
     "searchPlaceholder": "Search products",
@@ -157,6 +165,13 @@
     "uncategorized": "Uncategorized",
     "relatedProducts": "Related Products",
     "luxuryExperience": "The luxury experience",
+    "verifiedPurchase": "Verified Purchase",
+    "userReview": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "fullName": "Full Name",
+      "username": "Username"
+    },
     "reviews": {
       "beFirst": "Be the first to review this product.",
       "commentPlaceholder": "Share your experience with this product...",
@@ -172,7 +187,13 @@
       "submitting": "Submitting...",
       "thankYou": "Thank you for your review!",
       "error": "An error occurred while submitting the review.",
-      "commentRequired": "Please enter a comment"
+      "commentRequired": "Please enter a comment",
+      "titleRequired": "Please enter a title",
+      "titlePlaceholder": "Give your review a title",
+      "ratingDistribution": "Rating Distribution",
+      "verifiedPurchase": "Verified Purchase",
+      "helpful": "Helpful",
+      "reply": "Reply"
     },
     "errors": {
       "notFound": "Product not found",
