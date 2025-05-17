@@ -3,6 +3,17 @@ const router = express.Router();
 const productController = require("../controllers/productController");
 const productValidator = require("../validators/productValidator");
 const { authMiddleware } = require("../middleware/authMiddleware");
+const { cacheMiddleware } = require("../middleware/cacheMiddleware");
+/**
+ * @route   GET /api/products/filters
+ * @desc    Get available filters for products
+ * @access  Public
+ */
+router.get(
+  "/filters",
+  cacheMiddleware(1800), // Cache for 30 minutes
+  productController.getAvailableFilters
+);
 
 /**
  * @route   GET /api/products

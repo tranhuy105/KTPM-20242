@@ -29,9 +29,14 @@ class ProductService {
     // Build filter query
     const filter = {};
     if (options.filters) {
-      // Category filter
-      if (options.filters.category) {
+      // Category filter - only apply if not empty string
+      if (options.filters.category && options.filters.category.trim() !== "") {
         filter.category = options.filters.category;
+      }
+
+      // Brand filter - only apply if not empty string
+      if (options.filters.brand && options.filters.brand.trim() !== "") {
+        filter.brand = options.filters.brand;
       }
 
       // Status filter
@@ -63,9 +68,108 @@ class ProductService {
         }
       }
 
-      // Text search
-      if (options.filters.search) {
-        filter.$text = { $search: options.filters.search };
+      // Rating filter
+      if (options.filters.minRating !== undefined) {
+        filter.averageRating = { $gte: parseFloat(options.filters.minRating) };
+      }
+
+      // Initialize $and array for multiple filter conditions that should be combined with AND
+      filter.$and = filter.$and || [];
+
+      // Color filter - check both main product and variants
+      if (options.filters.color && options.filters.color.trim() !== "") {
+        const colorValue = options.filters.color.trim();
+        filter.$and.push({
+          $or: [
+            { color: colorValue },
+            { "variants.attributes.color": colorValue },
+          ],
+        });
+      }
+
+      // Size filter - check both main product and variants
+      if (options.filters.size && options.filters.size.trim() !== "") {
+        const sizeValue = options.filters.size.trim();
+        filter.$and.push({
+          $or: [{ size: sizeValue }, { "variants.attributes.size": sizeValue }],
+        });
+      }
+
+      // Material filter - check both main product and variants
+      if (options.filters.material && options.filters.material.trim() !== "") {
+        const materialValue = options.filters.material.trim();
+        filter.$and.push({
+          $or: [
+            { material: materialValue },
+            { "variants.attributes.material": materialValue },
+          ],
+        });
+      }
+
+      // Attributes filter (dynamic attributes)
+      if (
+        options.filters.attributes &&
+        typeof options.filters.attributes === "object"
+      ) {
+        for (const [key, value] of Object.entries(options.filters.attributes)) {
+          if (value && value.trim() !== "") {
+            // Check both main product attributes and variant attributes
+            filter.$and.push({
+              $or: [
+                { [`attributes.${key}`]: value },
+                { [`variants.attributes.${key}`]: value },
+              ],
+            });
+          }
+        }
+      }
+
+      // Text search - only apply if not empty string
+      if (options.filters.search && options.filters.search.trim() !== "") {
+        try {
+          // Check if text index exists
+          const indexes = await Product.collection.getIndexes();
+          const hasTextIndex = Object.values(indexes).some((index) =>
+            index.hasOwnProperty("textIndexVersion")
+          );
+
+          if (hasTextIndex) {
+            // Use text index if available
+            filter.$text = { $search: options.filters.search };
+          } else {
+            // Fallback to regex search if no text index
+            filter.$and.push({
+              $or: [
+                { name: { $regex: options.filters.search, $options: "i" } },
+                {
+                  description: {
+                    $regex: options.filters.search,
+                    $options: "i",
+                  },
+                },
+                {
+                  brandName: { $regex: options.filters.search, $options: "i" },
+                },
+              ],
+            });
+          }
+        } catch (error) {
+          // Fallback to regex search if error checking indexes
+          filter.$and.push({
+            $or: [
+              { name: { $regex: options.filters.search, $options: "i" } },
+              {
+                description: { $regex: options.filters.search, $options: "i" },
+              },
+              { brandName: { $regex: options.filters.search, $options: "i" } },
+            ],
+          });
+        }
+      }
+
+      // Remove empty $and array if no conditions were added
+      if (filter.$and.length === 0) {
+        delete filter.$and;
       }
     }
 
@@ -94,27 +198,12 @@ class ProductService {
       filter.$and.push(cursorQuery);
     }
 
-    // Get product list fields helper
-    const getProductListFields = () => ({
-      _id: 1,
-      name: 1,
-      slug: 1,
-      price: 1,
-      compareAtPrice: 1,
-      images: 1,
-      inventoryQuantity: 1,
-      hasVariants: 1,
-      // variants: 1,
-      status: 1,
-      category: 1,
-      createdAt: 1,
-    });
-
     // Execute query with pagination
     try {
       // For cursor-based pagination, we don't use skip
       // Instead we filter by the cursor value
-      const query = Product.find(filter, getProductListFields())
+      const query = Product.find(filter)
+        .select(this.getProductListFields())
         .sort(sort)
         .limit(limit);
 
@@ -123,10 +212,16 @@ class ProductService {
         query.skip(skip);
       }
 
-      const products = await query.populate({
-        path: "category",
-        select: "name slug",
-      });
+      const products = await query.populate([
+        {
+          path: "category",
+          select: "name slug",
+        },
+        {
+          path: "brand",
+          select: "name slug logo",
+        },
+      ]);
 
       const totalCount = await Product.countDocuments(filter);
 
@@ -159,6 +254,18 @@ class ProductService {
       };
     } catch (error) {
       throw new Error(`Error fetching products: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get available filters for products
+   * @returns {Object} Available filters
+   */
+  async getAvailableFilters() {
+    try {
+      return await Product.getAvailableFilters();
+    } catch (error) {
+      throw new Error(`Error getting available filters: ${error.message}`);
     }
   }
 
@@ -510,6 +617,11 @@ class ProductService {
       hasVariants: 1,
       status: 1,
       category: 1,
+      brand: 1,
+      brandName: 1,
+      color: 1,
+      size: 1,
+      material: 1,
       createdAt: 1,
       averageRating: 1,
       reviewCount: 1,

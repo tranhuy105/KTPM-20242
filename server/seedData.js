@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { Product, User, Order, Category } = require("./models");
+const { Product, User, Order, Category, Brand } = require("./models");
 const bcrypt = require("bcryptjs");
 const { faker } = require("@faker-js/faker");
 const slugify = require("slugify");
@@ -46,6 +46,24 @@ const LUXURY_BRANDS = [
   "Yen Collection",
   "Sài Gòn Haute",
   "Minh Long Royal",
+];
+
+// Brand logos (placeholder URLs)
+const BRAND_LOGOS = [
+  "https://example.com/logos/logo1.png",
+  "https://example.com/logos/logo2.png",
+  "https://example.com/logos/logo3.png",
+  "https://example.com/logos/logo4.png",
+  "https://example.com/logos/logo5.png",
+];
+
+// Brand websites
+const BRAND_WEBSITES = [
+  "https://www.brand-official.com",
+  "https://www.luxury-brand.com",
+  "https://www.premium-collection.com",
+  "https://www.heritage-luxury.com",
+  "https://www.elite-fashion.com",
 ];
 
 // Luxury product categories
@@ -147,6 +165,63 @@ const LUXURY_TAGS = [
   "Da Thật",
   "Tinh Xảo",
   "Kim Cương",
+];
+
+// Product colors
+const PRODUCT_COLORS = [
+  "Đen",
+  "Trắng",
+  "Vàng",
+  "Bạc",
+  "Đỏ",
+  "Xanh Navy",
+  "Xanh Lá",
+  "Nâu",
+  "Hồng",
+  "Tím",
+  "Xám",
+  "Be",
+  "Cam",
+  "Burgundy",
+];
+
+// Product sizes
+const PRODUCT_SIZES = [
+  "XS",
+  "S",
+  "M",
+  "L",
+  "XL",
+  "XXL",
+  "36",
+  "37",
+  "38",
+  "39",
+  "40",
+  "41",
+  "42",
+  "43",
+  "44",
+  "One Size",
+];
+
+// Product materials
+const PRODUCT_MATERIALS = [
+  "Da",
+  "Da Bò",
+  "Da Cá Sấu",
+  "Vải Lụa",
+  "Vải Cashmere",
+  "Vải Cotton",
+  "Vải Linen",
+  "Kim Loại",
+  "Vàng",
+  "Bạc",
+  "Bạch Kim",
+  "Gỗ",
+  "Thủy Tinh",
+  "Sứ",
+  "Đá Cẩm Thạch",
 ];
 
 // Helper function to create slugs
@@ -251,42 +326,10 @@ function generateLuxuryProductName(category) {
         "Signature",
         "Heritage",
         "Prestige",
-        "Imperial",
         "Sovereign",
-        "Dynasty",
-        "Noble",
-      ],
-      1
-    )[0];
-
-    suffix = getRandomItems(
-      [
-        "Collection",
-        "Monogram",
-        "Edition",
-        "Calfskin",
-        "Crocodile",
-        "Handcrafted",
-        "Exotic",
-        "Leather",
-        "Limited",
-        "Series",
-      ],
-      1
-    )[0];
-  } else if (category.includes("Thời Trang")) {
-    prefix = getRandomItems(
-      [
-        "Couture",
-        "Elite",
-        "Bespoke",
-        "Signature",
-        "Atelier",
-        "Runway",
-        "Exclusive",
+        "Timeless",
         "Luxe",
-        "Prestige",
-        "Heritage",
+        "Opulent",
       ],
       1
     )[0];
@@ -295,62 +338,30 @@ function generateLuxuryProductName(category) {
       [
         "Collection",
         "Edition",
-        "Line",
         "Series",
-        "Capsule",
-        "Silk",
-        "Cashmere",
-        "Handcrafted",
-        "Limited",
-        "Seasonal",
-      ],
-      1
-    )[0];
-  } else if (category.includes("Nước Hoa")) {
-    prefix = getRandomItems(
-      [
-        "Essence",
-        "Parfum",
-        "Elixir",
-        "Aroma",
-        "L'eau",
-        "Mystique",
-        "Enchant",
-        "Divine",
-        "Secret",
-        "Royal",
-      ],
-      1
-    )[0];
-
-    suffix = getRandomItems(
-      [
-        "de Parfum",
-        "Intense",
-        "Collection Privée",
-        "Exclusive",
-        "Limited Edition",
-        "Noir",
-        "Blanc",
-        "Orient",
-        "Absolue",
-        "Oud",
+        "Line",
+        "Leather",
+        "Crocodile",
+        "Calfskin",
+        "Monogram",
+        "Embossed",
+        "Quilted",
       ],
       1
     )[0];
   } else {
     prefix = getRandomItems(
       [
-        "Luxe",
-        "Elite",
+        "Luxury",
         "Premium",
-        "Royal",
-        "Imperial",
-        "Exclusive",
-        "Heritage",
-        "Prestige",
+        "Elite",
         "Signature",
-        "Distinguished",
+        "Exclusive",
+        "Prestige",
+        "Heritage",
+        "Bespoke",
+        "Imperial",
+        "Royal",
       ],
       1
     )[0];
@@ -358,135 +369,110 @@ function generateLuxuryProductName(category) {
     suffix = getRandomItems(
       [
         "Collection",
-        "Limited",
         "Edition",
         "Series",
         "Selection",
-        "Reserve",
+        "Line",
+        "Masterpiece",
         "Signature",
-        "Luxury",
-        "Exclusive",
-        "Elite",
+        "Limited",
+        "Reserve",
+        "Artisan",
       ],
       1
     )[0];
   }
 
-  // Create the product name
-  const model =
-    faker.string.alpha(2).toUpperCase() +
-    "-" +
-    faker.number.int({ min: 100, max: 999 });
-
-  return `${prefix} ${model} ${suffix}`;
+  return `${prefix} ${suffix}`;
 }
 
 // Seed users
 async function seedUsers() {
-  console.log("Seeding users...");
-  const users = [];
+  try {
+    // Clear existing users
+    await User.deleteMany({});
 
-  // Create admin user
-  const adminUser = new User({
-    username: "admin",
-    email: "admin@luxurystore.vn",
-    password: await bcrypt.hash("admin123", 10),
-    firstName: "Admin",
-    lastName: "User",
-    role: "admin",
-    isAdmin: true,
-    isActive: true,
-    isVerified: true,
-  });
-
-  users.push(adminUser);
-
-  // Create regular users
-  for (let i = 0; i < NUM_USERS; i++) {
-    const firstName = faker.person.firstName();
-    const lastName = faker.person.lastName();
-    const user = new User({
-      username: faker.internet
-        .userName({ firstName, lastName })
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, ""),
-      email: faker.internet.email({ firstName, lastName }),
-      password: await bcrypt.hash("password123", 10),
-      firstName,
-      lastName,
-      phone: faker.phone.number(),
+    // Create admin user
+    const adminUser = new User({
+      firstName: "Admin",
+      lastName: "User",
+      username: "admin",
+      email: "admin@example.com",
+      password: await bcrypt.hash("admin123", 10),
+      role: "admin",
       isActive: true,
-      isVerified: Math.random() > 0.2, // 80% are verified
-      role: "customer",
+      avatar: DEFAULT_IMAGE,
     });
+    await adminUser.save();
+    console.log("Admin user created");
 
-    // Add luxury address for most users - use upscale districts in Vietnam
-    if (Math.random() > 0.2) {
-      const upscaleDistricts = [
-        "Quận 1, TP.HCM",
-        "Quận 2, TP.HCM",
-        "Quận 3, TP.HCM",
-        "Thảo Điền, TP.HCM",
-        "Phú Mỹ Hưng, TP.HCM",
-        "Quận Ba Đình, Hà Nội",
-        "Quận Hoàn Kiếm, Hà Nội",
-        "Quận Tây Hồ, Hà Nội",
-        "Quận Cầu Giấy, Hà Nội",
-        "Đảo Phú Quốc, Kiên Giang",
-        "Bãi Dài, Nha Trang",
-        "Bán đảo Sơn Trà, Đà Nẵng",
-      ];
+    // Create regular users
+    const userData = [];
+    for (let i = 0; i < NUM_USERS; i++) {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
 
-      const district =
-        upscaleDistricts[Math.floor(Math.random() * upscaleDistricts.length)];
-
-      user.addresses.push({
-        fullName: `${firstName} ${lastName}`,
-        addressLine1: faker.location.streetAddress(),
-        city: district.split(",")[1]?.trim() || "TP.HCM",
-        state: district.split(",")[0]?.trim() || "Quận 1",
-        postalCode: faker.location.zipCode(),
-        country: "Việt Nam",
+      userData.push({
+        firstName,
+        lastName,
+        username: faker.internet.username({ firstName, lastName }),
+        email: faker.internet.email({ firstName, lastName }),
+        password: await bcrypt.hash("password123", 10),
+        role: "customer",
+        isActive: Math.random() > 0.1, // 90% active
+        avatar: faker.image.avatar(),
+        address: {
+          street: faker.location.streetAddress(),
+          city: faker.location.city(),
+          state: faker.location.state(),
+          zipCode: faker.location.zipCode(),
+          country: "Vietnam",
+        },
         phone: faker.phone.number(),
-        isDefault: true,
       });
     }
 
-    users.push(user);
-  }
+    // Use create instead of insertMany to ensure we get the documents with _id back
+    const users = await User.create(userData);
+    console.log(`${users.length} regular users created`);
 
-  await User.insertMany(users);
-  console.log(`Seeded ${users.length} users`);
-  return users;
+    // Return all users including admin
+    return [...users, adminUser];
+  } catch (error) {
+    console.error("Error seeding users:", error);
+    throw error;
+  }
 }
 
 // Seed categories
 async function seedCategories() {
-  console.log("Seeding categories...");
-  const categories = [];
-  const categoryMap = new Map();
+  try {
+    // Clear existing categories
+    await Category.deleteMany({});
 
-  // Create parent categories
-  for (const category of LUXURY_CATEGORIES) {
-    const parentCategory = new Category({
-      name: category.name,
-      slug: createSlug(category.name),
-      description: `Bộ sưu tập ${category.name.toLowerCase()} cao cấp và sang trọng, được thiết kế tinh xảo và chọn lọc kỹ lưỡng.`,
-      isActive: true,
-      displayOrder: categories.length + 1,
-    });
+    const categories = [];
+    const categoryMap = new Map();
 
-    await parentCategory.save();
-    categories.push(parentCategory);
-    categoryMap.set(category.name, parentCategory);
+    // Create parent categories
+    for (const categoryData of LUXURY_CATEGORIES) {
+      const parentCategory = new Category({
+        name: categoryData.name,
+        slug: createSlug(categoryData.name),
+        description: `Bộ sưu tập ${categoryData.name.toLowerCase()} cao cấp và sang trọng.`,
+        isActive: true,
+        displayOrder: categories.length,
+      });
 
-    // Create child categories
-    if (category.children && category.children.length) {
-      for (const childName of category.children) {
+      await parentCategory.save();
+      categories.push(parentCategory);
+      categoryMap.set(categoryData.name, parentCategory);
+
+      // Create child categories
+      for (const childName of categoryData.children) {
         const childCategory = new Category({
           name: childName,
           slug: createSlug(childName),
-          description: `Bộ sưu tập ${childName.toLowerCase()} cao cấp và sang trọng, được thiết kế tinh xảo và chọn lọc kỹ lưỡng.`,
+          description: `Bộ sưu tập ${childName.toLowerCase()} cao cấp và sang trọng.`,
           parent: parentCategory._id,
           ancestors: [
             {
@@ -496,7 +482,7 @@ async function seedCategories() {
             },
           ],
           isActive: true,
-          displayOrder: 1,
+          displayOrder: 0,
         });
 
         await childCategory.save();
@@ -504,373 +490,267 @@ async function seedCategories() {
         categoryMap.set(childName, childCategory);
       }
     }
-  }
 
-  console.log(`Seeded ${categories.length} categories`);
-  return { categories, categoryMap };
+    console.log(`${categories.length} categories created`);
+    return { categories, categoryMap };
+  } catch (error) {
+    console.error("Error seeding categories:", error);
+    throw error;
+  }
+}
+
+// Seed brands
+async function seedBrands() {
+  try {
+    // Clear existing brands
+    await Brand.deleteMany({});
+
+    const brands = [];
+
+    // Create brands
+    for (const brandName of LUXURY_BRANDS) {
+      const brandSlug = createSlug(brandName);
+
+      const brand = new Brand({
+        name: brandName,
+        slug: brandSlug,
+        description: `${brandName} - thương hiệu xa xỉ hàng đầu với những sản phẩm đẳng cấp và tinh tế.`,
+        logo: getRandomItems(BRAND_LOGOS, 1)[0],
+        website: getRandomItems(BRAND_WEBSITES, 1)[0],
+        isActive: true,
+        seo: {
+          title: `${brandName} - Thương Hiệu Xa Xỉ Hàng Đầu`,
+          description: `Khám phá bộ sưu tập ${brandName} độc quyền với thiết kế sang trọng và chất lượng vượt trội.`,
+          keywords: getRandomItems(LUXURY_TAGS, 5),
+        },
+      });
+
+      await brand.save();
+      brands.push(brand);
+    }
+
+    console.log(`${brands.length} brands created`);
+    return brands;
+  } catch (error) {
+    console.error("Error seeding brands:", error);
+    throw error;
+  }
 }
 
 // Seed products
-async function seedProducts(categories, categoryMap) {
-  console.log("Seeding products...");
-  const products = [];
-  const leafCategories = categories.filter(
-    (c) =>
-      !c.parent ||
-      categories.some(
-        (child) => child.parent && child.parent.toString() === c._id.toString()
-      )
-  );
+async function seedProducts(categories, categoryMap, brands, users) {
+  try {
+    // Clear existing products
+    await Product.deleteMany({});
 
-  for (let i = 0; i < NUM_PRODUCTS; i++) {
-    // Get a random category
-    const category =
-      leafCategories[Math.floor(Math.random() * leafCategories.length)];
+    const products = [];
+    const brandMap = new Map(brands.map((brand) => [brand.name, brand]));
 
-    // Generate luxury product name
-    const productName = generateLuxuryProductName(category.name);
-
-    // Generate price based on category (luxury items have higher prices)
-    let minPrice = 3000000; // 3 million VND minimum
-    let maxPrice = 50000000; // 50 million VND default max
-
-    // Adjust price ranges based on category
-    if (category.name.includes("Đồng Hồ")) {
-      minPrice = 30000000; // 30 million VND
-      maxPrice = 500000000; // 500 million VND
-    } else if (category.name.includes("Trang Sức")) {
-      minPrice = 20000000; // 20 million VND
-      maxPrice = 800000000; // 800 million VND
-    } else if (category.name.includes("Túi") || category.name.includes("Ví")) {
-      minPrice = 15000000; // 15 million VND
-      maxPrice = 200000000; // 200 million VND
-    } else if (category.name.includes("Nước Hoa")) {
-      minPrice = 5000000; // 5 million VND
-      maxPrice = 30000000; // 30 million VND
+    // Check if users are valid MongoDB documents with _id
+    if (!users || users.length === 0 || !users[0]._id) {
+      console.error(
+        "No valid users with _id provided. Users may not have been saved to the database properly."
+      );
+      // Create a dummy user ID for testing
+      const dummyUserId = new mongoose.Types.ObjectId();
+      users = [{ _id: dummyUserId }];
     }
 
-    // Generate luxury price
-    const price = generateLuxuryPrice(minPrice, maxPrice);
+    for (let i = 0; i < NUM_PRODUCTS; i++) {
+      // Select a random category (prefer child categories)
+      const childCategories = categories.filter((c) => c.parent);
+      const category =
+        Math.random() > 0.1
+          ? childCategories[Math.floor(Math.random() * childCategories.length)]
+          : categories[Math.floor(Math.random() * categories.length)];
 
-    // Some products have exclusive discount
-    const hasDiscount = Math.random() > 0.8; // Fewer discounts for luxury items
-    const compareAtPrice = hasDiscount
-      ? Math.floor(price * (1 + Math.random() * 0.3))
-      : null;
+      // Select a random brand
+      const brand = brands[Math.floor(Math.random() * brands.length)];
 
-    // Generate random luxury tags
-    const tags = getRandomItems(LUXURY_TAGS, Math.floor(Math.random() * 3) + 1);
+      // Generate product name
+      const productName = `${brand.name} ${generateLuxuryProductName(
+        category.name
+      )}`;
+      const slug = createSlug(productName + "-" + faker.string.alphanumeric(5));
 
-    // Generate random luxury brand
-    const brand =
-      LUXURY_BRANDS[Math.floor(Math.random() * LUXURY_BRANDS.length)];
+      // Generate price (luxury items have higher prices)
+      const price = generateLuxuryPrice(1000000, 500000000); // 1M to 500M VND
+      const hasDiscount = Math.random() > 0.7;
+      const compareAtPrice = hasDiscount
+        ? price + generateLuxuryPrice(10000000, 50000000)
+        : null;
 
-    const hasVariants = Math.random() > 0.5;
-    const inventoryQuantity = Math.floor(Math.random() * 20) + 1; // Limited inventory for luxury products
+      // Random inventory
+      const inventoryQuantity = Math.floor(Math.random() * 100);
 
-    // Create luxury product descriptions
-    const luxuryDescriptions = [
-      `${productName} là biểu tượng của sự sang trọng và đẳng cấp. Sản phẩm được chế tác thủ công bởi những nghệ nhân hàng đầu, sử dụng vật liệu cao cấp nhất và công nghệ tiên tiến.`,
-      `Thiết kế tinh tế và đẳng cấp, ${productName} mang đến sự sang trọng vượt thời gian. Mỗi chi tiết đều được chăm chút tỉ mỉ, phản ánh bản sắc thương hiệu ${brand}.`,
-      `${productName} là tuyệt tác của sự hoàn hảo, kết hợp giữa nghệ thuật chế tác truyền thống và công nghệ hiện đại. Sản phẩm thuộc bộ sưu tập giới hạn, đại diện cho đẳng cấp và phong cách.`,
-      `Với thiết kế độc đáo và vật liệu cao cấp, ${productName} là lựa chọn hoàn hảo cho những khách hàng tinh tế. Mỗi sản phẩm đều kèm theo giấy chứng nhận xuất xứ và bảo hành toàn cầu.`,
-      `${productName} - kiệt tác của thương hiệu ${brand}, là sự kết hợp hoàn hảo giữa truyền thống và hiện đại. Sản phẩm được thiết kế dành riêng cho những người đam mê sự sang trọng và đẳng cấp.`,
-    ];
+      // Generate images
+      const numImages = Math.floor(Math.random() * 5) + 1;
+      const images = [];
+      for (let j = 0; j < numImages; j++) {
+        images.push({
+          url: j === 0 ? DEFAULT_IMAGE : SECONDARY_IMAGE,
+          alt: `${productName} - Hình ${j + 1}`,
+          isDefault: j === 0,
+        });
+      }
 
-    const description =
-      luxuryDescriptions[Math.floor(Math.random() * luxuryDescriptions.length)];
-    const shortDescription = `${productName} - Sản phẩm cao cấp từ thương hiệu ${brand}, biểu tượng cho sự sang trọng và đẳng cấp.`;
+      // Generate variants (30% of products have variants)
+      const hasVariants = Math.random() > 0.7;
+      const variants = [];
 
-    // Create product
-    const product = new Product({
-      name: productName,
-      slug: createSlug(productName),
-      description,
-      shortDescription,
-      brand,
-      price,
-      compareAtPrice,
-      category: category._id,
-      tags,
-      status: Math.random() > 0.1 ? "active" : "draft",
-      isPublished: Math.random() > 0.1,
-      isFeatured: Math.random() > 0.7, // More featured products for luxury store
-      hasVariants,
-      inventoryQuantity: hasVariants ? 0 : inventoryQuantity,
-      inventoryTracking: true,
-      images: [
-        { url: DEFAULT_IMAGE, alt: productName, isDefault: true },
-        {
-          url: SECONDARY_IMAGE,
-          alt: `${productName} - Hình ảnh bổ sung`,
-          isDefault: false,
+      if (hasVariants) {
+        const numVariants = Math.floor(Math.random() * 5) + 2;
+        for (let v = 0; v < numVariants; v++) {
+          // Generate a variant price that's either higher or lower than base price but still positive
+          const priceAdjustment =
+            Math.random() > 0.5 ? 10000000 : -Math.min(5000000, price * 0.5);
+          const variantPrice = Math.max(1000000, price + priceAdjustment);
+
+          variants.push({
+            name: `Phiên bản ${v + 1}`,
+            sku: `${slug.substring(0, 8)}-V${v + 1}`,
+            attributes: {
+              color: getRandomItems(PRODUCT_COLORS, 1)[0],
+              size: getRandomItems(PRODUCT_SIZES, 1)[0],
+            },
+            price: variantPrice,
+            compareAtPrice: hasDiscount
+              ? variantPrice + Math.abs(generateLuxuryPrice(5000000, 20000000))
+              : null,
+            inventoryQuantity: Math.floor(Math.random() * 50),
+            weight: Math.floor(Math.random() * 1000) + 100,
+            weightUnit: "g",
+          });
+        }
+      }
+
+      // Random tags
+      const tags = getRandomItems(
+        LUXURY_TAGS,
+        Math.floor(Math.random() * 5) + 1
+      );
+
+      // Random color, size, material
+      const color = getRandomItems(PRODUCT_COLORS, 1)[0];
+      const size = getRandomItems(PRODUCT_SIZES, 1)[0];
+      const material = getRandomItems(PRODUCT_MATERIALS, 1)[0];
+
+      // Create product
+      const product = new Product({
+        name: productName,
+        slug,
+        description: faker.commerce.productDescription(),
+        shortDescription: faker.commerce.productDescription().substring(0, 150),
+        brand: brand._id,
+        brandName: brand.name,
+        images,
+        category: category._id,
+        tags,
+        price,
+        compareAtPrice,
+        variants,
+        seo: {
+          title: productName,
+          description: `${productName} - ${category.name} cao cấp từ ${brand.name}`,
+          keywords: [...tags, brand.name, category.name],
         },
-      ],
-      seo: {
-        title: `${productName} | ${brand} | Luxury Store Vietnam`,
-        description: `Mua ${productName} chính hãng ${brand} - sản phẩm cao cấp và sang trọng tại Luxury Store Vietnam.`,
-        keywords: [
-          ...tags,
-          brand,
-          "luxury",
-          "cao cấp",
-          "hàng hiệu",
-          "chính hãng",
-        ],
-      },
-    });
+        status:
+          Math.random() > 0.1
+            ? "active"
+            : Math.random() > 0.5
+            ? "draft"
+            : "archived",
+        isPublished: Math.random() > 0.2,
+        isFeatured: Math.random() > 0.8,
+        hasVariants,
+        inventoryQuantity,
+        color,
+        size,
+        material,
+        attributes: {
+          color,
+          size,
+          material,
+          origin: Math.random() > 0.5 ? "Vietnam" : "Imported",
+          warranty: `${Math.floor(Math.random() * 5) + 1} năm`,
+        },
+        releaseDate: faker.date.past(),
+      });
 
-    // Add variants for products with variants
-    if (hasVariants) {
-      const variantTypes = [];
+      // Add random reviews (90% of products have reviews)
+      if (Math.random() > 0.1) {
+        const numReviews = Math.floor(Math.random() * 10) + 1;
+        let validReviewCount = 0;
 
-      // Determine variant types based on category
-      if (category.name.includes("Thời Trang")) {
-        variantTypes.push({
-          name: "Kích cỡ",
-          values: ["XS", "S", "M", "L", "XL"],
-        });
+        for (let r = 0; r < numReviews; r++) {
+          // Use real users from seed data
+          const randomUser = users[Math.floor(Math.random() * users.length)];
 
-        variantTypes.push({
-          name: "Màu sắc",
-          values: [
-            "Đen",
-            "Trắng",
-            "Xanh Navy",
-            "Đỏ Burgundy",
-            "Be",
-            "Xám Chì",
-            "Nâu Caramel",
-          ],
-        });
-      } else if (category.name.includes("Đồng Hồ")) {
-        variantTypes.push({
-          name: "Chất liệu",
-          values: [
-            "Vàng 18K",
-            "Vàng Hồng",
-            "Bạc 925",
-            "Platinum",
-            "Thép không gỉ",
-            "Titanium",
-          ],
-        });
+          // Only add review if user has a valid _id
+          if (randomUser && randomUser._id) {
+            product.reviews.push({
+              user: randomUser._id,
+              rating: Math.floor(Math.random() * 5) + 1,
+              title: faker.lorem.sentence(3),
+              content: faker.lorem.paragraph(),
+              isVerifiedPurchase: Math.random() > 0.3,
+            });
+            validReviewCount++;
+          }
+        }
 
-        variantTypes.push({
-          name: "Kích thước mặt",
-          values: ["36mm", "38mm", "40mm", "42mm", "44mm"],
-        });
-      } else if (category.name.includes("Trang Sức")) {
-        variantTypes.push({
-          name: "Chất liệu",
-          values: [
-            "Vàng 18K",
-            "Vàng 24K",
-            "Bạc 925",
-            "Platinum",
-            "Kim cương",
-            "Ngọc trai",
-          ],
-        });
-
-        variantTypes.push({
-          name: "Kích thước",
-          values: ["Nhỏ", "Trung bình", "Lớn"],
-        });
-      } else if (
-        category.name.includes("Túi") ||
-        category.name.includes("Ví")
-      ) {
-        variantTypes.push({
-          name: "Chất liệu",
-          values: [
-            "Da bê",
-            "Da cá sấu",
-            "Da trăn",
-            "Da đà điểu",
-            "Canvas cao cấp",
-            "Vải tweed",
-          ],
-        });
-
-        variantTypes.push({
-          name: "Màu sắc",
-          values: [
-            "Đen",
-            "Nâu Cognac",
-            "Đỏ Burgundy",
-            "Xanh Navy",
-            "Be",
-            "Trắng ngà",
-            "Vàng Champagne",
-          ],
-        });
-      } else if (category.name.includes("Nước Hoa")) {
-        variantTypes.push({
-          name: "Dung tích",
-          values: ["30ml", "50ml", "75ml", "100ml", "200ml"],
-        });
-
-        variantTypes.push({
-          name: "Nồng độ",
-          values: [
-            "Eau de Toilette",
-            "Eau de Parfum",
-            "Parfum",
-            "Cologne",
-            "Extrait de Parfum",
-          ],
-        });
-      } else {
-        variantTypes.push({
-          name: "Phiên bản",
-          values: ["Tiêu chuẩn", "Cao cấp", "Giới hạn", "Đặc biệt", "Bespoke"],
-        });
-
-        variantTypes.push({
-          name: "Chất liệu",
-          values: [
-            "Da cao cấp",
-            "Kim loại quý",
-            "Gỗ quý",
-            "Pha lê",
-            "Sứ cao cấp",
-            "Composite cao cấp",
-          ],
-        });
-      }
-
-      // Generate luxury variants
-      for (
-        let variantIndex = 0;
-        variantIndex <
-        Math.min(
-          6,
-          variantTypes[0].values.length * (variantTypes[1]?.values.length || 1)
-        );
-        variantIndex++
-      ) {
-        const variantAttributes = {};
-
-        // Assign attributes
-        variantTypes.forEach((variantType) => {
-          const randomValueIndex = Math.floor(
-            Math.random() * variantType.values.length
+        // Calculate average rating only if there are valid reviews
+        if (validReviewCount > 0) {
+          const sum = product.reviews.reduce(
+            (total, review) => total + review.rating,
+            0
           );
-          variantAttributes[variantType.name] =
-            variantType.values[randomValueIndex];
-        });
-
-        // Generate variant name
-        const variantName = Object.values(variantAttributes).join(", ");
-
-        // Generate variant price (luxury variants can have significant price differences)
-        const priceAdjustment = Math.floor(Math.random() * 20) * 1000000;
-        // Make sure the price is always positive
-        const variantPrice = Math.max(
-          minPrice,
-          price + (Math.random() > 0.5 ? priceAdjustment : -priceAdjustment)
-        );
-
-        // Generate variant compareAtPrice (ensure it's always greater than the variant price)
-        const variantCompareAtPrice = hasDiscount
-          ? Math.floor(variantPrice * (1 + Math.random() * 0.3))
-          : null;
-
-        // Generate a unique SKU for the variant using random characters to ensure uniqueness
-        const uniqueSuffix = Math.random().toString(36).substring(2, 8);
-        // Ensure the variant name is not empty
-        const variantNameSlug = variantName
-          ? variantName.replace(/[, ]/g, "-").toLowerCase().substring(0, 10)
-          : "default";
-        const sku = `${createSlug(productName).substring(
-          0,
-          8
-        )}-${variantNameSlug}-${uniqueSuffix}`;
-
-        product.variants.push({
-          name: variantName,
-          sku: sku, // This will never be null now
-          attributes: variantAttributes,
-          price: variantPrice,
-          compareAtPrice: variantCompareAtPrice,
-          inventoryQuantity: Math.floor(Math.random() * 10) + 1, // Very limited inventory for luxury variants
-          weight: Math.random() * 2 + 0.1,
-          weightUnit: "kg",
-        });
+          product.averageRating = sum / product.reviews.length;
+          product.reviewCount = product.reviews.length;
+        } else {
+          // Set default values if no valid reviews
+          product.averageRating = 0;
+          product.reviewCount = 0;
+        }
       }
-    }
 
-    products.push(product);
-
-    // Log progress
-    if ((i + 1) % 100 === 0) {
-      console.log(`Created ${i + 1}/${NUM_PRODUCTS} luxury products`);
-    }
-  }
-
-  // Insert products one by one to better handle potential errors
-  console.log(`Saving ${products.length} luxury products to the database...`);
-  let savedCount = 0;
-
-  for (const product of products) {
-    try {
       await product.save();
-      savedCount++;
+      products.push(product);
 
-      // Log progress every 10 products
-      if (savedCount % 10 === 0) {
-        console.log(`Saved ${savedCount}/${products.length} luxury products`);
+      // Update progress
+      if ((i + 1) % 100 === 0 || i === NUM_PRODUCTS - 1) {
+        console.log(`Created ${i + 1}/${NUM_PRODUCTS} products`);
       }
-    } catch (error) {
-      console.error(`Error saving product "${product.name}": ${error.message}`);
     }
-  }
 
-  console.log(
-    `Successfully saved ${savedCount} out of ${products.length} luxury products`
-  );
-  return products;
+    console.log(`${products.length} products created`);
+    return products;
+  } catch (error) {
+    console.error("Error seeding products:", error);
+    throw error;
+  }
 }
 
-// Main seeding function
+// Main function to seed the database
 async function seedDatabase() {
   try {
-    console.log("Starting luxury store database seeding...");
-
     // Connect to MongoDB
-    await mongoose.connect(
-      process.env.MONGODB_URI || "mongodb://localhost:27017/ecommerce"
-    );
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log("Connected to MongoDB");
-
-    // Clear existing data
-    await Product.deleteMany({});
-    await User.deleteMany({});
-    await Order.deleteMany({});
-    await Category.deleteMany({});
-    console.log("Cleared existing data");
 
     // Seed data
     const users = await seedUsers();
     const { categories, categoryMap } = await seedCategories();
-    const products = await seedProducts(categories, categoryMap);
+    const brands = await seedBrands();
+    const products = await seedProducts(categories, categoryMap, brands, users);
 
-    console.log("Luxury store database seeding completed successfully!");
-
-    // Close connection
-    await mongoose.connection.close();
-    console.log("MongoDB connection closed");
+    console.log("Database seeded successfully!");
+    process.exit(0);
   } catch (error) {
     console.error("Error seeding database:", error);
-
-    if (mongoose.connection.readyState === 1) {
-      await mongoose.connection.close();
-    }
-
     process.exit(1);
   }
 }
 
-// Run the seeding function
+// Run the seed function
 seedDatabase();

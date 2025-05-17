@@ -20,6 +20,7 @@ const productRoutes = require("./routes/productRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const userRoutes = require("./routes/userRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const brandRoutes = require("./routes/brandRoutes");
 
 // Initialize Express app
 const app = express();
@@ -47,6 +48,7 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/categories", categoryRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/brands", brandRoutes);
 
 // Helpful redirects for common misrouted paths
 app.get("/products", (req, res) => {
@@ -123,56 +125,46 @@ async function startServer() {
 
 // Graceful shutdown function
 function setupGracefulShutdown(server) {
-    // Handle CTRL+C
-    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+  // Handle CTRL+C
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-    // Handle nodemon restarts
-    process.on("SIGUSR2", () =>
-        gracefulShutdown("SIGUSR2")
+  // Handle nodemon restarts
+  process.on("SIGUSR2", () => gracefulShutdown("SIGUSR2"));
+
+  // Handle termination signals
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+
+  // Graceful shutdown function
+  function gracefulShutdown(signal) {
+    logger.info(`Received ${signal}. Shutting down gracefully...`);
+
+    server.close(() => {
+      logger.info("HTTP server closed");
+
+      process.exit(0);
+    });
+
+    setTimeout(
+      () => {
+        logger.info("Forced shutdown after timeout");
+        process.exit(1);
+      },
+      process.env.NODE_ENV === "production" ? 10000 : 3000
     );
-
-    // Handle termination signals
-    process.on("SIGTERM", () =>
-        gracefulShutdown("SIGTERM")
-    );
-
-    // Graceful shutdown function
-    function gracefulShutdown(signal) {
-        logger.info(
-            `Received ${signal}. Shutting down gracefully...`
-        );
-
-        server.close(() => {
-            logger.info("HTTP server closed");
-
-            process.exit(0);
-        });
-
-        setTimeout(
-            () => {
-                logger.info(
-                    "Forced shutdown after timeout"
-                );
-                process.exit(1);
-            },
-            process.env.NODE_ENV === "production"
-                ? 10000
-                : 3000
-        );
-    }
+  }
 }
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err) => {
-    logger.error("UNHANDLED REJECTION:", err);
-    // Don't exit the process to allow for recovery
+  logger.error("UNHANDLED REJECTION:", err);
+  // Don't exit the process to allow for recovery
 });
 
 // Handle uncaught exceptions
 process.on("uncaughtException", (err) => {
-    logger.error("UNCAUGHT EXCEPTION:", err);
-    // Exit the process for uncaught exceptions as they can leave the app in an unpredictable state
-    process.exit(1);
+  logger.error("UNCAUGHT EXCEPTION:", err);
+  // Exit the process for uncaught exceptions as they can leave the app in an unpredictable state
+  process.exit(1);
 });
 
 startServer().catch((err) => logger.error("Error starting server:", err));

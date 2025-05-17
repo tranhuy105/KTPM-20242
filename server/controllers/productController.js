@@ -20,10 +20,14 @@ class ProductController {
         cursorDirection: req.query.cursorDirection,
         filters: {
           category: req.query.category,
+          brand: req.query.brand,
           status: req.query.status,
           search: req.query.search,
           minPrice: req.query.minPrice,
           maxPrice: req.query.maxPrice,
+          color: req.query.color,
+          size: req.query.size,
+          material: req.query.material,
           isFeatured:
             req.query.isFeatured === "true"
               ? true
@@ -370,6 +374,21 @@ class ProductController {
         return res.status(404).json({ error: error.message });
       }
 
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+
+  /**
+   * Get available filters for products
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getAvailableFilters(req, res) {
+    try {
+      const filters = await productService.getAvailableFilters();
+      res.json(filters);
+    } catch (error) {
+      console.error("Error fetching available filters:", error);
       res.status(500).json({ error: "Server error" });
     }
   }
