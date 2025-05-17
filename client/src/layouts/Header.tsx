@@ -29,10 +29,6 @@ const Header = () => {
 
         {/* Main Header */}
         <div className="relative px-4 py-6">
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-4 w-16 h-16 border-l border-t border-amber-400 opacity-30"></div>
-          <div className="absolute bottom-0 right-4 w-16 h-16 border-r border-b border-amber-400 opacity-30"></div>
-
           <div className="flex justify-between items-center">
             {/* Logo */}
             <Link to="/" className="relative z-10">

@@ -44,6 +44,7 @@
     "shop": "Shop",
     "products": "Products",
     "categories": "Categories",
+    "signIn": "Sign In",
     "searchPlaceholder": "Search for products..."
   },
   "footer": {
@@ -115,7 +116,80 @@
     }
   },
   "common": {
-    "viewAll": "View All",
-    "viewDetails": "View Details"
+    "home": "Home",
+    "shop": "Shop",
+    "viewAll": "View all",
+    "viewDetails": "View details",
+    "goBack": "Go back",
+    "loading": "Loading..."
+  },
+  "products": {
+    "title": "Products",
+    "features": "Features",
+    "searchPlaceholder": "Search products",
+    "quantity": "Quantity",
+    "details": "Details",
+    "addToWishlist": "Add to wishlist",
+    "addedToWishlist": "Added to wishlist",
+    "removeFromWishlist": "Remove from wishlist",
+    "specifications": "Specifications",
+    "shipping": "Shipping",
+    "filters": "Filters",
+    "sort": {
+      "title": "Sort by",
+      "newest": "Newest",
+      "priceAsc": "Price: Low to high",
+      "priceDesc": "Price: High to low",
+      "popular": "Most popular"
+    },
+    "brand": "Brand",
+    "sku": "SKU",
+    "price": "Price",
+    "status": "Status",
+    "addToCart": "Add to cart",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock",
+    "lowStock": "Only {{count}} left",
+    "description": "Product Description",
+    "readMore": "Read more",
+    "showLess": "Show less",
+    "chooseOptions": "Choose your options",
+    "uncategorized": "Uncategorized",
+    "relatedProducts": "Related Products",
+    "luxuryExperience": "The luxury experience",
+    "reviews": {
+      "beFirst": "Be the first to review this product.",
+      "commentPlaceholder": "Share your experience with this product...",
+      "basedOn": "Based on {{count}} reviews",
+      "title": "Reviews",
+      "noReviews": "This product has no reviews yet.",
+      "writeReview": "Write a review",
+      "cancelReview": "Cancel review",
+      "yourReview": "Your review",
+      "rating": "Rating",
+      "comment": "Comment",
+      "submit": "Submit review",
+      "submitting": "Submitting...",
+      "thankYou": "Thank you for your review!",
+      "error": "An error occurred while submitting the review.",
+      "commentRequired": "Please enter a comment"
+    },
+    "errors": {
+      "notFound": "Product not found",
+      "fetchFailed": "Could not load product information",
+      "generic": "An error occurred",
+      "relatedProducts": "Could not load related products"
+    }
+  },
+  "categories": {
+    "all": "All categories",
+    "handbags": "Handbags",
+    "watches": "Watches",
+    "jewelry": "Jewelry",
+    "accessories": "Accessories",
+    "clothing": "Clothing",
+    "shoes": "Shoes",
+    "beauty": "Beauty",
+    "fragrances": "Fragrances"
   }
 }

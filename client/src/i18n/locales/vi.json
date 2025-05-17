@@ -44,6 +44,7 @@
     "shop": "Cửa hàng",
     "products": "Sản phẩm",
     "categories": "Danh mục",
+    "signIn": "Đăng nhập",
     "searchPlaceholder": "Tìm kiếm sản phẩm..."
   },
   "footer": {
@@ -115,7 +116,82 @@
     }
   },
   "common": {
-    "viewAll": "Xem Tất Cả",
-    "viewDetails": "Xem Chi Tiết"
+    "home": "Trang chủ",
+    "shop": "Cửa hàng",
+    "viewAll": "Xem tất cả",
+    "viewDetails": "Xem chi tiết",
+    "goBack": "Quay lại",
+    "loading": "Đang tải..."
+  },
+  "products": {
+    "title": "Sản phẩm",
+    "features": "Đặc điểm",
+    "quantity": "Số lượng",
+    "details": "Chi tiết",
+    "addToWishlist": "Thêm vào danh sách yêu thích",
+    "addedToWishlist": "Đã thêm vào danh sách yêu thích",
+    "removeFromWishlist": "Xóa khỏi danh sách yêu thích",
+    "specifications": "Thông số kỹ thuật",
+    "shipping": "Giao hàng",
+    "returns": "Trả hàng",
+    "shopNow": "Mua sắm ngay",
+    "searchPlaceholder": "Tìm kiếm sản phẩm",
+    "filters": "Bộ lọc",
+    "sort": {
+      "title": "Sắp xếp theo",
+      "newest": "Mới nhất",
+      "priceAsc": "Giá: Thấp đến cao",
+      "priceDesc": "Giá: Cao đến thấp",
+      "popular": "Phổ biến nhất"
+    },
+    "brand": "Thương hiệu",
+    "sku": "Mã sản phẩm",
+    "price": "Giá",
+    "status": "Trạng thái",
+    "addToCart": "Thêm vào giỏ hàng",
+    "outOfStock": "Hết hàng",
+    "inStock": "Còn hàng",
+    "lowStock": "Còn {{count}} sản phẩm",
+    "description": "Mô tả sản phẩm",
+    "readMore": "Xem thêm",
+    "showLess": "Thu gọn",
+    "chooseOptions": "Lựa chọn tùy biến",
+    "uncategorized": "Chưa phân loại",
+    "relatedProducts": "Sản phẩm liên quan",
+    "luxuryExperience": "Trải nghiệm đẳng cấp xa xỉ",
+    "reviews": {
+      "title": "Đánh giá",
+      "noReviews": "Sản phẩm này chưa có đánh giá nào.",
+      "beFirst": "Hãy là người đầu tiên đánh giá sản phẩm này.",
+      "basedOn": "Dựa trên {{count}} đánh giá",
+      "writeReview": "Viết đánh giá của bạn",
+      "cancelReview": "Hủy đánh giá",
+      "yourReview": "Đánh giá của bạn",
+      "rating": "Xếp hạng",
+      "comment": "Bình luận",
+      "commentPlaceholder": "Chia sẻ trải nghiệm của bạn với sản phẩm này...",
+      "submit": "Gửi đánh giá",
+      "submitting": "Đang gửi...",
+      "thankYou": "Cảm ơn bạn đã đánh giá!",
+      "error": "Có lỗi xảy ra khi gửi đánh giá.",
+      "commentRequired": "Vui lòng nhập bình luận"
+    },
+    "errors": {
+      "notFound": "Không tìm thấy sản phẩm",
+      "fetchFailed": "Không thể tải thông tin sản phẩm",
+      "generic": "Đã xảy ra lỗi",
+      "relatedProducts": "Không thể tải sản phẩm liên quan"
+    }
+  },
+  "categories": {
+    "all": "Tất cả danh mục",
+    "handbags": "Túi xách",
+    "watches": "Đồng hồ",
+    "jewelry": "Trang sức",
+    "accessories": "Phụ kiện",
+    "clothing": "Quần áo",
+    "shoes": "Giày dép",
+    "beauty": "Làm đẹp",
+    "fragrances": "Nước hoa"
   }
 }

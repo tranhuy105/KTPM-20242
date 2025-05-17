@@ -10,7 +10,7 @@ const HeroSection = () => {
   const slides = [
     {
       image:
-        "https://images.unsplash.com/photo-1594969155368-f19485a9d88c?q=80&w=2940&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1614868490875-9b8df2a17fe2?q=80&w=2940&auto=format&fit=crop",
       alt: "Luxury watches collection",
     },
     {

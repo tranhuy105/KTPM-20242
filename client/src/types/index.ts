@@ -68,10 +68,12 @@ export interface ProductVariant {
   _id: string;
   name: string;
   sku: string;
+  attributes: Record<string, string>;
   price: number;
-  salePrice?: number;
+  compareAtPrice: number | null;
   inventoryQuantity: number;
-  images?: string[] | ProductImage[];
+  weight: number;
+  weightUnit: string;
 }
 
 export interface ProductReview {
@@ -88,25 +90,27 @@ export interface Product {
   name: string;
   slug: string;
   description: string;
-  price: number;
-  salePrice?: number | null;
-  category: string | Category;
+  shortDescription: string;
+  brand: string;
+  images: ProductImage[] | string[];
+  category: ProductCategory | string;
   categoryName?: string;
-  images: string[] | ProductImage[];
-  isFeatured?: boolean;
-  isPublished?: boolean;
-  status: "in-stock" | "out-of-stock" | "back-order" | "active";
-  inventoryQuantity?: number;
-  hasVariants?: boolean;
-  // variants?: ProductVariant[];
-  tags?: string[];
-  specs?: Record<string, string>;
-  averageRating?: number;
-  reviewCount?: number;
+  tags: string[];
+  price: number;
+  compareAtPrice: number | null;
+  status: string;
+  isPublished: boolean;
+  isFeatured: boolean;
+  hasVariants: boolean;
+  inventoryQuantity: number;
+  inventoryTracking: boolean;
+  averageRating: number;
+  reviewCount: number;
+  variants?: ProductVariant[];
   reviews?: ProductReview[];
+  seo?: ProductSEO;
   createdAt: string;
-  updatedAt?: string;
-  compareAtPrice?: number | null;
+  updatedAt: string;
 }
 
 // Category Types
@@ -249,39 +253,37 @@ export interface Order {
 
 // API Response Types
 export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    nextCursor?: string;
-  };
+  docs: T[];
+  totalDocs: number;
+  limit: number;
+  totalPages: number;
+  page: number;
+  pagingCounter: number;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
+  prevPage: number | null;
+  nextPage: number | null;
 }
 
 export interface ApiResponse<T> {
   success: boolean;
-  data?: T;
-  error?: string;
+  data: T;
   message?: string;
-  timestamp: string;
 }
 
 // Filter Types
 export interface ProductFilters {
-  category?: string;
-  status?: string;
-  search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  isFeatured?: boolean;
-  isPublished?: boolean;
   page?: number;
   limit?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sort?: string;
+  search?: string;
+  category?: string;
+  price_min?: number;
+  price_max?: number;
+  brand?: string;
+  tags?: string;
+  status?: string;
+  featured?: boolean;
 }
 
 export interface CategoryFilters {
@@ -318,4 +320,24 @@ export interface UserFilters {
   limit?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+}
+
+export interface ProductCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  ancestors: CategoryAncestor[];
+  id: string;
+}
+
+export interface CategoryAncestor {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
+export interface ProductSEO {
+  title: string;
+  description: string;
+  keywords: string[];
 }
