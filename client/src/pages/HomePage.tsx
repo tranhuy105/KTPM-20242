@@ -26,7 +26,7 @@ const HomePage = () => {
       <ProductSection
         title={t("home.topSelling.title")}
         viewAllLink="/products?category=best-sellers"
-        fetchProducts={productApi.getNewArrivals}
+        fetchProducts={productApi.getBestSellers}
       />
 
       <BrandsSection />

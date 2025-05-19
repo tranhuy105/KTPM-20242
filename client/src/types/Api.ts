@@ -1,6 +1,13 @@
 import type { Order } from "./Order";
 import type { User } from "./User";
 
+export interface ApiResponse<T> {
+  message?: string;
+  success?: boolean;
+  error?: string;
+  data?: T;
+}
+
 export interface PaginatedUserResponse {
   users: User[];
   pagination: Pagination;

@@ -23,6 +23,23 @@ const productApi = {
   },
 
   /**
+   * Get all products for admin (with pagination and filtering)
+   * @param filters Optional filters to apply
+   * @returns Paginated list of products with admin fields
+   */
+  getAdminProducts: async (
+    filters?: ProductFilters
+  ): Promise<ProductListResponse> => {
+    const response = await axiosInstance.get<ProductListResponse>(
+      "/products/admin",
+      {
+        params: filters,
+      }
+    );
+    return response.data;
+  },
+
+  /**
    * Get all product filters
    * @returns All product filters
    */
