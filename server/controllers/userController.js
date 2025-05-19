@@ -20,6 +20,30 @@ class UserController {
   }
 
   /**
+   * Create a new user (admin only)
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async createUser(req, res) {
+    try {
+      // Admin can set custom role and active status
+      const userData = {
+        ...req.body,
+        // Default to active if not specified
+        isActive: req.body.isActive !== undefined ? req.body.isActive : true,
+        // If role is not specified, default to customer
+        role: req.body.role || "customer",
+      };
+
+      const result = await userService.createUser(userData);
+      res.status(201).json(result);
+    } catch (error) {
+      console.error("Admin user creation error:", error);
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  /**
    * Login a user
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object

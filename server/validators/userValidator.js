@@ -163,6 +163,43 @@ const userValidator = {
     },
   ],
 
+  validateUserCreation: [
+    body("username").trim().notEmpty().withMessage("Username is required"),
+
+    body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("Email is required")
+      .isEmail()
+      .withMessage("Invalid email format")
+      .normalizeEmail(),
+
+    body("password")
+      .trim()
+      .notEmpty()
+      .withMessage("Password is required")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
+
+    body("role")
+      .optional()
+      .isIn(["customer", "admin", "manager"])
+      .withMessage("Role must be one of: customer, admin, manager"),
+
+    body("isActive")
+      .optional()
+      .isBoolean()
+      .withMessage("isActive must be a boolean"),
+
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    },
+  ],
+
   /**
    * Validate password update
    */
