@@ -109,6 +109,18 @@ router.patch(
 );
 
 /**
+ * @route   POST /api/users
+ * @desc    Create a new user (admin only)
+ * @access  Private/Admin
+ */
+router.post(
+  "/",
+  authMiddleware,
+  adminMiddleware,
+  userValidator.validateUserCreation,
+  userController.createUser
+);
+/**
  * @route   PATCH /api/users/:id/active
  * @desc    Toggle user active status (admin only)
  * @access  Private/Admin

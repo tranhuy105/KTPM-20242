@@ -252,13 +252,10 @@ class OrderService {
             }
 
             // Check if the product is published and active
-            if (
-                product.status !== "active" ||
-                !product.isPublished
-            ) {
-                throw new Error(
-                    `Product "${product.name}" is not available for purchase`
-                );
+            if (!product.isPublished) {
+              throw new Error(
+                `Product "${product.name}" is not available for purchase`
+              );
             }
 
             let price, variantData, inventoryCheck;

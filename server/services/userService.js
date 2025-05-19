@@ -393,6 +393,62 @@ class UserService {
 
     return userObj;
   }
+
+  /**
+   * Create a new user (admin only)
+   * @param {Object} userData - User data
+   * @returns {Object} - Created user object (without token)
+   */
+  async createUser(userData) {
+    try {
+      // Check if email already exists
+      const existingEmail = await User.findOne({ email: userData.email });
+      if (existingEmail) {
+        throw new Error("Email already in use");
+      }
+
+      // Check if username already exists
+      const existingUsername = await User.findOne({
+        username: userData.username,
+      });
+      if (existingUsername) {
+        throw new Error("Username already in use");
+      }
+
+      // Validate role if provided
+      if (userData.role) {
+        const validRoles = ["customer", "admin", "manager"];
+        if (!validRoles.includes(userData.role)) {
+          throw new Error(
+            `Invalid role. Must be one of: ${validRoles.join(", ")}`
+          );
+        }
+      }
+
+      // Hash password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(userData.password, salt);
+
+      // Create user with hashed password
+      const user = new User({
+        ...userData,
+        password: hashedPassword,
+        isAdmin: userData.role === "admin", // Set isAdmin for backward compatibility
+      });
+
+      await user.save();
+
+      // For admin-created users, don't return a token
+      // Just return the user object
+      return {
+        user: this.sanitizeUser(user),
+        message: "User created successfully",
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
+
 
 module.exports = new UserService();

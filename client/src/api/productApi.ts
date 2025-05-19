@@ -23,6 +23,23 @@ const productApi = {
   },
 
   /**
+   * Get all products for admin (with pagination and filtering)
+   * @param filters Optional filters to apply
+   * @returns Paginated list of products with admin fields
+   */
+  getAdminProducts: async (
+    filters?: ProductFilters
+  ): Promise<ProductListResponse> => {
+    const response = await axiosInstance.get<ProductListResponse>(
+      "/products/admin",
+      {
+        params: filters,
+      }
+    );
+    return response.data;
+  },
+
+  /**
    * Get all product filters
    * @returns All product filters
    */
@@ -50,6 +67,30 @@ const productApi = {
    */
   getProductBySlug: async (slug: string): Promise<Product> => {
     const response = await axiosInstance.get<Product>(`/products/slug/${slug}`);
+    return response.data;
+  },
+
+  /**
+   * Get a product by ID for admin (includes unpublished/inactive)
+   * @param productId Product ID
+   * @returns Product object with full admin fields
+   */
+  getProductByIdAdmin: async (productId: string): Promise<Product> => {
+    const response = await axiosInstance.get<Product>(
+      `/products/admin/id/${productId}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get a product by slug for admin (includes unpublished/inactive)
+   * @param slug Product slug
+   * @returns Product object with full admin fields
+   */
+  getProductBySlugAdmin: async (slug: string): Promise<Product> => {
+    const response = await axiosInstance.get<Product>(
+      `/products/admin/slug/${slug}`
+    );
     return response.data;
   },
 

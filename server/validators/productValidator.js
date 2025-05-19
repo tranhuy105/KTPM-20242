@@ -39,11 +39,6 @@ const productValidator = {
       .isFloat({ min: 0 })
       .withMessage("Price must be a positive number"),
 
-    body("compareAtPrice")
-      .optional()
-      .isFloat({ min: 0 })
-      .withMessage("Compare at price must be a positive number"),
-
     body("status")
       .optional()
       .isIn(["draft", "active", "archived"])
@@ -204,7 +199,13 @@ const productValidator = {
 
     query("sortBy")
       .optional()
-      .isIn(["name", "price", "createdAt", "averageRating"])
+      .isIn([
+        "name",
+        "price",
+        "createdAt",
+        "averageRating",
+        "inventoryQuantity",
+      ])
       .withMessage("Invalid sort field"),
 
     query("sortOrder")

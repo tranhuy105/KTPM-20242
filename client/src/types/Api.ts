@@ -1,18 +1,27 @@
-export interface PaginatedResponse<T> {
-  docs: T[];
-  totalDocs: number;
-  limit: number;
-  totalPages: number;
-  page: number;
-  pagingCounter: number;
-  hasPrevPage: boolean;
-  hasNextPage: boolean;
-  prevPage: number | null;
-  nextPage: number | null;
-}
+import type { Order } from "./Order";
+import type { User } from "./User";
 
 export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
   message?: string;
+  success?: boolean;
+  error?: string;
+  data?: T;
+}
+
+export interface PaginatedUserResponse {
+  users: User[];
+  pagination: Pagination;
+}
+
+export interface PaginatedOrderResponse {
+  orders: Order[];
+  pagination: Pagination;
+}
+
+export interface Pagination {
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }

@@ -13,9 +13,212 @@ class ProductService {
    * @param {String} options.sortBy - Sort field
    * @param {String} options.sortOrder - Sort order (asc/desc)
    * @param {Object} options.filters - Filter criteria
+   * @param {Boolean} options.isAdmin - Whether this is an admin request
    * @returns {Object} Products and pagination info
    */
   async getAllProducts(options = {}) {
+    try {
+      // Build base filter
+      const filter = await this.buildProductFilter(options.filters);
+
+      // Setup pagination
+      const { query, pagination } = this.setupPagination(filter, options);
+
+      // Execute query
+      const products = await query.populate([
+        { path: "category", select: "name slug" },
+        { path: "brand", select: "name slug logo" },
+      ]);
+
+      // Get cursor values if using cursor-based pagination
+      const paginationInfo = await this.finalizePagination(
+        products,
+        filter,
+        pagination,
+        options
+      );
+
+      return { products, pagination: paginationInfo };
+    } catch (error) {
+      throw new Error(`Error fetching products: ${error.message}`);
+    }
+  }
+
+  /**
+   * Build the filter object for product queries
+   * @param {Object} filters - Filter criteria
+   * @returns {Object} MongoDB filter object
+   */
+  async buildProductFilter(filters = {}) {
+    const filter = {};
+    if (!filters) return filter;
+
+    // Initialize $and array for combining multiple conditions
+    filter.$and = [];
+
+    // Apply basic filters
+    await this.applyBasicFilters(filter, filters);
+
+    // Apply attribute filters
+    this.applyAttributeFilters(filter, filters);
+
+    // Apply text search
+    await this.applyTextSearch(filter, filters);
+
+    // Clean up empty $and array if no conditions were added
+    if (filter.$and.length === 0) {
+      delete filter.$and;
+    }
+
+    return filter;
+  }
+
+  /**
+   * Apply basic filters like category, brand, status, price range, etc.
+   * @param {Object} filter - Filter object to modify
+   * @param {Object} filters - User provided filters
+   */
+  async applyBasicFilters(filter, filters) {
+    // Category filter
+    if (filters.category && filters.category.trim() !== "") {
+      const categoryId = filters.category.trim();
+      const categoryIds = await this.getCategoryWithChildren(categoryId);
+      filter.category = { $in: categoryIds };
+    }
+
+    // Brand filter
+    if (filters.brand && filters.brand.trim() !== "") {
+      filter.brand = filters.brand;
+    }
+
+    // Featured filter
+    if (filters.isFeatured !== undefined) {
+      filter.isFeatured = filters.isFeatured;
+    }
+
+    // Published filter
+    if (filters.isPublished !== undefined) {
+      filter.isPublished = filters.isPublished;
+    }
+
+    // Price range filter
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+      filter.price = {};
+      if (filters.minPrice !== undefined) {
+        filter.price.$gte = parseFloat(filters.minPrice);
+      }
+      if (filters.maxPrice !== undefined) {
+        filter.price.$lte = parseFloat(filters.maxPrice);
+      }
+    }
+
+    // Rating filter
+    if (filters.minRating !== undefined) {
+      filter.averageRating = { $gte: parseFloat(filters.minRating) };
+    }
+  }
+
+  /**
+   * Apply attribute filters like color, size, material, etc.
+   * @param {Object} filter - Filter object to modify
+   * @param {Object} filters - User provided filters
+   */
+  applyAttributeFilters(filter, filters) {
+    // Color filter - check both main product and variants
+    if (filters.color && filters.color.trim() !== "") {
+      filter.$and.push({
+        $or: [
+          { color: filters.color.trim() },
+          { "variants.attributes.color": filters.color.trim() },
+        ],
+      });
+    }
+
+    // Size filter - check both main product and variants
+    if (filters.size && filters.size.trim() !== "") {
+      filter.$and.push({
+        $or: [
+          { size: filters.size.trim() },
+          { "variants.attributes.size": filters.size.trim() },
+        ],
+      });
+    }
+
+    // Material filter - check both main product and variants
+    if (filters.material && filters.material.trim() !== "") {
+      filter.$and.push({
+        $or: [
+          { material: filters.material.trim() },
+          { "variants.attributes.material": filters.material.trim() },
+        ],
+      });
+    }
+
+    // Dynamic attributes filter
+    if (filters.attributes && typeof filters.attributes === "object") {
+      for (const [key, value] of Object.entries(filters.attributes)) {
+        if (value && value.trim() !== "") {
+          filter.$and.push({
+            $or: [
+              { [`attributes.${key}`]: value },
+              { [`variants.attributes.${key}`]: value },
+            ],
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Apply text search to the filter
+   * @param {Object} filter - Filter object to modify
+   * @param {Object} filters - User provided filters
+   */
+  async applyTextSearch(filter, filters) {
+    if (!filters.search || filters.search.trim() === "") return;
+
+    try {
+      // Check if text index exists
+      const indexes = await Product.collection.getIndexes();
+      const hasTextIndex = Object.values(indexes).some((index) =>
+        index.hasOwnProperty("textIndexVersion")
+      );
+
+      if (hasTextIndex) {
+        // Use text index if available
+        filter.$text = { $search: filters.search };
+      } else {
+        // Fallback to regex search
+        this.applyRegexSearch(filter, filters.search);
+      }
+    } catch (error) {
+      // Fallback to regex search if error checking indexes
+      this.applyRegexSearch(filter, filters.search);
+    }
+  }
+
+  /**
+   * Apply regex search for text when text index is unavailable
+   * @param {Object} filter - Filter object to modify
+   * @param {String} searchText - Text to search for
+   */
+  applyRegexSearch(filter, searchText) {
+    filter.$and.push({
+      $or: [
+        { name: { $regex: searchText, $options: "i" } },
+        { description: { $regex: searchText, $options: "i" } },
+        { brandName: { $regex: searchText, $options: "i" } },
+      ],
+    });
+  }
+
+  /**
+   * Setup pagination for product queries
+   * @param {Object} filter - Base filter object
+   * @param {Object} options - Pagination options
+   * @returns {Object} Query and pagination objects
+   */
+  setupPagination(filter, options) {
     // Handle traditional offset-based pagination
     const page = parseInt(options.page) || 1;
     const limit = parseInt(options.limit) || 10;
@@ -26,239 +229,94 @@ class ProductService {
     const sortOrder = options.sortOrder === "asc" ? 1 : -1;
     const sort = { [sortField]: sortOrder };
 
-    // Build filter query
-    const filter = {};
-    if (options.filters) {
-      // Category filter - only apply if not empty string
-      if (options.filters.category && options.filters.category.trim() !== "") {
-        const categoryId = options.filters.category.trim();
+    // Create base query
+    const query = Product.find(filter)
+      .select(
+        options.isAdmin
+          ? this.getAdminProductListFields()
+          : this.getProductListFields()
+      )
+      .sort(sort)
+      .limit(limit);
 
-        // Get the category and all its children
-        const categoryIds = await this.getCategoryWithChildren(categoryId);
-        filter.category = { $in: categoryIds };
-      }
-
-      // Brand filter - only apply if not empty string
-      if (options.filters.brand && options.filters.brand.trim() !== "") {
-        filter.brand = options.filters.brand;
-      }
-
-      // Status filter
-      if (options.filters.status) {
-        filter.status = options.filters.status;
-      }
-
-      // Featured filter
-      if (options.filters.isFeatured !== undefined) {
-        filter.isFeatured = options.filters.isFeatured;
-      }
-
-      // Published filter
-      if (options.filters.isPublished !== undefined) {
-        filter.isPublished = options.filters.isPublished;
-      }
-
-      // Price range filter
-      if (
-        options.filters.minPrice !== undefined ||
-        options.filters.maxPrice !== undefined
-      ) {
-        filter.price = {};
-        if (options.filters.minPrice !== undefined) {
-          filter.price.$gte = parseFloat(options.filters.minPrice);
-        }
-        if (options.filters.maxPrice !== undefined) {
-          filter.price.$lte = parseFloat(options.filters.maxPrice);
-        }
-      }
-
-      // Rating filter
-      if (options.filters.minRating !== undefined) {
-        filter.averageRating = { $gte: parseFloat(options.filters.minRating) };
-      }
-
-      // Initialize $and array for multiple filter conditions that should be combined with AND
-      filter.$and = filter.$and || [];
-
-      // Color filter - check both main product and variants
-      if (options.filters.color && options.filters.color.trim() !== "") {
-        const colorValue = options.filters.color.trim();
-        filter.$and.push({
-          $or: [
-            { color: colorValue },
-            { "variants.attributes.color": colorValue },
-          ],
-        });
-      }
-
-      // Size filter - check both main product and variants
-      if (options.filters.size && options.filters.size.trim() !== "") {
-        const sizeValue = options.filters.size.trim();
-        filter.$and.push({
-          $or: [{ size: sizeValue }, { "variants.attributes.size": sizeValue }],
-        });
-      }
-
-      // Material filter - check both main product and variants
-      if (options.filters.material && options.filters.material.trim() !== "") {
-        const materialValue = options.filters.material.trim();
-        filter.$and.push({
-          $or: [
-            { material: materialValue },
-            { "variants.attributes.material": materialValue },
-          ],
-        });
-      }
-
-      // Attributes filter (dynamic attributes)
-      if (
-        options.filters.attributes &&
-        typeof options.filters.attributes === "object"
-      ) {
-        for (const [key, value] of Object.entries(options.filters.attributes)) {
-          if (value && value.trim() !== "") {
-            // Check both main product attributes and variant attributes
-            filter.$and.push({
-              $or: [
-                { [`attributes.${key}`]: value },
-                { [`variants.attributes.${key}`]: value },
-              ],
-            });
-          }
-        }
-      }
-
-      // Text search - only apply if not empty string
-      if (options.filters.search && options.filters.search.trim() !== "") {
-        try {
-          // Check if text index exists
-          const indexes = await Product.collection.getIndexes();
-          const hasTextIndex = Object.values(indexes).some((index) =>
-            index.hasOwnProperty("textIndexVersion")
-          );
-
-          if (hasTextIndex) {
-            // Use text index if available
-            filter.$text = { $search: options.filters.search };
-          } else {
-            // Fallback to regex search if no text index
-            filter.$and.push({
-              $or: [
-                { name: { $regex: options.filters.search, $options: "i" } },
-                {
-                  description: {
-                    $regex: options.filters.search,
-                    $options: "i",
-                  },
-                },
-                {
-                  brandName: { $regex: options.filters.search, $options: "i" },
-                },
-              ],
-            });
-          }
-        } catch (error) {
-          // Fallback to regex search if error checking indexes
-          filter.$and.push({
-            $or: [
-              { name: { $regex: options.filters.search, $options: "i" } },
-              {
-                description: { $regex: options.filters.search, $options: "i" },
-              },
-              { brandName: { $regex: options.filters.search, $options: "i" } },
-            ],
-          });
-        }
-      }
-
-      // Remove empty $and array if no conditions were added
-      if (filter.$and.length === 0) {
-        delete filter.$and;
-      }
-    }
-
-    // Add cursor-based pagination support
+    // Apply cursor-based pagination if requested
     if (options.cursor) {
-      // If cursor is provided, use cursor-based pagination
-      const cursorQuery = {};
-
-      // Direction for cursor (default to 'next' which means get items after the cursor)
-      const direction = options.cursorDirection || "next";
-
-      // Add cursor constraint based on sort direction and cursor direction
-      if (
-        (sortOrder === 1 && direction === "next") ||
-        (sortOrder === -1 && direction === "prev")
-      ) {
-        // For ascending order & next page OR descending order & prev page
-        cursorQuery[sortField] = { $gt: options.cursor };
-      } else {
-        // For descending order & next page OR ascending order & prev page
-        cursorQuery[sortField] = { $lt: options.cursor };
-      }
-
-      // Add the cursor constraint to the filter
-      filter.$and = filter.$and || [];
-      filter.$and.push(cursorQuery);
+      this.applyCursorPagination(filter, options, sortField, sortOrder);
+    } else {
+      // Only apply skip for offset-based pagination
+      query.skip(skip);
     }
 
-    // Execute query with pagination
-    try {
-      // For cursor-based pagination, we don't use skip
-      // Instead we filter by the cursor value
-      const query = Product.find(filter)
-        .select(this.getProductListFields())
-        .sort(sort)
-        .limit(limit);
+    return {
+      query,
+      pagination: {
+        limit,
+        currentPage: options.cursor ? undefined : page,
+      },
+    };
+  }
 
-      // Only apply skip for offset-based pagination when cursor is not provided
-      if (!options.cursor) {
-        query.skip(skip);
-      }
+  /**
+   * Apply cursor-based pagination to the filter
+   * @param {Object} filter - Filter object to modify
+   * @param {Object} options - Pagination options
+   * @param {String} sortField - Field to sort by
+   * @param {Number} sortOrder - Sort order (1 for asc, -1 for desc)
+   */
+  applyCursorPagination(filter, options, sortField, sortOrder) {
+    const cursorQuery = {};
+    const direction = options.cursorDirection || "next";
 
-      const products = await query.populate([
-        {
-          path: "category",
-          select: "name slug",
-        },
-        {
-          path: "brand",
-          select: "name slug logo",
-        },
-      ]);
-
-      const totalCount = await Product.countDocuments(filter);
-
-      // Get cursor values
-      let nextCursor = null;
-      let prevCursor = null;
-
-      if (products.length > 0) {
-        // Next cursor is the value of the last item
-        nextCursor = products[products.length - 1][sortField];
-
-        // Previous cursor is the value of the first item
-        prevCursor = products[0][sortField];
-      }
-
-      return {
-        products,
-        pagination: {
-          totalCount,
-          currentPage: options.cursor ? undefined : page,
-          totalPages: options.cursor
-            ? undefined
-            : Math.ceil(totalCount / limit),
-          hasNextPage: products.length === limit,
-          hasPrevPage: options.cursor ? true : page > 1,
-          nextCursor,
-          prevCursor,
-          limit,
-        },
-      };
-    } catch (error) {
-      throw new Error(`Error fetching products: ${error.message}`);
+    // Add cursor constraint based on sort and cursor direction
+    if (
+      (sortOrder === 1 && direction === "next") ||
+      (sortOrder === -1 && direction === "prev")
+    ) {
+      // For ascending order & next page OR descending order & prev page
+      cursorQuery[sortField] = { $gt: options.cursor };
+    } else {
+      // For descending order & next page OR ascending order & prev page
+      cursorQuery[sortField] = { $lt: options.cursor };
     }
+
+    // Add the cursor constraint to the filter
+    filter.$and = filter.$and || [];
+    filter.$and.push(cursorQuery);
+  }
+
+  /**
+   * Finalize pagination info after query execution
+   * @param {Array} products - Retrieved products
+   * @param {Object} filter - Filter used in the query
+   * @param {Object} pagination - Base pagination info
+   * @param {Object} options - Original pagination options
+   * @returns {Object} Complete pagination info
+   */
+  async finalizePagination(products, filter, pagination, options) {
+    const totalCount = await Product.countDocuments(filter);
+    const sortField = options.sortBy || "createdAt";
+    const { limit } = pagination;
+
+    // Get cursor values if results exist
+    let nextCursor = null;
+    let prevCursor = null;
+
+    if (products.length > 0) {
+      // Next cursor is the value of the last item
+      nextCursor = products[products.length - 1][sortField];
+      // Previous cursor is the value of the first item
+      prevCursor = products[0][sortField];
+    }
+
+    return {
+      ...pagination,
+      totalCount,
+      totalPages: options.cursor ? undefined : Math.ceil(totalCount / limit),
+      hasNextPage: products.length === limit,
+      hasPrevPage: options.cursor ? true : pagination.currentPage > 1,
+      nextCursor,
+      prevCursor,
+    };
   }
 
   /**
@@ -280,20 +338,9 @@ class ProductService {
    */
   async getProductById(id) {
     try {
-      // Validate ID format
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new Error("Invalid product ID format");
-      }
+      this.validateObjectId(id);
 
-      const product = await Product.findById(id)
-        .populate({
-          path: "category",
-          select: "name slug ancestors",
-        })
-        .populate({
-          path: "reviews.user",
-          select: "username firstName lastName avatar",
-        });
+      const product = await this.findActiveProduct({ _id: id });
 
       if (!product) {
         throw new Error("Product not found");
@@ -312,15 +359,7 @@ class ProductService {
    */
   async getProductBySlug(slug) {
     try {
-      const product = await Product.findOne({ slug })
-        .populate({
-          path: "category",
-          select: "name slug ancestors",
-        })
-        .populate({
-          path: "reviews.user",
-          select: "username firstName lastName avatar",
-        });
+      const product = await this.findActiveProduct({ slug });
 
       if (!product) {
         throw new Error("Product not found");
@@ -330,6 +369,24 @@ class ProductService {
     } catch (error) {
       throw error;
     }
+  }
+
+  /**
+   * Find an active product by criteria
+   * @param {Object} criteria - Search criteria
+   * @returns {Object} Product object
+   */
+  async findActiveProduct(criteria) {
+    return Product.findOne(criteria)
+      .and([{ isPublished: true }])
+      .populate({
+        path: "category",
+        select: "name slug ancestors",
+      })
+      .populate({
+        path: "reviews.user",
+        select: "username firstName lastName avatar",
+      });
   }
 
   /**
@@ -355,10 +412,7 @@ class ProductService {
    */
   async updateProduct(id, productData) {
     try {
-      // Validate ID format
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new Error("Invalid product ID format");
-      }
+      this.validateObjectId(id);
 
       const product = await Product.findByIdAndUpdate(id, productData, {
         new: true,
@@ -382,10 +436,7 @@ class ProductService {
    */
   async deleteProduct(id) {
     try {
-      // Validate ID format
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new Error("Invalid product ID format");
-      }
+      this.validateObjectId(id);
 
       const product = await Product.findByIdAndDelete(id);
 
@@ -408,13 +459,8 @@ class ProductService {
   async addProductReview(productId, reviewData) {
     try {
       const product = await this.getProductById(productId);
-
-      // Add the review
       product.reviews.push(reviewData);
-
-      // Save the product
       await product.save();
-
       return product;
     } catch (error) {
       throw error;
@@ -456,20 +502,39 @@ class ProductService {
   }
 
   /**
+   * Toggle product status
+   * @param {String} productId - Product ID
+   * @param {String} field - Field to toggle (isPublished or isFeatured)
+   * @param {Boolean} value - New value
+   * @returns {Object} Updated product
+   */
+  async toggleProductStatus(productId, field, value) {
+    try {
+      this.validateObjectId(productId);
+
+      const updateData = { [field]: value };
+      const product = await Product.findByIdAndUpdate(productId, updateData, {
+        new: true,
+      });
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Toggle product publication status
    * @param {String} productId - Product ID
    * @param {Boolean} isPublished - Publication status
    * @returns {Object} Updated product
    */
   async toggleProductPublished(productId, isPublished) {
-    try {
-      const product = await this.getProductById(productId);
-      product.isPublished = isPublished;
-      await product.save();
-      return product;
-    } catch (error) {
-      throw error;
-    }
+    return this.toggleProductStatus(productId, "isPublished", isPublished);
   }
 
   /**
@@ -479,14 +544,7 @@ class ProductService {
    * @returns {Object} Updated product
    */
   async toggleProductFeatured(productId, isFeatured) {
-    try {
-      const product = await this.getProductById(productId);
-      product.isFeatured = isFeatured;
-      await product.save();
-      return product;
-    } catch (error) {
-      throw error;
-    }
+    return this.toggleProductStatus(productId, "isFeatured", isFeatured);
   }
 
   /**
@@ -499,43 +557,93 @@ class ProductService {
     try {
       const product = await this.getProductById(productId);
 
-      // Get the category and all its siblings (products in same category or related categories)
-      let categoryIds = [product.category];
-
-      // If the product's category has a parent, include sibling categories
-      if (product.category && product.category.parent) {
-        // Get all categories with the same parent
-        const Category = mongoose.model("Category");
-        const siblingCategories = await Category.find({
-          parent: product.category.parent,
-        }).select("_id");
-
-        if (siblingCategories && siblingCategories.length > 0) {
-          categoryIds = siblingCategories.map((c) => c._id);
-        }
-      } else {
-        // If it's a parent category, include its children
-        categoryIds = await this.getCategoryWithChildren(product.category);
-      }
+      // Get the category and all its siblings/children
+      const categoryIds = await this.getRelatedCategories(product);
 
       // Get products from the same category and related categories
-      const relatedProducts = await Product.find(
+      return this.findProductsByCategories(categoryIds, product._id, limit);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get related categories for a product
+   * @param {Object} product - Product object
+   * @returns {Array} Related category IDs
+   */
+  async getRelatedCategories(product) {
+    let categoryIds = [product.category];
+
+    // If the product's category has a parent, include sibling categories
+    if (product.category && product.category.parent) {
+      // Get all categories with the same parent
+      const Category = mongoose.model("Category");
+      const siblingCategories = await Category.find({
+        parent: product.category.parent,
+      }).select("_id");
+
+      if (siblingCategories && siblingCategories.length > 0) {
+        categoryIds = siblingCategories.map((c) => c._id);
+      }
+    } else {
+      // If it's a parent category, include its children
+      categoryIds = await this.getCategoryWithChildren(product.category);
+    }
+
+    return categoryIds;
+  }
+
+  /**
+   * Find products by category IDs
+   * @param {Array} categoryIds - Category IDs
+   * @param {String} excludeProductId - Product ID to exclude
+   * @param {Number} limit - Maximum number of products to return
+   * @returns {Array} Products
+   */
+  async findProductsByCategories(categoryIds, excludeProductId, limit) {
+    return Product.find(
+      {
+        category: { $in: categoryIds },
+        _id: { $ne: excludeProductId }, // Exclude the current product
+        isPublished: true,
+      },
+      this.getProductListFields()
+    )
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "category",
+        select: "name slug",
+      });
+  }
+
+  /**
+   * Get products by filter criteria
+   * @param {Object} filterCriteria - Filter criteria
+   * @param {Number} limit - Maximum number of products to return
+   * @param {Object} sort - Sort criteria
+   * @returns {Array} Products matching criteria
+   */
+  async getProductsByFilter(
+    filterCriteria,
+    limit = 8,
+    sort = { createdAt: -1 }
+  ) {
+    try {
+      return Product.find(
         {
-          category: { $in: categoryIds },
-          _id: { $ne: product._id }, // Exclude the current product
-          status: "active",
+          ...filterCriteria,
           isPublished: true,
         },
         this.getProductListFields()
       )
+        .sort(sort)
         .limit(limit)
-        .sort({ createdAt: -1 })
         .populate({
           path: "category",
           select: "name slug",
         });
-
-      return relatedProducts;
     } catch (error) {
       throw error;
     }
@@ -547,26 +655,7 @@ class ProductService {
    * @returns {Array} Featured products
    */
   async getFeaturedProducts(limit = 8) {
-    try {
-      const products = await Product.find(
-        {
-          isFeatured: true,
-          status: "active",
-          isPublished: true,
-        },
-        this.getProductListFields()
-      )
-        .limit(limit)
-        .sort({ createdAt: -1 })
-        .populate({
-          path: "category",
-          select: "name slug",
-        });
-
-      return products;
-    } catch (error) {
-      throw error;
-    }
+    return this.getProductsByFilter({ isFeatured: true }, limit);
   }
 
   /**
@@ -575,25 +664,7 @@ class ProductService {
    * @returns {Array} New products
    */
   async getNewArrivals(limit = 8) {
-    try {
-      const products = await Product.find(
-        {
-          status: "active",
-          isPublished: true,
-        },
-        this.getProductListFields()
-      )
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .populate({
-          path: "category",
-          select: "name slug",
-        });
-
-      return products;
-    } catch (error) {
-      throw error;
-    }
+    return this.getProductsByFilter({}, limit, { createdAt: -1 });
   }
 
   /**
@@ -602,26 +673,10 @@ class ProductService {
    * @returns {Array} Best-selling products
    */
   async getBestSellers(limit = 8) {
-    try {
-      const products = await Product.find(
-        {
-          status: "active",
-          isPublished: true,
-          reviewCount: { $gt: 0 },
-        },
-        this.getProductListFields()
-      )
-        .sort({ averageRating: -1, reviewCount: -1 })
-        .limit(limit)
-        .populate({
-          path: "category",
-          select: "name slug",
-        });
-
-      return products;
-    } catch (error) {
-      throw error;
-    }
+    return this.getProductsByFilter({ reviewCount: { $gt: 0 } }, limit, {
+      averageRating: -1,
+      reviewCount: -1,
+    });
   }
 
   /**
@@ -638,7 +693,6 @@ class ProductService {
       images: 1,
       inventoryQuantity: 1,
       hasVariants: 1,
-      status: 1,
       category: 1,
       brand: 1,
       brandName: 1,
@@ -648,6 +702,20 @@ class ProductService {
       createdAt: 1,
       averageRating: 1,
       reviewCount: 1,
+    };
+  }
+
+  /**
+   * Helper to get admin product list fields (includes additional fields for admin)
+   * @returns {Object} Field projection object
+   */
+  getAdminProductListFields() {
+    return {
+      ...this.getProductListFields(),
+      isPublished: 1,
+      isFeatured: 1,
+      updatedAt: 1,
+      shortDescription: 1,
     };
   }
 
@@ -709,6 +777,73 @@ class ProductService {
     } catch (err) {
       console.error("Error fetching category descendants:", err);
       return [];
+    }
+  }
+
+  /**
+   * Utility to validate MongoDB ObjectId
+   * @param {String} id - ID to validate
+   * @throws {Error} If ID is invalid
+   */
+  validateObjectId(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid product ID format");
+    }
+  }
+
+  /**
+   * Get a product by ID for admin (no active/published restrictions)
+   * @param {String} id - Product ID
+   * @returns {Object} Product object
+   */
+  async getProductByIdAdmin(id) {
+    try {
+      this.validateObjectId(id);
+
+      const product = await Product.findById(id)
+        .populate({
+          path: "category",
+          select: "name slug ancestors",
+        })
+        .populate({
+          path: "reviews.user",
+          select: "username firstName lastName avatar",
+        });
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get a product by slug for admin (no active/published restrictions)
+   * @param {String} slug - Product slug
+   * @returns {Object} Product object
+   */
+  async getProductBySlugAdmin(slug) {
+    try {
+      const product = await Product.findOne({ slug })
+        .populate({
+          path: "category",
+          select: "name slug ancestors",
+        })
+        .populate({
+          path: "reviews.user",
+          select: "username firstName lastName avatar",
+        });
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      return product;
+    } catch (error) {
+      throw error;
     }
   }
 }

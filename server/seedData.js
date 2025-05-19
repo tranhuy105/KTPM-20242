@@ -796,12 +796,6 @@ async function seedProducts(categories, categoryMap, brands, users) {
           description: `${productName} - ${category.name} cao cấp từ ${brand.name}`,
           keywords: [...tags, brand.name, category.name],
         },
-        status:
-          Math.random() > 0.1
-            ? "active"
-            : Math.random() > 0.5
-            ? "draft"
-            : "archived",
         isPublished: Math.random() > 0.2,
         isFeatured: Math.random() > 0.8,
         hasVariants,
