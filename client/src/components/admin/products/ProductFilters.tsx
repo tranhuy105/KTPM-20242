@@ -33,11 +33,6 @@ export function ProductFilters({
     setSearchValue(e.target.value);
   };
 
-  // Handle status filter change
-  const handleStatusChange = (value: string) => {
-    updateFilter("status", value === "all" ? undefined : value);
-  };
-
   // Handle featured filter change
   const handleFeaturedChange = (value: string) => {
     if (value === "all") {
@@ -56,6 +51,53 @@ export function ProductFilters({
     }
   };
 
+  // Handle sort change
+  const handleSortChange = (value: string) => {
+    if (value === "newest") {
+      onFilterChange({
+        ...filters,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+        page: 1,
+      });
+    } else if (value === "oldest") {
+      onFilterChange({
+        ...filters,
+        sortBy: "createdAt",
+        sortOrder: "asc",
+        page: 1,
+      });
+    } else if (value === "priceLow") {
+      onFilterChange({
+        ...filters,
+        sortBy: "price",
+        sortOrder: "asc",
+        page: 1,
+      });
+    } else if (value === "priceHigh") {
+      onFilterChange({
+        ...filters,
+        sortBy: "price",
+        sortOrder: "desc",
+        page: 1,
+      });
+    } else if (value === "stockLow") {
+      onFilterChange({
+        ...filters,
+        sortBy: "inventoryQuantity",
+        sortOrder: "asc",
+        page: 1,
+      });
+    } else if (value === "stockHigh") {
+      onFilterChange({
+        ...filters,
+        sortBy: "inventoryQuantity",
+        sortOrder: "desc",
+        page: 1,
+      });
+    }
+  };
+
   // Helper function to update a single filter
   const updateFilter = (key: string, value: string | boolean | undefined) => {
     // Create new filters object with filter at top level
@@ -70,14 +112,30 @@ export function ProductFilters({
     onFilterChange(newFilters);
   };
 
+  // Get current sort value
+  const getCurrentSortValue = () => {
+    const { sortBy, sortOrder } = filters;
+
+    if (sortBy === "createdAt" && sortOrder === "desc") return "newest";
+    if (sortBy === "createdAt" && sortOrder === "asc") return "oldest";
+    if (sortBy === "price" && sortOrder === "asc") return "priceLow";
+    if (sortBy === "price" && sortOrder === "desc") return "priceHigh";
+    if (sortBy === "inventoryQuantity" && sortOrder === "asc")
+      return "stockLow";
+    if (sortBy === "inventoryQuantity" && sortOrder === "desc")
+      return "stockHigh";
+
+    return "newest"; // Default
+  };
+
   // Clear all filters
   const handleClearFilters = () => {
     setSearchValue("");
     onFilterChange({
       page: 1,
       limit: filters.limit,
-      sortBy: filters.sortBy,
-      sortOrder: filters.sortOrder,
+      sortBy: "createdAt",
+      sortOrder: "desc",
       filters: {}, // Clear all filters
     });
   };
@@ -98,18 +156,17 @@ export function ProductFilters({
       </form>
 
       <div className="flex flex-wrap gap-2">
-        <Select
-          value={filters.filters?.status || "all"}
-          onValueChange={handleStatusChange}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Status" />
+        <Select value={getCurrentSortValue()} onValueChange={handleSortChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="discontinued">Discontinued</SelectItem>
+            <SelectItem value="newest">Newest First</SelectItem>
+            <SelectItem value="oldest">Oldest First</SelectItem>
+            <SelectItem value="priceLow">Price: Low to High</SelectItem>
+            <SelectItem value="priceHigh">Price: High to Low</SelectItem>
+            <SelectItem value="stockLow">Stock: Low to High</SelectItem>
+            <SelectItem value="stockHigh">Stock: High to Low</SelectItem>
           </SelectContent>
         </Select>
 

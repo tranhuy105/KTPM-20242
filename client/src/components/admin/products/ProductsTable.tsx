@@ -72,6 +72,7 @@ export function ProductsTable({
         <TableHeader>
           <TableRow>
             <TableHead>Product</TableHead>
+            <TableHead>Slug</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Stock</TableHead>
@@ -101,6 +102,7 @@ export function ProductsTable({
                   </div>
                 </div>
               </TableCell>
+              <TableCell>{product.slug}</TableCell>
               <TableCell>{getCategoryName(product)}</TableCell>
               <TableCell>
                 <div>

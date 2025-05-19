@@ -199,7 +199,13 @@ const productValidator = {
 
     query("sortBy")
       .optional()
-      .isIn(["name", "price", "createdAt", "averageRating"])
+      .isIn([
+        "name",
+        "price",
+        "createdAt",
+        "averageRating",
+        "inventoryQuantity",
+      ])
       .withMessage("Invalid sort field"),
 
     query("sortOrder")
