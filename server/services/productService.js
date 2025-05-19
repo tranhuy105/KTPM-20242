@@ -91,11 +91,6 @@ class ProductService {
       filter.brand = filters.brand;
     }
 
-    // Status filter
-    if (filters.status) {
-      filter.status = filters.status;
-    }
-
     // Featured filter
     if (filters.isFeatured !== undefined) {
       filter.isFeatured = filters.isFeatured;
@@ -383,7 +378,7 @@ class ProductService {
    */
   async findActiveProduct(criteria) {
     return Product.findOne(criteria)
-      .and([{ isPublished: true }, { status: "active" }])
+      .and([{ isPublished: true }])
       .populate({
         path: "category",
         select: "name slug ancestors",
@@ -611,7 +606,6 @@ class ProductService {
       {
         category: { $in: categoryIds },
         _id: { $ne: excludeProductId }, // Exclude the current product
-        status: "active",
         isPublished: true,
       },
       this.getProductListFields()
@@ -640,7 +634,6 @@ class ProductService {
       return Product.find(
         {
           ...filterCriteria,
-          status: "active",
           isPublished: true,
         },
         this.getProductListFields()
@@ -700,7 +693,6 @@ class ProductService {
       images: 1,
       inventoryQuantity: 1,
       hasVariants: 1,
-      status: 1,
       category: 1,
       brand: 1,
       brandName: 1,

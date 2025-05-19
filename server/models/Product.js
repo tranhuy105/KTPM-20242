@@ -184,13 +184,7 @@ const productSchema = new mongoose.Schema(
         },
       ],
     },
-    // Status
-    status: {
-      type: String,
-      enum: ["draft", "active", "archived"],
-      default: "draft",
-      index: true,
-    },
+    // Remove status field
     isPublished: {
       type: Boolean,
       default: false,
@@ -283,8 +277,10 @@ const productSchema = new mongoose.Schema(
       // For combined filters
       { category: 1, brand: 1, price: 1 },
       { category: 1, brand: 1, averageRating: -1 },
-      // For status filtering
-      { status: 1, isPublished: 1 },
+      // For published and featured filtering
+      { isPublished: 1 },
+      { isFeatured: 1 },
+      { isPublished: 1, isFeatured: 1 },
     ],
   }
 );
