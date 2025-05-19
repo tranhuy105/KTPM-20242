@@ -43,10 +43,63 @@ class ProductController {
         },
       };
 
+      // For public API, always ensure only published products are returned
+      if (!req.path.includes('/admin')) {
+        options.filters.isPublished = true;
+      }
+
       const result = await productService.getAllProducts(options);
       res.json(result);
     } catch (error) {
       console.error("Error fetching products:", error);
+      res.status(500).json({ error: error.message || "Server error" });
+    }
+  }
+
+  /**
+   * Get all products for admin with pagination (includes draft products)
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getAdminProducts(req, res) {
+    try {
+      const options = {
+        page: req.query.page,
+        limit: req.query.limit,
+        sortBy: req.query.sortBy,
+        sortOrder: req.query.sortOrder,
+        cursor: req.query.cursor,
+        cursorDirection: req.query.cursorDirection,
+        filters: {
+          category: req.query.category,
+          brand: req.query.brand,
+          status: req.query.status,
+          search: req.query.search,
+          minPrice: req.query.minPrice,
+          maxPrice: req.query.maxPrice,
+          color: req.query.color,
+          size: req.query.size,
+          material: req.query.material,
+          isFeatured:
+            req.query.isFeatured === "true"
+              ? true
+              : req.query.isFeatured === "false"
+              ? false
+              : undefined,
+          isPublished:
+            req.query.isPublished === "true"
+              ? true
+              : req.query.isPublished === "false"
+              ? false
+              : undefined,
+        },
+        isAdmin: true // Flag to include additional fields for admin
+      };
+
+      const result = await productService.getAllProducts(options);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching admin products:", error);
       res.status(500).json({ error: error.message || "Server error" });
     }
   }

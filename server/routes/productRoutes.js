@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/productController");
 const productValidator = require("../validators/productValidator");
-const { authMiddleware } = require("../middleware/authMiddleware");
+const {
+  authMiddleware,
+  adminMiddleware,
+} = require("../middleware/authMiddleware");
 const { cacheMiddleware } = require("../middleware/cacheMiddleware");
 /**
  * @route   GET /api/products/filters
@@ -13,6 +16,19 @@ router.get(
   "/filters",
   cacheMiddleware(1800), // Cache for 30 minutes
   productController.getAvailableFilters
+);
+
+/**
+ * @route   GET /api/products/admin
+ * @desc    Get all products for admin (including drafts)
+ * @access  Private/Admin
+ */
+router.get(
+  "/admin",
+  authMiddleware,
+  adminMiddleware,
+  productValidator.validateProductQuery,
+  productController.getAdminProducts
 );
 
 /**
@@ -88,6 +104,7 @@ router.get(
 router.post(
   "/",
   authMiddleware,
+  adminMiddleware,
   productValidator.validateProduct,
   productController.createProduct
 );
@@ -100,6 +117,7 @@ router.post(
 router.put(
   "/:id",
   authMiddleware,
+  adminMiddleware,
   productValidator.validateProductId,
   productValidator.validateProduct,
   productController.updateProduct
@@ -113,32 +131,35 @@ router.put(
 router.patch(
   "/:id/inventory",
   authMiddleware,
+  adminMiddleware,
   productValidator.validateProductId,
   productValidator.validateInventoryUpdate,
   productController.updateProductInventory
 );
 
 /**
- * @route   PATCH /api/products/:id/featured
+ * @route   PUT /api/products/:id/featured
  * @desc    Toggle product featured status
  * @access  Private/Admin
  */
-router.patch(
+router.put(
   "/:id/featured",
   authMiddleware,
+  adminMiddleware,
   productValidator.validateProductId,
   productValidator.validateFeatureToggle,
   productController.toggleProductFeatured
 );
 
 /**
- * @route   PATCH /api/products/:id/publish
+ * @route   PUT /api/products/:id/published
  * @desc    Toggle product published status
  * @access  Private/Admin
  */
-router.patch(
-  "/:id/publish",
+router.put(
+  "/:id/published",
   authMiddleware,
+  adminMiddleware,
   productValidator.validateProductId,
   productValidator.validatePublishToggle,
   productController.toggleProductPublished
@@ -152,6 +173,7 @@ router.patch(
 router.delete(
   "/:id",
   authMiddleware,
+  adminMiddleware,
   productValidator.validateProductId,
   productController.deleteProduct
 );
@@ -164,6 +186,7 @@ router.delete(
 router.post(
   "/:id/reviews",
   authMiddleware,
+  productValidator.validateProductId,
   productValidator.validateProductReview,
   productController.addProductReview
 );
