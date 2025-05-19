@@ -13,6 +13,7 @@ import type {
   ProductFilters as ProductFiltersType,
   AvailableProductFilters,
 } from "../types";
+import Pagination from "../components/common/Pagination";
 
 const ProductsPage = () => {
   const { t } = useTranslation();
@@ -33,7 +34,7 @@ const ProductsPage = () => {
   const searchParams = new URLSearchParams(location.search);
   const [filters, setFilters] = useState<ProductFiltersType>({
     page: parseInt(searchParams.get("page") || "1"),
-    limit: 12,
+    limit: 24,
     sortBy: searchParams.get("sortBy") || "createdAt",
     sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "desc",
     filters: {
@@ -324,26 +325,13 @@ const ProductsPage = () => {
 
                     {/* Pagination for list view */}
                     {totalPages > 1 && (
-                      <div className="mt-12 flex justify-center">
-                        <div className="flex items-center space-x-1">
-                          {Array.from(
-                            { length: totalPages },
-                            (_, i) => i + 1
-                          ).map((page) => (
-                            <button
-                              key={page}
-                              onClick={() => handlePageChange(page)}
-                              className={`w-10 h-10 flex items-center justify-center rounded-full ${
-                                page === currentPage
-                                  ? "bg-amber-600 text-white"
-                                  : "bg-white text-gray-700 hover:bg-amber-50"
-                              }`}
-                            >
-                              {page}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalItems={totalProducts}
+                        itemsPerPage={products.length}
+                        onPageChange={handlePageChange}
+                      />
                     )}
                   </>
                 )}

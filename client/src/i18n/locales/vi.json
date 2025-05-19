@@ -45,7 +45,8 @@
     "products": "Sản phẩm",
     "categories": "Danh mục",
     "signIn": "Đăng nhập",
-    "searchPlaceholder": "Tìm kiếm sản phẩm..."
+    "searchPlaceholder": "Tìm kiếm sản phẩm...",
+    "aboutus": "Về chúng tôi"
   },
   "footer": {
     "newsletter": {
@@ -121,9 +122,13 @@
     "viewAll": "Xem tất cả",
     "viewDetails": "Xem chi tiết",
     "goBack": "Quay lại",
-    "loading": "Đang tải..."
+    "loading": "Đang tải...",
+    "backToHome": "Trở về trang chủ",
+    "products": "Sản phẩm"
   },
   "products": {
+    "reviewCount": "Lượt đánh giá",
+    "itemsFound": "sản phẩm thỏa mãn bộ lọc",
     "addedToCart": "Đã thêm vào giỏ hàng",
     "releaseDate": "Ngày ra mắt",
     "products": "Sản phẩm",
@@ -150,7 +155,13 @@
       "newest": "Mới nhất",
       "priceAsc": "Giá: Thấp đến cao",
       "priceDesc": "Giá: Cao đến thấp",
-      "popular": "Phổ biến nhất"
+      "popular": "Phổ biến nhất",
+      "priceLowToHigh": "Giá: Thấp đến cao",
+      "priceHighToLow": "Giá: Cao đến thấp",
+      "topRated": "Đánh giá cao nhất",
+      "mostReviewed": "Đánh giá nhiều nhất",
+      "nameAZ": "Tên: A-Z",
+      "nameZA": "Tên: Z-A"
     },
     "brand": "Thương hiệu",
     "sku": "Mã sản phẩm",
@@ -168,6 +179,24 @@
     "relatedProducts": "Sản phẩm liên quan",
     "luxuryExperience": "Trải nghiệm đẳng cấp xa xỉ",
     "verifiedPurchase": "Đã xác nhận mua hàng",
+    "brands": "Thương hiệu",
+    "categories": "Danh mục",
+    "allBrands": "Tất cả thương hiệu",
+    "priceRange": "Khoảng giá",
+    "minPrice": "Giá tối thiểu",
+    "maxPrice": "Giá tối đa",
+    "applyPriceFilter": "Áp dụng bộ lọc giá",
+    "colors": "Màu sắc",
+    "sizes": "Kích cỡ",
+    "materials": "Chất liệu",
+    "onlyFeatured": "Chỉ hiển thị sản phẩm nổi bật",
+    "allCategories": "Tất cả danh mục",
+    "showing": "Hiển thị",
+    "of": "trong số",
+    "items": "sản phẩm",
+    "noProductsFound": "Không tìm thấy sản phẩm nào",
+    "tryDifferentFilters": "Vui lòng thử các bộ lọc khác",
+    "inThisCategory": "Sản phẩm trong danh mục này",
     "userReview": {
       "firstName": "Tên",
       "lastName": "Họ",
@@ -213,6 +242,10 @@
     "clothing": "Quần áo",
     "shoes": "Giày dép",
     "beauty": "Làm đẹp",
-    "fragrances": "Nước hoa"
+    "fragrances": "Nước hoa",
+    "categoryNotFound": "Không tìm thấy danh mục",
+    "categoryNotFoundDesc": "Danh mục bạn đang tìm kiếm không tồn tại hoặc đã bị xóa",
+    "subcategories": "Danh mục con",
+    "products": "sản phẩm"
   }
 }

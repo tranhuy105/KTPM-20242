@@ -19,11 +19,21 @@ export interface Category {
   id?: string;
   description?: string;
   image?: string;
-  parent?: string;
-  parentName?: string;
+  parent?: {
+    _id: string;
+    name: string;
+    slug: string;
+    id: string;
+  };
+  ancestors?: CategoryAncestor[];
   isActive?: boolean;
+  productsCount?: number;
+  displayOrder?: number;
   createdAt?: string;
   updatedAt?: string;
+  seo?: {
+    keywords: string[];
+  };
 }
 
 export interface CategoryFilters {

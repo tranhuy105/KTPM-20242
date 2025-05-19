@@ -1,10 +1,24 @@
 import axiosInstance from "./axiosInstance";
-import type {
-  Category,
-  PaginatedResponse,
-  ApiResponse,
-  CategoryFilters,
-} from "../types";
+import type { Category, ApiResponse, CategoryFilters } from "../types";
+
+// Define a custom response type for categories that matches the actual API response
+interface CategoryListResponse {
+  data: Category[];
+  pagination: {
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    links: {
+      next?: string;
+      first?: string;
+      last?: string;
+    };
+  };
+  timestamp: string;
+}
 
 const categoryApi = {
   /**
@@ -14,9 +28,9 @@ const categoryApi = {
    */
   getAllCategories: async (
     filters?: CategoryFilters
-  ): Promise<ApiResponse<PaginatedResponse<Category>>> => {
+  ): Promise<ApiResponse<Category[]> & CategoryListResponse> => {
     const response = await axiosInstance.get<
-      ApiResponse<PaginatedResponse<Category>>
+      ApiResponse<Category[]> & CategoryListResponse
     >("/categories", {
       params: filters,
     });

@@ -45,7 +45,8 @@
     "products": "Products",
     "categories": "Categories",
     "signIn": "Sign In",
-    "searchPlaceholder": "Search for products..."
+    "searchPlaceholder": "Search for products...",
+    "aboutus": "About Us"
   },
   "footer": {
     "newsletter": {

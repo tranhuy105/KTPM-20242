@@ -3,7 +3,6 @@ import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
 import ProductsPage from "./pages/ProductsPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
-import CategoriesPage from "./pages/CategoriesPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
 import ApiTestPage from "./pages/ApiTestPage";
 import AuthPage from "./pages/AuthPage";
@@ -40,10 +39,6 @@ const routes: RouteObject[] = [
       {
         path: "categories",
         children: [
-          {
-            index: true,
-            element: <CategoriesPage />,
-          },
           {
             path: ":slug",
             element: <CategoryDetailPage />,

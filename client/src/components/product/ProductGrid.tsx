@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import type { Product } from "../../types";
 import ProductCard from "./ProductCard";
-import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
+import Masonry from "react-masonry-css";
+import Pagination from "../common/Pagination";
 
 interface ProductGridProps {
   products: Product[];
@@ -24,65 +26,18 @@ const ProductGrid = ({
   const { t } = useTranslation();
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
 
+  // Breakpoints for the masonry layout
+  const breakpointColumnsObj = {
+    default: 4, // default is 4 columns
+    1280: 4, // lg: 4 columns
+    1024: 3, // md: 3 columns
+    768: 2, // sm: 2 columns
+    640: 1, // xs: 1 column
+  };
+
   useEffect(() => {
     setDisplayedProducts(products);
   }, [products]);
-
-  const handlePageChange = (newPage: number) => {
-    if (onPageChange && newPage >= 1 && newPage <= totalPages) {
-      onPageChange(newPage);
-    }
-  };
-
-  // Generate page numbers for pagination
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxPagesToShow = 5;
-
-    if (totalPages <= maxPagesToShow) {
-      // Show all pages if there are fewer than maxPagesToShow
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Always include first page
-      pages.push(1);
-
-      // Calculate start and end of page range
-      let startPage = Math.max(2, currentPage - 1);
-      let endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      // Adjust if at the beginning
-      if (currentPage <= 3) {
-        endPage = 4;
-      }
-
-      // Adjust if at the end
-      if (currentPage >= totalPages - 2) {
-        startPage = totalPages - 3;
-      }
-
-      // Add ellipsis after first page if needed
-      if (startPage > 2) {
-        pages.push("...");
-      }
-
-      // Add middle pages
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-
-      // Add ellipsis before last page if needed
-      if (endPage < totalPages - 1) {
-        pages.push("...");
-      }
-
-      // Always include last page
-      pages.push(totalPages);
-    }
-
-    return pages;
-  };
 
   return (
     <div className="w-full">
@@ -102,67 +57,27 @@ const ProductGrid = ({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="flex w-auto -ml-6 md:-ml-8"
+            columnClassName="pl-6 md:pl-8 bg-clip-padding"
+          >
             {displayedProducts.map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <div key={product._id} className="mb-6 md:mb-8">
+                <ProductCard product={product} isMasonry={true} />
+              </div>
             ))}
-          </div>
+          </Masonry>
 
           {/* Pagination */}
           {onPageChange && totalPages > 1 && (
-            <div className="mt-12 flex flex-col items-center">
-              <div className="text-sm text-gray-500 mb-4">
-                {t("products.showing")}{" "}
-                {(currentPage - 1) * products.length + 1}-
-                {Math.min(currentPage * products.length, totalProducts)}{" "}
-                {t("products.of")} {totalProducts} {t("products.items")}
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border ${
-                    currentPage === 1
-                      ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                      : "border-gray-300 text-gray-700 hover:bg-amber-50 hover:border-amber-300"
-                  } transition-colors`}
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-
-                {getPageNumbers().map((page, index) => (
-                  <button
-                    key={index}
-                    onClick={() =>
-                      typeof page === "number" && handlePageChange(page)
-                    }
-                    disabled={page === "..."}
-                    className={`flex items-center justify-center w-10 h-10 rounded-full border ${
-                      page === currentPage
-                        ? "bg-amber-600 border-amber-600 text-white"
-                        : page === "..."
-                        ? "border-transparent text-gray-500"
-                        : "border-gray-300 text-gray-700 hover:bg-amber-50 hover:border-amber-300"
-                    } transition-colors`}
-                  >
-                    {page}
-                  </button>
-                ))}
-
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border ${
-                    currentPage === totalPages
-                      ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                      : "border-gray-300 text-gray-700 hover:bg-amber-50 hover:border-amber-300"
-                  } transition-colors`}
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalProducts}
+              itemsPerPage={products.length}
+              onPageChange={onPageChange}
+            />
           )}
         </>
       )}

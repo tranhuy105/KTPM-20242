@@ -77,7 +77,11 @@ const ProductSection = ({
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {products.map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard
+                key={product._id}
+                product={product}
+                isMasonry={false}
+              />
             ))}
           </div>
         )}

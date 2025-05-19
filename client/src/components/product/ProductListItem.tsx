@@ -111,7 +111,7 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
             <div className="flex items-center mb-2">
               <div className="flex items-center mr-2">{renderStars()}</div>
               <span className="text-xs text-gray-500">
-                ({product.reviewCount} {t("products.reviews")})
+                ({product.reviewCount} {t("products.reviewCount")})
               </span>
             </div>
           </div>

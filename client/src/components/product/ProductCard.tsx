@@ -4,9 +4,10 @@ import type { Product } from "../../types";
 
 interface ProductCardProps {
   product: Product;
+  isMasonry?: boolean;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
   const { t } = useTranslation();
 
   // Calculate discount percentage if compareAtPrice exists
@@ -57,11 +58,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out origin-left"></div>
 
       <Link to={`/products/${product.slug}`} className="block p-2">
-        <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-50 mb-4 relative">
+        <div className="w-full overflow-hidden bg-gray-50 mb-4 relative">
           <img
             src={getImageUrl()}
             alt={product.name}
-            className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+            className={`w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105 ${
+              !isMasonry ? "h-[300px]" : ""
+            }`}
           />
           {product.compareAtPrice && product.compareAtPrice > product.price && (
             <div className="absolute top-3 right-3 bg-black text-amber-300 text-xs font-medium px-3 py-1.5 uppercase tracking-wider">

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaSearch, FaShoppingCart, FaUserAlt } from "react-icons/fa";
+import { Search, ShoppingCart, User } from "lucide-react";
 import { useAuthContext } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -56,10 +56,10 @@ const Header = () => {
                 {t("header.products")}
               </Link>
               <Link
-                to="/categories"
+                to="#"
                 className="text-gray-800 hover:text-amber-600 font-medium tracking-wide text-sm uppercase transition-colors duration-300"
               >
-                {t("header.categories")}
+                {t("header.aboutus")}
               </Link>
             </nav>
 
@@ -71,10 +71,10 @@ const Header = () => {
                   : "bg-gray-50 border border-gray-200 rounded-full px-4 py-2"
               } flex-grow max-w-md mx-6`}
             >
-              <FaSearch
+              <Search
                 className={`${
                   isSearchFocused ? "text-amber-500" : "text-gray-400"
-                } mr-2`}
+                } mr-2 h-4 w-4`}
               />
               <input
                 type="text"
@@ -89,7 +89,7 @@ const Header = () => {
             <div className="flex items-center space-x-6">
               <Link to="/cart" className="relative group">
                 <div className="p-2 rounded-full bg-gray-50 group-hover:bg-amber-50 transition-colors duration-300">
-                  <FaShoppingCart className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" />
+                  <ShoppingCart className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" />
                 </div>
                 <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
                   0
@@ -99,7 +99,7 @@ const Header = () => {
               {isAuthenticated ? (
                 <Link to="/profile" className="hidden md:block group">
                   <div className="p-2 rounded-full bg-gray-50 group-hover:bg-amber-50 transition-colors duration-300">
-                    <FaUserAlt className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" />
+                    <User className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" />
                   </div>
                 </Link>
               ) : (

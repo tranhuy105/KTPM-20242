@@ -22,7 +22,7 @@ const CategorySection = () => {
       name: "Túi Xách & Ví",
       image:
         "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=2940&auto=format&fit=crop",
-      slug: "tui-xach-vi",
+      slug: "tui-xach-and-vi",
     },
     {
       name: "Nước Hoa",

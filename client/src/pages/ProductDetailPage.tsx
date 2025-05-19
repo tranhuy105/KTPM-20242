@@ -394,7 +394,6 @@ const ProductDetailPage = () => {
         </div>
       </div>
 
-      {/* CSS for hiding scrollbars */}
       <style>{`
         .hide-scrollbar {
           -ms-overflow-style: none;

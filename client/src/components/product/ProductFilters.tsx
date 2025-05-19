@@ -429,7 +429,7 @@ const ProductFilters = ({
             <div className="flex space-x-4">
               <div className="w-1/2">
                 <label className="text-xs text-gray-500 block mb-1">
-                  {t("products.min")}
+                  {t("products.minPrice")}
                 </label>
                 <input
                   type="number"
@@ -442,7 +442,7 @@ const ProductFilters = ({
               </div>
               <div className="w-1/2">
                 <label className="text-xs text-gray-500 block mb-1">
-                  {t("products.max")}
+                  {t("products.maxPrice")}
                 </label>
                 <input
                   type="number"
@@ -458,7 +458,7 @@ const ProductFilters = ({
               onClick={handlePriceChange}
               className="w-full bg-amber-100 text-amber-800 hover:bg-amber-200 py-2 rounded-md text-sm font-medium transition-colors"
             >
-              {t("products.applyPrice")}
+              {t("products.applyPriceFilter")}
             </button>
           </div>
         )}
