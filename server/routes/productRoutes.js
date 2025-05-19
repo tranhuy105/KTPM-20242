@@ -97,6 +97,32 @@ router.get(
 );
 
 /**
+ * @route   GET /api/products/admin/id/:id
+ * @desc    Get a product by ID (admin access, includes all products)
+ * @access  Private/Admin
+ */
+router.get(
+  "/admin/id/:id",
+  authMiddleware,
+  adminMiddleware,
+  productValidator.validateProductId,
+  productController.getProductByIdAdmin
+);
+
+/**
+ * @route   GET /api/products/admin/slug/:slug
+ * @desc    Get a product by slug (admin access, includes all products)
+ * @access  Private/Admin
+ */
+router.get(
+  "/admin/slug/:slug",
+  authMiddleware,
+  adminMiddleware,
+  productValidator.validateProductSlug,
+  productController.getProductBySlugAdmin
+);
+
+/**
  * @route   POST /api/products
  * @desc    Create a new product
  * @access  Private/Admin

@@ -798,6 +798,62 @@ class ProductService {
       throw new Error("Invalid product ID format");
     }
   }
+
+  /**
+   * Get a product by ID for admin (no active/published restrictions)
+   * @param {String} id - Product ID
+   * @returns {Object} Product object
+   */
+  async getProductByIdAdmin(id) {
+    try {
+      this.validateObjectId(id);
+
+      const product = await Product.findById(id)
+        .populate({
+          path: "category",
+          select: "name slug ancestors",
+        })
+        .populate({
+          path: "reviews.user",
+          select: "username firstName lastName avatar",
+        });
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get a product by slug for admin (no active/published restrictions)
+   * @param {String} slug - Product slug
+   * @returns {Object} Product object
+   */
+  async getProductBySlugAdmin(slug) {
+    try {
+      const product = await Product.findOne({ slug })
+        .populate({
+          path: "category",
+          select: "name slug ancestors",
+        })
+        .populate({
+          path: "reviews.user",
+          select: "username firstName lastName avatar",
+        });
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = new ProductService();

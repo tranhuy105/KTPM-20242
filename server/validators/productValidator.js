@@ -39,11 +39,6 @@ const productValidator = {
       .isFloat({ min: 0 })
       .withMessage("Price must be a positive number"),
 
-    body("compareAtPrice")
-      .optional()
-      .isFloat({ min: 0 })
-      .withMessage("Compare at price must be a positive number"),
-
     body("status")
       .optional()
       .isIn(["draft", "active", "archived"])
