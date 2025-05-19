@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import type { Product, ProductVariant } from "../../types";
 import { useCartContext } from "../../context/CartContext";
+import { useAuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, LogIn } from "lucide-react";
 
 interface ProductInfoProps {
   product: Product;
@@ -12,7 +14,9 @@ interface ProductInfoProps {
 
 const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { addItem } = useCartContext();
+  const { isAuthenticated } = useAuthContext();
   const [quantity, setQuantity] = useState(1);
 
   // Format price in VND with thousands separator
@@ -62,6 +66,21 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
 
   // Handle add to cart
   const handleAddToCart = () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast(
+        <div className="flex items-center gap-2">
+          <LogIn size={18} />
+          <span>Please log in to add items to your cart</span>
+        </div>,
+        {
+          icon: "🔒",
+        }
+      );
+      navigate("/auth");
+      return;
+    }
+
     // Get the first image URL
     const imageUrl =
       product.images && product.images.length > 0

@@ -10,6 +10,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
 import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 
 const routes: RouteObject[] = [
   {
@@ -71,6 +73,14 @@ const routes: RouteObject[] = [
           {
             path: "profile",
             element: <ProfilePage />,
+          },
+          {
+            path: "checkout",
+            element: <CheckoutPage />,
+          },
+          {
+            path: "order-confirmation",
+            element: <OrderConfirmationPage />,
           },
           // Add other protected routes here
         ],

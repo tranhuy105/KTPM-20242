@@ -1,22 +1,23 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useCartContext } from "../context/CartContext";
+import { useAuthContext } from "../context/AuthContext";
 import {
   Minus,
   Plus,
   Trash2,
   ArrowRight,
   ShoppingBag,
-  Check,
+  LogIn,
 } from "lucide-react";
 import Breadcrumb from "../components/common/Breadcrumb";
 import toast from "react-hot-toast";
 
 const CartPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { cart, updateQuantity, removeItem } = useCartContext();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { isAuthenticated } = useAuthContext();
 
   // Format price in VND
   const formatPrice = (price: number) => {
@@ -25,23 +26,6 @@ const CartPage = () => {
       currency: "VND",
       maximumFractionDigits: 0,
     }).format(price);
-  };
-
-  // Handle checkout
-  const handleCheckout = () => {
-    setIsProcessing(true);
-
-    // Simulate processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      // Redirect to checkout would happen here
-      toast.success(
-        <div className="flex items-center gap-2">
-          <Check size={18} />
-          <span>{t("cart.checkoutSoon")}</span>
-        </div>
-      );
-    }, 1500);
   };
 
   // Handle remove item with toast notification
@@ -87,6 +71,41 @@ const CartPage = () => {
       );
     }
   };
+
+  // Not authenticated view
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-white min-h-screen">
+        <div className="container mx-auto px-4 py-16">
+          <Breadcrumb
+            items={[
+              { label: t("common.home"), path: "/" },
+              { label: t("cart.title"), path: "/cart" },
+            ]}
+          />
+
+          <div className="max-w-2xl mx-auto text-center mt-16 mb-24">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-amber-50 rounded-full mb-8">
+              <LogIn className="h-12 w-12 text-amber-600" />
+            </div>
+            <h1 className="text-3xl font-serif font-medium text-gray-900 mb-6">
+              Please sign in to view your cart
+            </h1>
+            <p className="text-gray-600 mb-8">
+              You need to be logged in to access your shopping cart.
+            </p>
+            <button
+              onClick={() => navigate("/auth")}
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-800 text-white rounded-full shadow-md hover:from-amber-700 hover:to-amber-900 transition-all duration-300"
+            >
+              Sign In
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Empty cart view
   if (cart.items.length === 0) {
@@ -305,46 +324,18 @@ const CartPage = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleCheckout}
-                  disabled={isProcessing}
-                  className={`w-full mt-8 py-4 px-6 rounded-full font-medium text-base uppercase tracking-wider transition-all duration-300 flex items-center justify-center ${
-                    isProcessing
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-amber-600 to-amber-800 text-white hover:from-amber-700 hover:to-amber-900 shadow-md hover:shadow-lg"
-                  }`}
+                <Link
+                  to="/checkout"
+                  className="w-full mt-8 py-4 px-6 rounded-full font-medium text-base uppercase tracking-wider transition-all duration-300 flex items-center justify-center bg-gradient-to-r from-amber-600 to-amber-800 text-white hover:from-amber-700 hover:to-amber-900 shadow-md hover:shadow-lg"
                 >
-                  {isProcessing ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      {t("cart.processing")}
-                    </>
-                  ) : (
-                    <>
-                      {t("cart.proceedToCheckout")}
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </button>
+                  {" "}
+                  {t("cart.proceedToCheckout")}{" "}
+                  <ArrowRight className="ml-2 h-5 w-5" />{" "}
+                </Link>
+
+                <div className="mt-2 text-center text-xs text-amber-600">
+                  {t("cart.checkoutSoon")}
+                </div>
 
                 <div className="mt-6">
                   <Link

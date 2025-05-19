@@ -3,7 +3,6 @@ import type {
   Order,
   PaginatedResponse,
   OrderFilters,
-  OrderItem,
   OrderAddress,
   OrderTransaction,
 } from "../types";
@@ -61,9 +60,25 @@ const orderApi = {
    * @returns Created order
    */
   createOrder: async (orderData: {
-    items: Omit<OrderItem, "_id">[];
-    shippingAddress: OrderAddress;
-    billingAddress?: OrderAddress;
+    products: {
+      productId: string;
+      quantity: number;
+      variantId?: string;
+    }[];
+    shipping: {
+      method: string;
+      cost: number;
+      address: OrderAddress;
+    };
+    billing: {
+      paymentMethod: string;
+      address: OrderAddress;
+    };
+    customerNote?: string;
+    ipAddress?: string;
+    taxAmount?: number;
+    discountTotal?: number;
+    couponCode?: string;
   }): Promise<Order> => {
     const response = await axiosInstance.post<Order>("/orders", orderData);
     return response.data;
