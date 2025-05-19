@@ -116,6 +116,29 @@
       "maria": "The fragrance I purchased has become my signature scent. Every detail from the packaging to the bottle design speaks of exceptional quality."
     }
   },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "emptyMessage": "Looks like you haven't added any products to your cart yet.",
+    "continueShopping": "Continue Shopping",
+    "product": "Product",
+    "price": "Price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "remove": "Remove",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "calculatedAtCheckout": "Calculated at checkout",
+    "proceedToCheckout": "Proceed to Checkout",
+    "processing": "Processing...",
+    "update": "Update Cart",
+    "itemRemoved": "Item removed from cart",
+    "quantityIncreased": "Quantity increased",
+    "quantityDecreased": "Quantity decreased",
+    "checkoutSoon": "Checkout functionality will be implemented soon!"
+  },
   "common": {
     "home": "Home",
     "shop": "Shop",

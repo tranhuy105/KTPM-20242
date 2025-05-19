@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
+import CartPage from "./pages/CartPage";
 
 const routes: RouteObject[] = [
   {
@@ -44,6 +45,10 @@ const routes: RouteObject[] = [
             element: <CategoryDetailPage />,
           },
         ],
+      },
+      {
+        path: "cart",
+        element: <CartPage />,
       },
       {
         path: "api-test",

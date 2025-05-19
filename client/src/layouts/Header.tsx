@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User } from "lucide-react";
 import { useAuthContext } from "../context/AuthContext";
+import { useCartContext } from "../context/CartContext";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 
 const Header = () => {
   const { isAuthenticated } = useAuthContext();
+  const { cart } = useCartContext();
   const { t } = useTranslation();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -92,7 +94,7 @@ const Header = () => {
                   <ShoppingCart className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" />
                 </div>
                 <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                  0
+                  {cart.totalItems}
                 </span>
               </Link>
 

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Product, ProductVariant } from "../../types";
+import { useCartContext } from "../../context/CartContext";
+import toast from "react-hot-toast";
+import { ShoppingBag } from "lucide-react";
 
 interface ProductInfoProps {
   product: Product;
@@ -9,8 +12,8 @@ interface ProductInfoProps {
 
 const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
   const { t } = useTranslation();
+  const { addItem } = useCartContext();
   const [quantity, setQuantity] = useState(1);
-  const [showNotification, setShowNotification] = useState(false);
 
   // Format price in VND with thousands separator
   const formatPrice = (price: number) => {
@@ -59,43 +62,36 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
 
   // Handle add to cart
   const handleAddToCart = () => {
-    // This would typically interact with a cart context or API
-    console.log("Adding to cart:", {
+    // Get the first image URL
+    const imageUrl =
+      product.images && product.images.length > 0
+        ? typeof product.images[0] === "string"
+          ? product.images[0]
+          : product.images[0].url
+        : "";
+
+    // Add item to cart
+    addItem({
       productId: product._id,
+      name: product.name,
+      price: currentPrice,
+      quantity: quantity,
+      image: imageUrl,
       variantId: selectedVariant?._id,
-      quantity,
+      variantName: selectedVariant?.name,
     });
 
-    // Show notification
-    setShowNotification(true);
-
-    // Hide notification after 3 seconds
-    setTimeout(() => {
-      setShowNotification(false);
-    }, 3000);
+    // Show toast notification
+    toast.success(
+      <div className="flex items-center gap-2">
+        <ShoppingBag size={18} />
+        <span>{t("products.addedToCart")}</span>
+      </div>
+    );
   };
 
   return (
     <div className="product-info relative">
-      {/* Notification */}
-      {showNotification && (
-        <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 bg-green-100 border border-green-200 text-green-800 px-4 py-2 rounded-md shadow-lg z-50 animate-fade-in-down flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2 text-green-600"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span>{t("products.addedToCart")}</span>
-        </div>
-      )}
-
       {/* Brand and Category Badge */}
       <div className="flex items-center space-x-2 mb-4">
         {product.brandName && (

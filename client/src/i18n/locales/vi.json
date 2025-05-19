@@ -116,6 +116,29 @@
       "maria": "Nước hoa tôi mua đã trở thành mùi hương đặc trưng của tôi. Mọi chi tiết từ bao bì đến thiết kế chai đều thể hiện chất lượng vượt trội."
     }
   },
+  "cart": {
+    "title": "Giỏ hàng",
+    "empty": "Giỏ hàng của bạn đang trống",
+    "emptyMessage": "Có vẻ như bạn chưa thêm bất kỳ sản phẩm nào vào giỏ hàng.",
+    "continueShopping": "Tiếp tục mua sắm",
+    "product": "Sản phẩm",
+    "price": "Giá",
+    "quantity": "Số lượng",
+    "total": "Tổng cộng",
+    "remove": "Xóa",
+    "orderSummary": "Tóm tắt đơn hàng",
+    "subtotal": "Tạm tính",
+    "shipping": "Phí vận chuyển",
+    "tax": "Thuế",
+    "calculatedAtCheckout": "Tính khi thanh toán",
+    "proceedToCheckout": "Tiến hành thanh toán",
+    "processing": "Đang xử lý...",
+    "update": "Cập nhật giỏ hàng",
+    "itemRemoved": "Đã xóa sản phẩm khỏi giỏ hàng",
+    "quantityIncreased": "Đã tăng số lượng",
+    "quantityDecreased": "Đã giảm số lượng",
+    "checkoutSoon": "Chức năng thanh toán sẽ được triển khai sớm!"
+  },
   "common": {
     "home": "Trang chủ",
     "shop": "Cửa hàng",
