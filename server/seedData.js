@@ -444,6 +444,120 @@ async function seedUsers() {
   }
 }
 
+// Category image URLs for each category
+const CATEGORY_IMAGES = {
+  // Parent categories
+  "Đồng Hồ Cao Cấp":
+    "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?q=80&w=1000&auto=format&fit=crop",
+  "Trang Sức":
+    "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1000&auto=format&fit=crop",
+  "Túi Xách & Ví":
+    "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop",
+  "Thời Trang Nam":
+    "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=1000&auto=format&fit=crop",
+  "Thời Trang Nữ":
+    "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=1000&auto=format&fit=crop",
+  "Nước Hoa":
+    "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=1000&auto=format&fit=crop",
+  "Mỹ Phẩm Cao Cấp":
+    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1000&auto=format&fit=crop",
+  "Đồ Trang Trí":
+    "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1000&auto=format&fit=crop",
+  "Rượu & Đồ Uống":
+    "https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=1000&auto=format&fit=crop",
+
+  // Child categories
+  "Đồng Hồ Nam":
+    "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=1000&auto=format&fit=crop",
+  "Đồng Hồ Nữ":
+    "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1000&auto=format&fit=crop",
+  "Đồng Hồ Giới Hạn":
+    "https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=1000&auto=format&fit=crop",
+  "Đồng Hồ Cổ Điển":
+    "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?q=80&w=1000&auto=format&fit=crop",
+  Nhẫn: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1000&auto=format&fit=crop",
+  "Vòng Tay":
+    "https://images.unsplash.com/photo-1611652022419-a9419f74343d?q=80&w=1000&auto=format&fit=crop",
+  "Dây Chuyền":
+    "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=1000&auto=format&fit=crop",
+  "Hoa Tai":
+    "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=1000&auto=format&fit=crop",
+  "Kim Cương":
+    "https://images.unsplash.com/photo-1586864387789-628af9feed72?q=80&w=1000&auto=format&fit=crop",
+  "Đá Quý":
+    "https://images.unsplash.com/photo-1551751299-1b51cab2694c?q=80&w=1000&auto=format&fit=crop",
+  "Túi Xách Nữ":
+    "https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?q=80&w=1000&auto=format&fit=crop",
+  "Túi Xách Nam":
+    "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=1000&auto=format&fit=crop",
+  "Ví Da":
+    "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=1000&auto=format&fit=crop",
+  "Túi Du Lịch":
+    "https://images.unsplash.com/photo-1553808373-92b0bcc3af15?q=80&w=1000&auto=format&fit=crop",
+  "Túi Tote":
+    "https://images.unsplash.com/photo-1591561954555-607968c989ab?q=80&w=1000&auto=format&fit=crop",
+  "Áo Vest":
+    "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1000&auto=format&fit=crop",
+  "Áo Sơ Mi":
+    "https://images.unsplash.com/photo-1598961942613-ba897716405b?q=80&w=1000&auto=format&fit=crop",
+  "Quần Âu":
+    "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1000&auto=format&fit=crop",
+  "Giày Da":
+    "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=1000&auto=format&fit=crop",
+  "Thắt Lưng":
+    "https://images.unsplash.com/photo-1553591589-2e96ef7eca65?q=80&w=1000&auto=format&fit=crop",
+  "Cà Vạt":
+    "https://images.unsplash.com/photo-1589756823695-278bc923f962?q=80&w=1000&auto=format&fit=crop",
+  "Đầm Dạ Hội":
+    "https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=1000&auto=format&fit=crop",
+  "Áo Dài":
+    "https://images.unsplash.com/photo-1553591589-2e96ef7eca65?q=80&w=1000&auto=format&fit=crop",
+  "Túi Clutch":
+    "https://images.unsplash.com/photo-1575844264771-892081089af5?q=80&w=1000&auto=format&fit=crop",
+  "Giày Cao Gót":
+    "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=1000&auto=format&fit=crop",
+  "Khăn Lụa":
+    "https://images.unsplash.com/photo-1601370552761-d129028bd833?q=80&w=1000&auto=format&fit=crop",
+  "Nước Hoa Nam":
+    "https://images.unsplash.com/photo-1600612253971-422e7f7faeb6?q=80&w=1000&auto=format&fit=crop",
+  "Nước Hoa Nữ":
+    "https://images.unsplash.com/photo-1600612253971-422e7f7faeb6?q=80&w=1000&auto=format&fit=crop",
+  "Nước Hoa Unisex":
+    "https://images.unsplash.com/photo-1600612253971-422e7f7faeb6?q=80&w=1000&auto=format&fit=crop",
+  "Bộ Quà Tặng":
+    "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1000&auto=format&fit=crop",
+  "Trang Điểm":
+    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1000&auto=format&fit=crop",
+  "Chăm Sóc Da":
+    "https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=1000&auto=format&fit=crop",
+  "Son Môi":
+    "https://images.unsplash.com/photo-1586495777744-4413f21062fa?q=80&w=1000&auto=format&fit=crop",
+  "Phấn Nền":
+    "https://images.unsplash.com/photo-1596704017254-9b121068fb31?q=80&w=1000&auto=format&fit=crop",
+  "Mặt Nạ":
+    "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?q=80&w=1000&auto=format&fit=crop",
+  "Đèn Trang Trí":
+    "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?q=80&w=1000&auto=format&fit=crop",
+  "Bình Hoa":
+    "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop",
+  "Tranh Nghệ Thuật":
+    "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop",
+  "Đồ Sứ":
+    "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1000&auto=format&fit=crop",
+  "Đồ Thủy Tinh":
+    "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1000&auto=format&fit=crop",
+  "Rượu Vang":
+    "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop",
+  Whisky:
+    "https://images.unsplash.com/photo-1527281400683-1aae777175f8?q=80&w=1000&auto=format&fit=crop",
+  Cognac:
+    "https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=1000&auto=format&fit=crop",
+  Champagne:
+    "https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?q=80&w=1000&auto=format&fit=crop",
+  "Rượu Mạnh":
+    "https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?q=80&w=1000&auto=format&fit=crop",
+};
+
 // Seed categories
 async function seedCategories() {
   try {
@@ -461,6 +575,7 @@ async function seedCategories() {
         description: `Bộ sưu tập ${categoryData.name.toLowerCase()} cao cấp và sang trọng.`,
         isActive: true,
         displayOrder: categories.length,
+        image: CATEGORY_IMAGES[categoryData.name] || DEFAULT_IMAGE,
       });
 
       await parentCategory.save();
@@ -483,6 +598,7 @@ async function seedCategories() {
           ],
           isActive: true,
           displayOrder: 0,
+          image: CATEGORY_IMAGES[childName] || DEFAULT_IMAGE,
         });
 
         await childCategory.save();
@@ -583,14 +699,40 @@ async function seedProducts(categories, categoryMap, brands, users) {
       // Random inventory
       const inventoryQuantity = Math.floor(Math.random() * 100);
 
-      // Generate images
-      const numImages = Math.floor(Math.random() * 5) + 1;
+      // Generate images using category images
+      const numImages = Math.floor(Math.random() * 3) + 2; // 2-4 images per product
       const images = [];
-      for (let j = 0; j < numImages; j++) {
+
+      // Get the category image
+      const categoryImage = CATEGORY_IMAGES[category.name] || DEFAULT_IMAGE;
+      // Get the parent category image if this is a child category
+      const parentCategoryImage = category.parent
+        ? CATEGORY_IMAGES[
+            categories.find((c) => c._id.equals(category.parent))?.name
+          ] || DEFAULT_IMAGE
+        : DEFAULT_IMAGE;
+
+      // First image is always from the category
+      images.push({
+        url: categoryImage,
+        alt: `${productName} - ${category.name}`,
+        isDefault: true,
+      });
+
+      // Add additional images
+      for (let j = 1; j < numImages; j++) {
+        // Alternate between parent category image and brand-specific image
+        const imageUrl =
+          j % 2 === 1
+            ? parentCategoryImage
+            : j === 2
+            ? DEFAULT_IMAGE
+            : SECONDARY_IMAGE;
+
         images.push({
-          url: j === 0 ? DEFAULT_IMAGE : SECONDARY_IMAGE,
+          url: imageUrl,
           alt: `${productName} - Hình ${j + 1}`,
-          isDefault: j === 0,
+          isDefault: false,
         });
       }
 

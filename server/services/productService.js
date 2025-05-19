@@ -31,7 +31,11 @@ class ProductService {
     if (options.filters) {
       // Category filter - only apply if not empty string
       if (options.filters.category && options.filters.category.trim() !== "") {
-        filter.category = options.filters.category;
+        const categoryId = options.filters.category.trim();
+
+        // Get the category and all its children
+        const categoryIds = await this.getCategoryWithChildren(categoryId);
+        filter.category = { $in: categoryIds };
       }
 
       // Brand filter - only apply if not empty string
@@ -495,10 +499,29 @@ class ProductService {
     try {
       const product = await this.getProductById(productId);
 
-      // Get products from the same category
+      // Get the category and all its siblings (products in same category or related categories)
+      let categoryIds = [product.category];
+
+      // If the product's category has a parent, include sibling categories
+      if (product.category && product.category.parent) {
+        // Get all categories with the same parent
+        const Category = mongoose.model("Category");
+        const siblingCategories = await Category.find({
+          parent: product.category.parent,
+        }).select("_id");
+
+        if (siblingCategories && siblingCategories.length > 0) {
+          categoryIds = siblingCategories.map((c) => c._id);
+        }
+      } else {
+        // If it's a parent category, include its children
+        categoryIds = await this.getCategoryWithChildren(product.category);
+      }
+
+      // Get products from the same category and related categories
       const relatedProducts = await Product.find(
         {
-          category: product.category,
+          category: { $in: categoryIds },
           _id: { $ne: product._id }, // Exclude the current product
           status: "active",
           isPublished: true,
@@ -626,6 +649,67 @@ class ProductService {
       averageRating: 1,
       reviewCount: 1,
     };
+  }
+
+  /**
+   * Helper to get a category and all its child category IDs
+   * @param {String} categoryId - Parent category ID
+   * @returns {Array} Array of category IDs including parent and all children
+   */
+  async getCategoryWithChildren(categoryId) {
+    try {
+      // First check if we have a valid category ID
+      if (!categoryId || !mongoose.Types.ObjectId.isValid(categoryId)) {
+        return [];
+      }
+
+      // Get all descendants recursively
+      const allCategoryIds = await this.getAllCategoryDescendants(categoryId);
+
+      // Include the parent category ID
+      return [categoryId, ...allCategoryIds];
+    } catch (err) {
+      console.error("Error fetching child categories:", err);
+      return [categoryId];
+    }
+  }
+
+  /**
+   * Helper to recursively get all descendant category IDs
+   * @param {String} categoryId - Parent category ID
+   * @returns {Array} Array of all descendant category IDs
+   */
+  async getAllCategoryDescendants(categoryId) {
+    try {
+      const Category = mongoose.model("Category");
+      const childCategories = await Category.find({
+        parent: categoryId,
+      }).select("_id");
+
+      if (!childCategories || childCategories.length === 0) {
+        return [];
+      }
+
+      const childIds = childCategories.map((c) => c._id);
+
+      // For each child, recursively get its children
+      const descendantPromises = childIds.map((id) =>
+        this.getAllCategoryDescendants(id)
+      );
+      const nestedDescendants = await Promise.all(descendantPromises);
+
+      // Flatten the nested arrays of descendants
+      const allDescendants = nestedDescendants.reduce(
+        (acc, descendants) => [...acc, ...descendants],
+        []
+      );
+
+      // Return all child IDs and their descendants
+      return [...childIds, ...allDescendants];
+    } catch (err) {
+      console.error("Error fetching category descendants:", err);
+      return [];
+    }
   }
 }
 
