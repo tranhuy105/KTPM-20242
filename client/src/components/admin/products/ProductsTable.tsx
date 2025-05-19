@@ -94,7 +94,9 @@ export function ProductsTable({
                   <div>
                     <div className="font-medium">{product.name}</div>
                     <div className="text-sm text-muted-foreground">
-                      {product.brandName || "No brand"}
+                      {product.brand && typeof product.brand === "object"
+                        ? product.brand.name
+                        : "No brand"}
                     </div>
                   </div>
                 </div>

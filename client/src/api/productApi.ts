@@ -71,6 +71,30 @@ const productApi = {
   },
 
   /**
+   * Get a product by ID for admin (includes unpublished/inactive)
+   * @param productId Product ID
+   * @returns Product object with full admin fields
+   */
+  getProductByIdAdmin: async (productId: string): Promise<Product> => {
+    const response = await axiosInstance.get<Product>(
+      `/products/admin/id/${productId}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get a product by slug for admin (includes unpublished/inactive)
+   * @param slug Product slug
+   * @returns Product object with full admin fields
+   */
+  getProductBySlugAdmin: async (slug: string): Promise<Product> => {
+    const response = await axiosInstance.get<Product>(
+      `/products/admin/slug/${slug}`
+    );
+    return response.data;
+  },
+
+  /**
    * Create a new product
    * @param productData Product data
    * @returns Created product

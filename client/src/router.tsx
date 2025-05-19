@@ -22,6 +22,7 @@ import AdminUserEditPage from "./pages/admin/AdminUserEditPage";
 import AdminUserCreatePage from "./pages/admin/AdminUserCreatePage";
 import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import AdminProductEditPage from "./pages/admin/AdminProductEditPage";
+import AdminProductNewPage from "./pages/admin/AdminProductNewPage";
 import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 
 const routes: RouteObject[] = [
@@ -145,10 +146,10 @@ const routes: RouteObject[] = [
           },
           {
             path: "new",
-            element: <AdminProductEditPage />,
+            element: <AdminProductNewPage />,
           },
           {
-            path: ":id",
+            path: ":productId",
             element: <AdminProductEditPage />,
           },
         ],
