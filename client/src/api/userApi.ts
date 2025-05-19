@@ -1,10 +1,6 @@
 import axiosInstance from "./axiosInstance";
-import type {
-  User,
-  PaginatedResponse,
-  ApiResponse,
-  UserFilters,
-} from "../types";
+import type { User, UserFilters } from "../types";
+import type { PaginatedUserResponse } from "../types/Api";
 
 const userApi = {
   /**
@@ -14,11 +10,10 @@ const userApi = {
    */
   getAllUsers: async (
     filters?: UserFilters
-  ): Promise<PaginatedResponse<User>> => {
-    const response = await axiosInstance.get<PaginatedResponse<User>>(
-      "/users",
-      { params: filters }
-    );
+  ): Promise<PaginatedUserResponse> => {
+    const response = await axiosInstance.get<PaginatedUserResponse>("/users", {
+      params: filters,
+    });
     return response.data;
   },
 
@@ -29,6 +24,16 @@ const userApi = {
    */
   getUserById: async (userId: string): Promise<User> => {
     const response = await axiosInstance.get<User>(`/users/${userId}`);
+    return response.data;
+  },
+
+  /**
+   * Create a new user (admin only)
+   * @param userData User data
+   * @returns Created user
+   */
+  createUser: async (userData: Partial<User>): Promise<User> => {
+    const response = await axiosInstance.post<User>("/users", userData);
     return response.data;
   },
 
@@ -54,10 +59,8 @@ const userApi = {
    * @param userId User ID
    * @returns Success message
    */
-  deleteUser: async (userId: string): Promise<ApiResponse<string>> => {
-    const response = await axiosInstance.delete<ApiResponse<string>>(
-      `/users/${userId}`
-    );
+  deleteUser: async (userId: string): Promise<string> => {
+    const response = await axiosInstance.delete<string>(`/users/${userId}`);
     return response.data;
   },
 
@@ -69,12 +72,11 @@ const userApi = {
    */
   changeUserRole: async (
     userId: string,
-    role: "user" | "admin"
-  ): Promise<ApiResponse<User>> => {
-    const response = await axiosInstance.put<ApiResponse<User>>(
-      `/users/${userId}/role`,
-      { role }
-    );
+    role: "customer" | "admin" | "manager"
+  ): Promise<User> => {
+    const response = await axiosInstance.put<User>(`/users/${userId}/role`, {
+      role,
+    });
     return response.data;
   },
 
@@ -87,11 +89,10 @@ const userApi = {
   toggleUserActive: async (
     userId: string,
     isActive: boolean
-  ): Promise<ApiResponse<User>> => {
-    const response = await axiosInstance.put<ApiResponse<User>>(
-      `/users/${userId}/status`,
-      { isActive }
-    );
+  ): Promise<User> => {
+    const response = await axiosInstance.put<User>(`/users/${userId}/status`, {
+      isActive,
+    });
     return response.data;
   },
 };

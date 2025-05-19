@@ -13,6 +13,17 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 
+// Admin imports
+import AdminOrderDetailPage from "./pages/admin/AdminOrderDetailPage";
+import AdminLayout from "./layouts/AdminLayout";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminUserEditPage from "./pages/admin/AdminUserEditPage";
+import AdminUserCreatePage from "./pages/admin/AdminUserCreatePage";
+import AdminProductsPage from "./pages/admin/AdminProductsPage";
+import AdminProductEditPage from "./pages/admin/AdminProductEditPage";
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
+
 const routes: RouteObject[] = [
   {
     path: "/",
@@ -88,6 +99,72 @@ const routes: RouteObject[] = [
       {
         path: "*",
         element: <NotFoundPage />,
+      },
+    ],
+  },
+  // Admin routes
+  {
+    path: "/admin",
+    element: (
+      <ProtectedRoute
+        requireAuth={true}
+        requireAdmin={true}
+        redirectPath="/auth"
+      >
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <AdminDashboardPage />,
+      },
+      {
+        path: "users",
+        children: [
+          {
+            index: true,
+            element: <AdminUsersPage />,
+          },
+          {
+            path: "new",
+            element: <AdminUserCreatePage />,
+          },
+          {
+            path: ":id",
+            element: <AdminUserEditPage />,
+          },
+        ],
+      },
+      {
+        path: "products",
+        children: [
+          {
+            index: true,
+            element: <AdminProductsPage />,
+          },
+          {
+            path: "new",
+            element: <AdminProductEditPage />,
+          },
+          {
+            path: ":id",
+            element: <AdminProductEditPage />,
+          },
+        ],
+      },
+      {
+        path: "orders",
+        children: [
+          {
+            index: true,
+            element: <AdminOrdersPage />,
+          },
+          {
+            path: ":id",
+            element: <AdminOrderDetailPage />,
+          },
+        ],
       },
     ],
   },

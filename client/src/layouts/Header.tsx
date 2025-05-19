@@ -1,15 +1,18 @@
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Search, ShoppingCart, User, LayoutDashboard } from "lucide-react";
 import { useAuthContext } from "../context/AuthContext";
 import { useCartContext } from "../context/CartContext";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 
 const Header = () => {
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, user } = useAuthContext();
   const { cart } = useCartContext();
   const { t } = useTranslation();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  // Check if user is admin
+  const isAdmin = user?.isAdmin || user?.role === "admin";
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -63,6 +66,15 @@ const Header = () => {
               >
                 {t("header.aboutus")}
               </Link>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="text-amber-600 hover:text-amber-700 font-medium tracking-wide text-sm uppercase transition-colors duration-300 flex items-center"
+                >
+                  <LayoutDashboard className="h-4 w-4 mr-1" />
+                  Admin
+                </Link>
+              )}
             </nav>
 
             {/* Search Bar */}
@@ -99,11 +111,20 @@ const Header = () => {
               </Link>
 
               {isAuthenticated ? (
-                <Link to="/profile" className="hidden md:block group">
-                  <div className="p-2 rounded-full bg-gray-50 group-hover:bg-amber-50 transition-colors duration-300">
-                    <User className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" />
-                  </div>
-                </Link>
+                <div className="hidden md:flex items-center space-x-4">
+                  {isAdmin && (
+                    <Link to="/admin" className="group">
+                      <div className="p-2 rounded-full bg-amber-50 group-hover:bg-amber-100 transition-colors duration-300">
+                        <LayoutDashboard className="h-5 w-5 text-amber-600 group-hover:text-amber-700 transition-colors duration-300" />
+                      </div>
+                    </Link>
+                  )}
+                  <Link to="/profile" className="group">
+                    <div className="p-2 rounded-full bg-gray-50 group-hover:bg-amber-50 transition-colors duration-300">
+                      <User className="h-5 w-5 text-gray-700 group-hover:text-amber-600 transition-colors duration-300" />
+                    </div>
+                  </Link>
+                </div>
               ) : (
                 <Link to="/auth" className="hidden md:block">
                   <button className="px-4 py-2 border border-amber-500 text-amber-600 hover:bg-amber-50 text-xs uppercase tracking-widest transition-colors duration-300">
