@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, ShoppingCart, User, LayoutDashboard } from "lucide-react";
 import { useAuthContext } from "../context/AuthContext";
 import { useCartContext } from "../context/CartContext";
@@ -10,9 +10,28 @@ const Header = () => {
   const { cart } = useCartContext();
   const { t } = useTranslation();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Check if user is admin
   const isAdmin = user?.isAdmin || user?.role === "admin";
+
+  // Handle search form submission
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!searchTerm.trim()) return;
+
+    // Get current URL search params to preserve them
+    const currentParams = new URLSearchParams(location.search);
+
+    // Add or update the search parameter
+    currentParams.set("search", searchTerm.trim());
+
+    // Navigate to products page with all parameters
+    navigate(`/products?${currentParams.toString()}`);
+  };
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -66,19 +85,11 @@ const Header = () => {
               >
                 {t("header.aboutus")}
               </Link>
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  className="text-amber-600 hover:text-amber-700 font-medium tracking-wide text-sm uppercase transition-colors duration-300 flex items-center"
-                >
-                  <LayoutDashboard className="h-4 w-4 mr-1" />
-                  Admin
-                </Link>
-              )}
             </nav>
 
             {/* Search Bar */}
-            <div
+            <form
+              onSubmit={handleSearch}
               className={`hidden md:flex items-center relative transition-all duration-300 ${
                 isSearchFocused
                   ? "bg-white border-b-2 border-amber-500 rounded-none px-4 py-2"
@@ -94,10 +105,15 @@ const Header = () => {
                 type="text"
                 placeholder={t("header.searchPlaceholder")}
                 className="bg-transparent outline-none w-full text-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setIsSearchFocused(false)}
               />
-            </div>
+              <button type="submit" className="hidden">
+                Search
+              </button>
+            </form>
 
             {/* Icons */}
             <div className="flex items-center space-x-6">
@@ -135,42 +151,6 @@ const Header = () => {
             </div>
           </div>
         </div>
-
-        {/* Optional Second Navigation Bar for categories */}
-        {/* <div className="hidden md:block border-t border-gray-100">
-          <div className="flex justify-center space-x-8 py-3 px-4 text-center">
-            <Link
-              to="/new-arrivals"
-              className="text-gray-600 hover:text-amber-600 text-xs tracking-widest uppercase transition-colors duration-300"
-            >
-              New Arrivals
-            </Link>
-            <Link
-              to="/bestsellers"
-              className="text-gray-600 hover:text-amber-600 text-xs tracking-widest uppercase transition-colors duration-300"
-            >
-              Bestsellers
-            </Link>
-            <Link
-              to="/collections"
-              className="text-gray-600 hover:text-amber-600 text-xs tracking-widest uppercase transition-colors duration-300"
-            >
-              Collections
-            </Link>
-            <Link
-              to="/exclusives"
-              className="text-gray-600 hover:text-amber-600 text-xs tracking-widest uppercase transition-colors duration-300"
-            >
-              Exclusives
-            </Link>
-            <Link
-              to="/gifts"
-              className="text-gray-600 hover:text-amber-600 text-xs tracking-widest uppercase transition-colors duration-300"
-            >
-              Gifts
-            </Link>
-          </div>
-        </div> */}
       </div>
     </header>
   );
