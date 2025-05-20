@@ -278,6 +278,15 @@ const productApi = {
     );
     return response.data;
   },
+
+  /**
+   * Get all products in user's wishlist
+   * @returns Array of products in wishlist
+   */
+  getWishlistProducts: async (): Promise<Product[]> => {
+    const response = await axiosInstance.get<Product[]>("/products/wishlist");
+    return response.data;
+  },
 };
 
 export default productApi;

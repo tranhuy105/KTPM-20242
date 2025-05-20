@@ -18,6 +18,18 @@ router.get(
   productController.getAvailableFilters
 );
 
+
+/**
+ * @route   GET /api/products/wishlist
+ * @desc    Get all products in user's wishlist
+ * @access  Private
+ */
+router.get(
+  "/wishlist",
+  authMiddleware,
+  productController.getWishlistProducts
+);
+
 /**
  * @route   GET /api/products/admin
  * @desc    Get all products for admin (including drafts)
@@ -217,9 +229,6 @@ router.post(
   productController.addProductReview
 );
 
-module.exports = router;
-
-
 /**
  * @route   POST /api/products/:id/wishlist
  * @desc    Toggle product in wishlist
@@ -231,3 +240,6 @@ router.post(
   productValidator.validateProductId,
   productController.toggleProductInWishlist
 );
+
+
+module.exports = router;

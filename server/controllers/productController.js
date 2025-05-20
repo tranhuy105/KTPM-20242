@@ -512,6 +512,22 @@ class ProductController {
       res.status(500).json({ error: "Server error" });
     }
   }
+
+  /**
+   * Get all products in user's wishlist
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getWishlistProducts(req, res) {
+    try {
+      const userId = req.user.id;
+      const products = await productService.getWishlistProducts(userId);
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching wishlist products:", error);
+      res.status(500).json({ error: "Failed to fetch wishlist products" });
+    }
+  }
 }
 
 module.exports = new ProductController();

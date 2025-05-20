@@ -848,36 +848,36 @@ class ProductService {
   }
 
   /**
-   * Toggle product in wishlist
-   * @param {String} productId - Product ID
-   * @param {Object} currentUser - Current user
-   * @returns {Object} Updated user wishlist
+   * Toggle a product in user's wishlist
+   * @param {string} productId - Product ID to toggle
+   * @param {Object} user - User object
+   * @returns {Object} Updated wishlist
    */
-  async toggleProductInWishlist(productId, currentUser) {
+  async toggleProductInWishlist(productId, user) {
     try {
       // Check if product exists
       await this.getProductById(productId);
 
       // Check if product is already in wishlist
-      const isCurrentlyInWishlist = currentUser.wishlist.some(
+      const isCurrentlyInWishlist = user.wishlist.some(
         (item) => item.product && item.product.toString() === productId
       );
 
       // Update the user's wishlist
       if (isCurrentlyInWishlist) {
         // Remove from wishlist
-        currentUser.wishlist = currentUser.wishlist.filter(
+        user.wishlist = user.wishlist.filter(
           (item) => !item.product || item.product.toString() !== productId
         );
 
-        await User.findByIdAndUpdate(currentUser._id, {
-          wishlist: currentUser.wishlist,
+        await User.findByIdAndUpdate(user._id, {
+          wishlist: user.wishlist,
         });
 
         return {
           success: true,
           message: "Product removed from wishlist",
-          wishlist: currentUser.wishlist,
+          wishlist: user.wishlist,
         };
       } else {
         // Add to wishlist
@@ -886,19 +886,59 @@ class ProductService {
           addedAt: new Date(),
         };
 
-        currentUser.wishlist.push(newWishlistItem);
+        user.wishlist.push(newWishlistItem);
 
-        await User.findByIdAndUpdate(currentUser._id, {
-          wishlist: currentUser.wishlist,
+        await User.findByIdAndUpdate(user._id, {
+          wishlist: user.wishlist,
         });
 
         return {
           success: true,
           message: "Product added to wishlist",
-          wishlist: currentUser.wishlist,
+          wishlist: user.wishlist,
         };
       }
     } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get all products in user's wishlist
+   * @param {string} userId - User ID
+   * @returns {Array} Array of products in wishlist
+   */
+  async getWishlistProducts(userId) {
+    try {
+      // Get the user with populated wishlist
+      const user = await User.findById(userId)
+        .select("wishlist")
+        .populate({
+          path: "wishlist.product",
+          select:
+            "_id name slug price compareAtPrice images category brand description status",
+          match: { isPublished: true },
+        })
+        .lean();
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Filter out any null products (in case some products were deleted or unpublished)
+      const wishlistProducts = user.wishlist
+        .filter((item) => item.product)
+        .map((item) => {
+          // Enhance the product with the date it was added to wishlist
+          return {
+            ...item.product,
+            addedToWishlistAt: item.addedAt,
+          };
+        });
+
+      return wishlistProducts;
+    } catch (error) {
+      console.error("Error in getWishlistProducts:", error);
       throw error;
     }
   }
