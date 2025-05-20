@@ -216,33 +216,6 @@ const orderValidator = {
   ],
 
   /**
-   * Validate transaction data
-   */
-  validateTransaction: [
-    body("orderId").isMongoId().withMessage("Invalid order ID format"),
-    body("type")
-      .isIn(["payment", "refund", "capture", "authorization"])
-      .withMessage("Invalid transaction type"),
-    body("status")
-      .isIn(["pending", "completed", "failed", "cancelled"])
-      .withMessage("Invalid transaction status"),
-    body("gateway").notEmpty().withMessage("Payment gateway is required"),
-    body("amount")
-      .isFloat({ min: 0.01 })
-      .withMessage("Amount must be greater than zero"),
-    body("currency").optional().isString().isLength({ min: 3, max: 3 }),
-    body("gatewayTransactionId").optional().isString(),
-    body("gatewayResponse").optional(),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      next();
-    },
-  ],
-
-  /**
    * Validate tracking information
    */
   validateTracking: [
@@ -282,27 +255,6 @@ const orderValidator = {
    */
   validateOrderNote: [
     body("note").notEmpty().withMessage("Note content is required"),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      next();
-    },
-  ],
-
-  /**
-   * Validate refund data
-   */
-  validateRefund: [
-    body("orderId").isMongoId().withMessage("Invalid order ID format"),
-    body("amount")
-      .isFloat({ min: 0.01 })
-      .withMessage("Refund amount must be greater than zero"),
-    body("reason").optional().isString(),
-    body("gateway").optional().isString(),
-    body("gatewayTransactionId").optional().isString(),
-    body("gatewayResponse").optional(),
     (req, res, next) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {

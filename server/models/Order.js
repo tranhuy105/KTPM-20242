@@ -50,45 +50,6 @@ const orderItemSchema = new mongoose.Schema({
 });
 
 /**
- * Transaction schema - for payment tracking
- */
-const transactionSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ["payment", "refund", "capture", "authorization"],
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ["pending", "completed", "failed", "cancelled"],
-    required: true,
-  },
-  gateway: {
-    type: String,
-    required: true,
-  },
-  gatewayTransactionId: {
-    type: String,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-  currency: {
-    type: String,
-    required: true,
-    default: "USD",
-  },
-  gatewayResponse: {
-    type: Object,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-/**
  * Shipping information schema
  */
 const shippingInfoSchema = new mongoose.Schema({
@@ -273,8 +234,6 @@ const orderSchema = new mongoose.Schema(
     // Shipping and billing information
     shipping: shippingInfoSchema,
     billing: billingInfoSchema,
-    // Payment transactions
-    transactions: [transactionSchema],
     // Discounts and promotions
     couponCode: {
       type: String,
@@ -308,45 +267,45 @@ const orderSchema = new mongoose.Schema(
 // Define valid state transitions for order status
 orderSchema.statics.STATE_MACHINE = {
   // Initial state can transition to these states
-  pending: ['processing', 'payment_pending', 'cancelled', 'on_hold'],
-  
+  pending: ["processing", "payment_pending", "cancelled", "on_hold"],
+
   // After payment is initiated but not completed
-  payment_pending: ['pending', 'processing', 'paid', 'cancelled', 'on_hold'],
-  
+  payment_pending: ["pending", "processing", "paid", "cancelled", "on_hold"],
+
   // Order is being processed
-  processing: ['shipped', 'on_hold', 'cancelled'],
-  
+  processing: ["shipped", "on_hold", "cancelled"],
+
   // Payment confirmed
-  paid: ['processing', 'on_hold', 'cancelled'],
-  
+  paid: ["processing", "on_hold", "cancelled"],
+
   // Order is shipped
-  shipped: ['delivered', 'on_hold'],
-  
+  shipped: ["delivered", "on_hold"],
+
   // Order is delivered to customer
-  delivered: ['returned'],
-  
+  delivered: [],
+
   // Order is cancelled
   cancelled: [], // Terminal state - no further transitions
-  
+
   // Order is refunded
   refunded: [], // Terminal state - no further transitions
-  
+
   // Order is partially refunded
-  partially_refunded: ['refunded'],
-  
+  partially_refunded: ["refunded"],
+
   // Order is on hold
-  on_hold: ['pending', 'processing', 'cancelled'],
-  
+  on_hold: ["pending", "processing", "cancelled"],
+
   // Order is returned
-  returned: ['refunded', 'partially_refunded']
+  returned: ["refunded", "partially_refunded"],
 };
 
 // Method to validate status transition
-orderSchema.methods.canTransitionTo = function(newStatus) {
+orderSchema.methods.canTransitionTo = function (newStatus) {
   const currentStatus = this.status;
   // Allow same status (no transition)
   if (currentStatus === newStatus) return true;
-  
+
   // Check if transition is valid
   const validTransitions = this.constructor.STATE_MACHINE[currentStatus] || [];
   return validTransitions.includes(newStatus);
@@ -414,7 +373,7 @@ orderSchema.pre("save", async function (next) {
 });
 
 // Method to get valid next statuses
-orderSchema.methods.getValidNextStatuses = function() {
+orderSchema.methods.getValidNextStatuses = function () {
   return this.constructor.STATE_MACHINE[this.status] || [];
 };
 
@@ -427,31 +386,20 @@ orderSchema.methods.addNote = async function (note, userId) {
   return this.save();
 };
 
-// Method to update payment status based on transactions
-orderSchema.methods.updatePaymentStatus = async function () {
-  const totalPaid = this.transactions
-    .filter((t) => t.type === "payment" && t.status === "completed")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalRefunded = this.transactions
-    .filter((t) => t.type === "refund" && t.status === "completed")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const netPayment = totalPaid - totalRefunded;
-
-  if (netPayment <= 0 && totalRefunded > 0) {
-    this.paymentStatus = "refunded";
-  } else if (totalRefunded > 0) {
-    this.paymentStatus = "partially_refunded";
-  } else if (Math.abs(netPayment - this.totalAmount) < 0.01) {
-    this.paymentStatus = "paid";
-  } else if (netPayment > 0) {
-    this.paymentStatus = "partially_paid";
-  } else {
-    this.paymentStatus = "pending";
+// Method to update payment status - simplified since transactions are not yet implemented
+orderSchema.methods.setPaymentStatus = function (status) {
+  if (
+    [
+      "pending",
+      "authorized",
+      "paid",
+      "partially_refunded",
+      "refunded",
+      "failed",
+    ].includes(status)
+  ) {
+    this.paymentStatus = status;
   }
-
-  return this.save();
 };
 
 // Method to add tracking information
@@ -470,11 +418,11 @@ orderSchema.methods.addTracking = async function (
   // Update fulfillment status
   if (this.fulfillmentStatus === "unfulfilled") {
     this.fulfillmentStatus = "fulfilled";
-    
+
     // Only change status to shipped if it's a valid transition
     if (this.canTransitionTo("shipped")) {
       this.status = "shipped";
-      
+
       // Add to status history
       this.statusHistory.push({
         status: "shipped",

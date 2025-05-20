@@ -377,105 +377,46 @@ class OrderService {
      * @returns {Promise<Object>} - Updated order
      */
     async updateOrderStatus(id, status, comment, userId) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw new Error("Invalid order ID format");
-        }
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new Error("Invalid order ID format");
+      }
 
-        const order = await Order.findById(id);
-        if (!order) {
-            throw new Error("Order not found");
-        }
+      const order = await Order.findById(id);
+      if (!order) {
+        throw new Error("Order not found");
+      }
 
-        // Validate status transition
-        if (!order.canTransitionTo(status)) {
-            throw new Error(
-                `Invalid status transition from '${order.status}' to '${status}'`
-            );
-        }
+      // Validate status transition
+      if (!order.canTransitionTo(status)) {
+        throw new Error(
+          `Invalid status transition from '${order.status}' to '${status}'`
+        );
+      }
 
-        // Update status
-        order.status = status;
+      // Update status
+      order.status = status;
 
-        // Add to status history
-        order.statusHistory.push({
-            status,
-            comment,
-            updatedBy: userId,
-        });
+      // Add to status history
+      order.statusHistory.push({
+        status,
+        comment,
+        updatedBy: userId,
+      });
 
-        // Update fulfillment status if applicable
-        if (status === "shipped") {
-            order.fulfillmentStatus = "fulfilled";
-        } else if (status === "delivered") {
-            order.fulfillmentStatus = "fulfilled";
-        } else if (status === "cancelled") {
-            order.fulfillmentStatus = "unfulfilled";
-        }
+      // Update fulfillment status if applicable
+      if (status === "shipped") {
+        order.fulfillmentStatus = "fulfilled";
+      } else if (status === "delivered") {
+        order.fulfillmentStatus = "fulfilled";
+      } else if (status === "cancelled") {
+        order.fulfillmentStatus = "unfulfilled";
+      }
 
-        await order.save();
-        return order;
-    }
+      // Hard code payment status to paid for now
+      order.paymentStatus = "paid";
 
-    /**
-     * Add a transaction to an order
-     * @param {Object} transactionData - Transaction data
-     * @param {string} userId - User ID of admin
-     * @returns {Promise<Object>} - Updated order
-     */
-    async addOrderTransaction(transactionData, userId) {
-        const {
-            orderId,
-            type,
-            status,
-            gateway,
-            amount,
-            currency,
-            gatewayTransactionId,
-            gatewayResponse,
-        } = transactionData;
-
-        if (!mongoose.Types.ObjectId.isValid(orderId)) {
-            throw new Error("Invalid order ID format");
-        }
-
-        const order = await Order.findById(orderId);
-        if (!order) {
-            throw new Error("Order not found");
-        }
-
-        // Add transaction
-        order.transactions.push({
-            type,
-            status,
-            gateway,
-            amount,
-            currency: currency || order.currency,
-            gatewayTransactionId,
-            gatewayResponse,
-        });
-
-        // Update payment status based on transactions
-        await order.updatePaymentStatus();
-
-        // If it's a completed payment and equals total amount, update order status
-        if (
-            type === "payment" &&
-            status === "completed" &&
-            Math.abs(amount - order.totalAmount) < 0.01 &&
-            order.status === "pending"
-        ) {
-            order.status = "processing";
-
-            // Add to status history
-            order.statusHistory.push({
-                status: "processing",
-                comment: "Payment received",
-                updatedBy: userId,
-            });
-        }
-
-        await order.save();
-        return order;
+      await order.save();
+      return order;
     }
 
     /**
@@ -615,118 +556,6 @@ class OrderService {
         // Add note
         await order.addNote(note, userId);
 
-        return order;
-    }
-
-    /**
-     * Process a refund for an order
-     * @param {Object} refundData - Refund data
-     * @param {string} userId - User ID of admin
-     * @returns {Promise<Object>} - Updated order
-     */
-    async refundOrder(refundData, userId) {
-        const {
-            orderId,
-            amount,
-            reason,
-            gateway,
-            gatewayTransactionId,
-            gatewayResponse,
-        } = refundData;
-
-        if (!mongoose.Types.ObjectId.isValid(orderId)) {
-            throw new Error("Invalid order ID format");
-        }
-
-        const order = await Order.findById(orderId);
-        if (!order) {
-            throw new Error("Order not found");
-        }
-
-        // Check if order can be refunded (must be paid)
-        if (
-            order.paymentStatus !== "paid" &&
-            order.paymentStatus !== "partially_refunded"
-        ) {
-            throw new Error(
-                `Cannot refund order with payment status ${order.paymentStatus}`
-            );
-        }
-
-        // Add refund transaction
-        order.transactions.push({
-            type: "refund",
-            status: "completed",
-            gateway:
-                gateway ||
-                order.transactions[0]?.gateway ||
-                "manual",
-            amount,
-            currency: order.currency,
-            gatewayTransactionId,
-            gatewayResponse,
-            createdAt: new Date(),
-        });
-
-        // Update payment status
-        await order.updatePaymentStatus();
-
-        // Update order status if full refund
-        const totalPaid = order.transactions
-            .filter(
-                (t) =>
-                    t.type === "payment" &&
-                    t.status === "completed"
-            )
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        const totalRefunded = order.transactions
-            .filter(
-                (t) =>
-                    t.type === "refund" &&
-                    t.status === "completed"
-            )
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        // Handle full refund
-        if (Math.abs(totalPaid - totalRefunded) < 0.01) {
-            // Check if we can transition to refunded status
-            if (!order.canTransitionTo("refunded")) {
-                throw new Error(
-                    `Cannot transition order from '${order.status}' to 'refunded'`
-                );
-            }
-            
-            order.status = "refunded";
-
-            // Add to status history
-            order.statusHistory.push({
-                status: "refunded",
-                comment: reason || "Order refunded",
-                updatedBy: userId,
-            });
-        } 
-        // Handle partial refund
-        else if (order.status !== "partially_refunded") {
-            // Check if we can transition to partially_refunded status
-            if (!order.canTransitionTo("partially_refunded")) {
-                throw new Error(
-                    `Cannot transition order from '${order.status}' to 'partially_refunded'`
-                );
-            }
-            
-            order.status = "partially_refunded";
-
-            // Add to status history
-            order.statusHistory.push({
-                status: "partially_refunded",
-                comment:
-                    reason || "Order partially refunded",
-                updatedBy: userId,
-            });
-        }
-
-        await order.save();
         return order;
     }
 
