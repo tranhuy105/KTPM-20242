@@ -118,6 +118,7 @@ export interface Order {
   transactions?: OrderTransaction[];
   createdAt: string;
   updatedAt: string;
+  validNextStatuses?: string[];
 }
 
 export interface OrderFilters {

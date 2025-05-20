@@ -14,7 +14,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 
 // Admin imports
-import AdminOrderDetailPage from "./pages/admin/AdminOrderDetailPage";
+import AdminOrderDetailsPage from "./pages/admin/AdminOrderDetailsPage";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
@@ -162,8 +162,8 @@ const routes: RouteObject[] = [
             element: <AdminOrdersPage />,
           },
           {
-            path: ":id",
-            element: <AdminOrderDetailPage />,
+            path: "details/:id",
+            element: <AdminOrderDetailsPage />,
           },
         ],
       },

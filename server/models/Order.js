@@ -305,6 +305,53 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
+// Define valid state transitions for order status
+orderSchema.statics.STATE_MACHINE = {
+  // Initial state can transition to these states
+  pending: ['processing', 'payment_pending', 'cancelled', 'on_hold'],
+  
+  // After payment is initiated but not completed
+  payment_pending: ['pending', 'processing', 'paid', 'cancelled', 'on_hold'],
+  
+  // Order is being processed
+  processing: ['shipped', 'on_hold', 'cancelled'],
+  
+  // Payment confirmed
+  paid: ['processing', 'on_hold', 'cancelled'],
+  
+  // Order is shipped
+  shipped: ['delivered', 'on_hold'],
+  
+  // Order is delivered to customer
+  delivered: ['returned'],
+  
+  // Order is cancelled
+  cancelled: [], // Terminal state - no further transitions
+  
+  // Order is refunded
+  refunded: [], // Terminal state - no further transitions
+  
+  // Order is partially refunded
+  partially_refunded: ['refunded'],
+  
+  // Order is on hold
+  on_hold: ['pending', 'processing', 'cancelled'],
+  
+  // Order is returned
+  returned: ['refunded', 'partially_refunded']
+};
+
+// Method to validate status transition
+orderSchema.methods.canTransitionTo = function(newStatus) {
+  const currentStatus = this.status;
+  // Allow same status (no transition)
+  if (currentStatus === newStatus) return true;
+  
+  // Check if transition is valid
+  const validTransitions = this.constructor.STATE_MACHINE[currentStatus] || [];
+  return validTransitions.includes(newStatus);
+};
+
 // Generate order number
 orderSchema.pre("save", async function (next) {
   if (this.isNew) {
@@ -350,15 +397,26 @@ orderSchema.pre("save", async function (next) {
       },
     ];
   } else if (this.isModified("status")) {
-    // Add to status history if status changed
-    this.statusHistory.push({
-      status: this.status,
-      timestamp: new Date(),
-    });
+    // Check if there's already a recent entry with this status in the history
+    // that might have been added manually by the updateOrderStatus method
+    const recentEntries = this.statusHistory.slice(-1);
+
+    if (recentEntries.length === 0 || recentEntries[0].status !== this.status) {
+      // Only add to status history if this is a new status not already logged
+      this.statusHistory.push({
+        status: this.status,
+        timestamp: new Date(),
+      });
+    }
   }
 
   next();
 });
+
+// Method to get valid next statuses
+orderSchema.methods.getValidNextStatuses = function() {
+  return this.constructor.STATE_MACHINE[this.status] || [];
+};
 
 // Method to add internal note
 orderSchema.methods.addNote = async function (note, userId) {
@@ -412,13 +470,17 @@ orderSchema.methods.addTracking = async function (
   // Update fulfillment status
   if (this.fulfillmentStatus === "unfulfilled") {
     this.fulfillmentStatus = "fulfilled";
-    this.status = "shipped";
-
-    // Add to status history
-    this.statusHistory.push({
-      status: "shipped",
-      comment: `Shipped via ${carrier} with tracking number ${trackingNumber}`,
-    });
+    
+    // Only change status to shipped if it's a valid transition
+    if (this.canTransitionTo("shipped")) {
+      this.status = "shipped";
+      
+      // Add to status history
+      this.statusHistory.push({
+        status: "shipped",
+        comment: `Shipped via ${carrier} with tracking number ${trackingNumber}`,
+      });
+    }
   }
 
   return this.save();

@@ -14,6 +14,7 @@ import type { CheckoutFormData, OrderData } from "../types/Checkout";
 import orderApi from "../api/orderApi";
 import { AxiosError } from "axios";
 import { formatCurrencyVND } from "../lib/utils";
+import { useAuthContext } from "../context/AuthContext";
 
 // Error interface for API validation errors
 interface ValidationError {
@@ -30,21 +31,22 @@ interface ApiErrorResponse {
 const CheckoutPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuthContext();
   const { cart, clearCart } = useCartContext();
   const [currentStep, setCurrentStep] = useState<"shipping" | "payment">(
     "shipping"
   );
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState<CheckoutFormData>({
-    fullName: "",
-    email: "",
+    fullName: user?.fullName || "",
+    email: user?.email || "",
     phone: "",
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "",
+    addressLine1: user?.addresses?.[0]?.addressLine1 || "",
+    addressLine2: user?.addresses?.[0]?.addressLine2 || "",
+    city: user?.addresses?.[0]?.city || "",
+    state: user?.addresses?.[0]?.state || "",
+    postalCode: user?.addresses?.[0]?.postalCode || "",
+    country: "Vietnam",
     cardName: "",
     cardNumber: "",
     expiryDate: "",
