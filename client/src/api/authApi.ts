@@ -53,6 +53,7 @@ const authApi = {
    */
   getCurrentUser: async (): Promise<User> => {
     const response = await axiosInstance.get<User>("/users/profile");
+    console.log("response.data", response.data);
     return response.data;
   },
 
@@ -61,9 +62,12 @@ const authApi = {
    * @param userData Partial user data to update
    * @returns Updated user object
    */
-  updateProfile: async (userData: Partial<User>): Promise<User> => {
-    const response = await axiosInstance.patch<User>(
-      "/users/profile",
+  updateProfile: async (
+    userId: string,
+    userData: Partial<User>
+  ): Promise<User> => {
+    const response = await axiosInstance.put<User>(
+      `/users/${userId}`,
       userData
     );
     return response.data;

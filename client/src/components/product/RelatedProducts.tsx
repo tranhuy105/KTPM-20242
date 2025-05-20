@@ -23,9 +23,9 @@ const ProductLink = ({
   };
 
   return (
-    <a href={to} onClick={handleClick}>
+    <div className="cursor-pointer" onClick={handleClick}>
       {children}
-    </a>
+    </div>
   );
 };
 

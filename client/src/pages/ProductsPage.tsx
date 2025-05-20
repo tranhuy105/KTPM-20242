@@ -30,9 +30,9 @@ const ProductsPage = () => {
     useState<AvailableProductFilters | null>(null);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
 
-  // Get filters from URL parameters
+  // Parse URL parameters only once on component mount
   const searchParams = new URLSearchParams(location.search);
-  const [filters, setFilters] = useState<ProductFiltersType>({
+  const initialFilters: ProductFiltersType = {
     page: parseInt(searchParams.get("page") || "1"),
     limit: 24,
     sortBy: searchParams.get("sortBy") || "createdAt",
@@ -50,12 +50,13 @@ const ProductsPage = () => {
       color: searchParams.get("color") || undefined,
       size: searchParams.get("size") || undefined,
       material: searchParams.get("material") || undefined,
-      // Convert tags from comma-separated to array if needed in your API
       isFeatured: searchParams.get("isFeatured") === "true" ? true : undefined,
     },
-  });
+  };
 
-  // Fetch available filters from API
+  const [filters, setFilters] = useState<ProductFiltersType>(initialFilters);
+
+  // Fetch available filters from API - only once on component mount
   useEffect(() => {
     const fetchAvailableFilters = async () => {
       setIsLoadingFilters(true);
@@ -70,7 +71,7 @@ const ProductsPage = () => {
     };
 
     fetchAvailableFilters();
-  }, []);
+  }, []); // Empty dependency array - only run once
 
   // Update URL when filters change
   useEffect(() => {
@@ -101,11 +102,19 @@ const ProductsPage = () => {
       params.set("material", filters.filters.material);
     if (filters.filters?.isFeatured) params.set("isFeatured", "true");
 
-    navigate({ search: params.toString() }, { replace: true });
-  }, [filters, navigate]);
+    // Use string comparison to avoid unnecessary navigation
+    const newSearch = params.toString();
+    const currentSearch = location.search.replace(/^\?/, ""); // Remove leading ? for comparison
+
+    if (newSearch !== currentSearch) {
+      navigate({ search: newSearch }, { replace: true });
+    }
+  }, [filters, navigate, location.search]);
 
   // Fetch products when filters change
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
@@ -120,30 +129,50 @@ const ProductsPage = () => {
         };
 
         const data = await productApi.getAllProducts(apiFilters);
-        // Handle the actual API response structure
-        if (data.products && data.pagination) {
-          setProducts(data.products);
-          setTotalProducts(data.pagination.totalCount);
-          setCurrentPage(data.pagination.currentPage);
-          setTotalPages(data.pagination.totalPages);
-        } else {
-          // This fallback should never be needed now that we've updated the types
-          setProducts([]);
-          setTotalProducts(0);
-          setCurrentPage(1);
-          setTotalPages(1);
+
+        // Only update state if component is still mounted
+        if (isMounted) {
+          if (data.products && data.pagination) {
+            setProducts(data.products);
+            setTotalProducts(data.pagination.totalCount);
+            setCurrentPage(data.pagination.currentPage);
+            setTotalPages(data.pagination.totalPages);
+          } else {
+            setProducts([]);
+            setTotalProducts(0);
+            setCurrentPage(1);
+            setTotalPages(1);
+          }
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
-        setProducts([]);
-        setTotalProducts(0);
+        if (isMounted) {
+          console.error("Error fetching products:", error);
+          setProducts([]);
+          setTotalProducts(0);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchProducts();
-  }, [filters]);
+
+    // Cleanup function to handle unmounting
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    // Stringify the filters to prevent unnecessary re-fetching
+    JSON.stringify({
+      page: filters.page,
+      limit: filters.limit,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
+      filters: filters.filters,
+    }),
+  ]);
 
   // Handle filter changes
   const handleFilterChange = (newFilters: Partial<ProductFiltersType>) => {

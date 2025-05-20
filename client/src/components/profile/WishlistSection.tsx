@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { productApi } from "../../api";
 import { Loader2, ShoppingBag, Heart } from "lucide-react";
@@ -21,34 +21,32 @@ const WishlistSection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWishlistProducts = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const products =
-        (await productApi.getWishlistProducts()) as WishlistProduct[];
-      setWishlistProducts(products);
-    } catch (err) {
-      console.error("Failed to fetch wishlist products:", err);
-      setError(t("products.fetchError") || "Failed to load wishlist products");
-      toast.error(
-        t("products.fetchError") || "Failed to load wishlist products"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [t]);
-
+  // Single useEffect with proper dependencies
   useEffect(() => {
+    const fetchWishlistProducts = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const products =
+          (await productApi.getWishlistProducts()) as WishlistProduct[];
+        setWishlistProducts(products);
+      } catch (err) {
+        console.error("Failed to fetch wishlist products:", err);
+        setError(
+          t("products.fetchError") || "Failed to load wishlist products"
+        );
+        toast.error(
+          t("products.fetchError") || "Failed to load wishlist products"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchWishlistProducts();
-  }, [fetchWishlistProducts]);
-
-  useEffect(() => {
-    if (user?.wishlist) {
-      fetchWishlistProducts();
-    }
-  }, [user?.wishlist, fetchWishlistProducts]);
+    // Only depend on user.wishlist and t function
+  }, [user?.wishlist, t]);
 
   const handleRemoveFromWishlist = async (productId: string) => {
     try {
@@ -59,7 +57,8 @@ const WishlistSection = () => {
       toast.success(t("wishlist.removed") || "Product removed from wishlist");
     } catch (error) {
       console.error("Failed to remove product from wishlist:", error);
-      fetchWishlistProducts();
+      // Instead of triggering another fetch, handle the error locally
+      toast.error(t("wishlist.removeError") || "Failed to remove product");
     }
   };
 

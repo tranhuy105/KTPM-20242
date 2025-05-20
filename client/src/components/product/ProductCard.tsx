@@ -7,9 +7,17 @@ import {
 } from "../../lib/utils";
 import { Heart } from "lucide-react";
 import { useAuthContext } from "../../context/AuthContext";
+import { useMemo } from "react";
+
 interface ProductCardProps {
   product: Product;
   isMasonry?: boolean;
+}
+
+// Define a simple type for wishlist items to avoid linter errors
+interface WishlistItemSimple {
+  _id?: string;
+  product?: string | { _id?: string };
 }
 
 const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
@@ -20,6 +28,25 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
     product.compareAtPrice || 0,
     product.price
   );
+
+  // Check if the product is in the wishlist using the auth context
+  const isInWishlist = useMemo(() => {
+    if (!user?.wishlist || !product._id) return false;
+
+    return user.wishlist.some((item: WishlistItemSimple) => {
+      if (item._id === product._id) return true;
+
+      if (item.product) {
+        if (typeof item.product === "string") {
+          return item.product === product._id;
+        } else if (typeof item.product === "object" && item.product._id) {
+          return item.product._id === product._id;
+        }
+      }
+
+      return false;
+    });
+  }, [user?.wishlist, product._id]);
 
   const getImageUrl = () => {
     if (Array.isArray(product.images) && product.images.length > 0) {
@@ -44,10 +71,6 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
     }
     return "";
   };
-
-  const isInWishlist = user?.wishlist?.some(
-    (wishlistItem) => wishlistItem.product === product._id
-  );
 
   return (
     <div className="group relative overflow-hidden border border-transparent hover:border-amber-100 hover:shadow-xl transition-all duration-300 ease-out bg-white">
