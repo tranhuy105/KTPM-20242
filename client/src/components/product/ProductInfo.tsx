@@ -8,6 +8,10 @@ import toast from "react-hot-toast";
 import { ShoppingBag, LogIn } from "lucide-react";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import AddToWishlistButton from "../common/AddToWishlistButton";
+import {
+  calculateDiscountPercentage,
+  formatCurrencyVND,
+} from "../../lib/utils";
 
 interface ProductInfoProps {
   product: Product;
@@ -21,27 +25,16 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
   const { isAuthenticated } = useAuthContext();
   const [quantity, setQuantity] = useState(1);
 
-  // Format price in VND with thousands separator
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
   // Get the current price (either from selected variant or base product)
   const currentPrice = selectedVariant ? selectedVariant.price : product.price;
   const currentComparePrice = selectedVariant
     ? selectedVariant.compareAtPrice
     : product.compareAtPrice;
 
-  // Calculate discount percentage if compareAtPrice exists
-  const discountPercentage = currentComparePrice
-    ? Math.round(
-        ((currentComparePrice - currentPrice) / currentComparePrice) * 100
-      )
-    : 0;
+  const discountPercentage = calculateDiscountPercentage(
+    currentComparePrice || 0,
+    currentPrice
+  );
 
   // Get inventory quantity (either from selected variant or base product)
   const inventoryQuantity = selectedVariant
@@ -143,12 +136,12 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
       <div className="mb-8">
         <div className="flex items-center space-x-4">
           <span className="text-3xl font-serif font-semibold text-amber-800">
-            {formatPrice(currentPrice)}
+            {formatCurrencyVND(currentPrice)}
           </span>
           {currentComparePrice && currentComparePrice > currentPrice && (
             <>
               <span className="text-gray-500 line-through text-lg">
-                {formatPrice(currentComparePrice)}
+                {formatCurrencyVND(currentComparePrice)}
               </span>
               <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold">
                 -{discountPercentage}%

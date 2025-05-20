@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { Product } from "../../types";
-
+import {
+  calculateDiscountPercentage,
+  formatCurrencyVND,
+} from "../../lib/utils";
+import { Heart } from "lucide-react";
+import { useAuthContext } from "../../context/AuthContext";
 interface ProductCardProps {
   product: Product;
   isMasonry?: boolean;
@@ -9,25 +14,13 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
   const { t } = useTranslation();
+  const { user } = useAuthContext();
 
-  // Calculate discount percentage if compareAtPrice exists
-  const discountPercentage = product.compareAtPrice
-    ? Math.round(
-        ((product.compareAtPrice - product.price) / product.compareAtPrice) *
-          100
-      )
-    : 0;
+  const discountPercentage = calculateDiscountPercentage(
+    product.compareAtPrice || 0,
+    product.price
+  );
 
-  // Format price in VND with thousands separator
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  // Get the image URL from the product images
   const getImageUrl = () => {
     if (Array.isArray(product.images) && product.images.length > 0) {
       // Find default image if exists
@@ -52,6 +45,10 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
     return "";
   };
 
+  const isInWishlist = user?.wishlist?.some(
+    (wishlistItem) => wishlistItem.product === product._id
+  );
+
   return (
     <div className="group relative overflow-hidden border border-transparent hover:border-amber-100 hover:shadow-xl transition-all duration-300 ease-out bg-white">
       <div className="absolute inset-0 bg-gradient-to-b from-amber-50/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out pointer-events-none"></div>
@@ -59,6 +56,11 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
 
       <Link to={`/products/${product.slug}`} className="block p-2">
         <div className="w-full overflow-hidden bg-gray-50 mb-4 relative">
+          {isInWishlist && (
+            <div className="absolute z-10 top-3 left-3">
+              <Heart className="h-4 w-4 md:h-6 md:w-6 fill-red-500" />
+            </div>
+          )}
           <img
             src={getImageUrl()}
             alt={product.name}
@@ -87,15 +89,15 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
             product.compareAtPrice > product.price ? (
               <>
                 <span className="font-semibold text-gray-900 tracking-wide">
-                  {formatPrice(product.price)}
+                  {formatCurrencyVND(product.price)}
                 </span>
                 <span className="text-gray-500 line-through text-sm">
-                  {formatPrice(product.compareAtPrice)}
+                  {formatCurrencyVND(product.compareAtPrice)}
                 </span>
               </>
             ) : (
               <span className="font-semibold text-gray-900 tracking-wide">
-                {formatPrice(product.price)}
+                {formatCurrencyVND(product.price)}
               </span>
             )}
           </div>

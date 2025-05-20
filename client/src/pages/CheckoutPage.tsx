@@ -13,6 +13,7 @@ import EmptyCartView from "../components/checkout/EmptyCartView";
 import type { CheckoutFormData, OrderData } from "../types/Checkout";
 import orderApi from "../api/orderApi";
 import { AxiosError } from "axios";
+import { formatCurrencyVND } from "../lib/utils";
 
 // Error interface for API validation errors
 interface ValidationError {
@@ -49,15 +50,6 @@ const CheckoutPage = () => {
     expiryDate: "",
     cvv: "",
   });
-
-  // Format price in VND
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
 
   // Handle input change
   const handleChange = (
@@ -258,7 +250,7 @@ const CheckoutPage = () => {
 
             {/* Order summary */}
             <div className="lg:col-span-1">
-              <OrderSummary cart={cart} formatPrice={formatPrice} />
+              <OrderSummary cart={cart} formatPrice={formatCurrencyVND} />
             </div>
           </div>
         </div>

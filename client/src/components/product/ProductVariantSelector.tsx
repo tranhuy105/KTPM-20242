@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ProductVariant } from "../../types";
+import { formatCurrencyVND } from "../../lib/utils";
 
 interface ProductVariantSelectorProps {
   variants: ProductVariant[];
@@ -66,15 +67,6 @@ const ProductVariantSelector = ({
     if (variant) {
       onVariantChange(variant._id);
     }
-  };
-
-  // Format price in VND
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
   };
 
   return (
@@ -154,7 +146,7 @@ const ProductVariantSelector = ({
                         return hex;
                       }
                     }
-                    return "#CBD5E1"; // Default gray if color not found
+                    return "#CBD5E1";
                   };
 
                   return (
@@ -212,7 +204,7 @@ const ProductVariantSelector = ({
                       <span className="block font-medium">{value}</span>
                       {variantWithThisValue && (
                         <span className="text-xs text-gray-500 mt-1">
-                          {formatPrice(variantWithThisValue.price)}
+                          {formatCurrencyVND(variantWithThisValue.price)}
                         </span>
                       )}
                     </div>

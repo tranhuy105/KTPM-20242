@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ProductReview } from "../../types";
-import { formatDistanceToNow } from "date-fns";
 import {
   Star,
   ThumbsUp,
@@ -10,7 +9,7 @@ import {
   Check,
   MessageSquare,
 } from "lucide-react";
-
+import { formatDateRelative } from "../../lib/utils";
 interface ProductReviewsProps {
   reviews: ProductReview[];
   productId: string;
@@ -79,17 +78,6 @@ const ProductReviews = ({
       setSubmitError(t("products.reviews.error"));
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // Format date to relative time (e.g., "2 days ago")
-  const formatDate = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), {
-        addSuffix: true,
-      });
-    } catch {
-      return dateString;
     }
   };
 
@@ -336,7 +324,7 @@ const ProductReviews = ({
                     <div className="flex items-center mt-1">
                       {renderStars(review.rating)}
                       <span className="ml-2 text-sm text-gray-600">
-                        {formatDate(review.createdAt)}
+                        {formatDateRelative(review.createdAt)}
                       </span>
                     </div>
                     <p className="text-sm text-gray-700 mt-1">

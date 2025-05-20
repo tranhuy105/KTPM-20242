@@ -1,4 +1,32 @@
 {
+  "profile": {
+    "myAccount": "My Account",
+    "profile": "Profile",
+    "wishlist": "Wishlist",
+    "orders": "Orders",
+    "accountInformation": "Account Information",
+    "username": "Username",
+    "email": "Email",
+    "fullName": "Full Name",
+    "role": "Role",
+    "memberSince": "Member Since",
+    "status": "Status",
+    "verified": "Verified",
+    "active": "Active",
+    "inactive": "Inactive",
+    "preferences": "Preferences",
+    "language": "Language",
+    "currency": "Currency",
+    "notifications": "Notifications",
+    "marketingEmailsEnabled": "Marketing emails enabled",
+    "marketingEmailsDisabled": "Marketing emails disabled",
+    "emailNotificationsEnabled": "Email notifications enabled",
+    "emailNotificationsDisabled": "Email notifications disabled",
+    "customerInformation": "Customer Information",
+    "totalOrders": "Total Orders",
+    "totalSpent": "Total Spent",
+    "logout": "Logout"
+  },
   "auth": {
     "login": {
       "title": "Welcome back",

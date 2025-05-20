@@ -9,11 +9,13 @@ import { useNavigate } from "react-router-dom";
 interface AddToWishlistButtonProps {
   productId: string;
   className?: string;
+  showText?: boolean;
 }
 
 const AddToWishlistButton = ({
   productId,
   className = "",
+  showText = true,
 }: AddToWishlistButtonProps) => {
   const { t } = useTranslation();
   const { user, isAuthenticated, updateUserData } = useAuthContext();
@@ -88,11 +90,13 @@ const AddToWishlistButton = ({
           isInWishlist ? "fill-red-500 text-red-500" : "text-gray-600"
         }`}
       />
-      <span className="text-sm font-medium">
-        {isInWishlist
-          ? t("products.removeFromWishlist")
-          : t("products.addToWishlist")}
-      </span>
+      {showText && (
+        <span className="text-sm font-medium">
+          {isInWishlist
+            ? t("products.removeFromWishlist")
+            : t("products.addToWishlist")}
+        </span>
+      )}
     </button>
   );
 };

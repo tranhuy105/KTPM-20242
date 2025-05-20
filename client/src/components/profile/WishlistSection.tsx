@@ -5,8 +5,9 @@ import { Loader2, ShoppingBag, Heart } from "lucide-react";
 import type { Product } from "../../types";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
+import { formatCurrencyVND } from "../../lib/utils";
+import toast from "react-hot-toast";
 
-// Extend Product type to include the addedToWishlistAt field returned from API
 interface WishlistProduct extends Product {
   addedToWishlistAt?: string;
 }
@@ -20,47 +21,44 @@ const WishlistSection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Create a memoized fetch function that can be called when wishlist is updated
   const fetchWishlistProducts = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Use the optimized API endpoint to get all wishlist products at once
       const products =
         (await productApi.getWishlistProducts()) as WishlistProduct[];
       setWishlistProducts(products);
     } catch (err) {
       console.error("Failed to fetch wishlist products:", err);
       setError(t("products.fetchError") || "Failed to load wishlist products");
+      toast.error(
+        t("products.fetchError") || "Failed to load wishlist products"
+      );
     } finally {
       setIsLoading(false);
     }
   }, [t]);
 
-  // Initial fetch on component mount
   useEffect(() => {
     fetchWishlistProducts();
   }, [fetchWishlistProducts]);
 
-  // Refetch when user's wishlist changes
   useEffect(() => {
     if (user?.wishlist) {
       fetchWishlistProducts();
     }
   }, [user?.wishlist, fetchWishlistProducts]);
 
-  // Handle removing item from wishlist
   const handleRemoveFromWishlist = async (productId: string) => {
     try {
       await productApi.toggleProductInWishlist(productId);
-      // Optimistically remove the product from the UI
       setWishlistProducts((prev) =>
         prev.filter((product) => product._id !== productId)
       );
+      toast.success(t("wishlist.removed") || "Product removed from wishlist");
     } catch (error) {
       console.error("Failed to remove product from wishlist:", error);
-      // If there's an error, refetch the wishlist to ensure UI is in sync
       fetchWishlistProducts();
     }
   };
@@ -93,7 +91,7 @@ const WishlistSection = () => {
           className="inline-flex items-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md transition-colors"
         >
           <ShoppingBag className="h-5 w-5 mr-2" />
-          {t("common.browseProducts") || "Browse Products"}
+          {t("common.viewAll") || "View All Products"}
         </Link>
       </div>
     );
@@ -114,7 +112,7 @@ const WishlistSection = () => {
           className="text-amber-600 hover:text-amber-800 font-medium text-sm flex items-center"
         >
           <ShoppingBag className="h-4 w-4 mr-1" />
-          {t("common.browseMore") || "Browse More"}
+          {t("common.viewAll") || "View All Products"}
         </Link>
       </div>
 
@@ -172,27 +170,15 @@ const WishlistSection = () => {
                   product.compareAtPrice > product.price ? (
                     <>
                       <span className="font-semibold text-gray-900">
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                          maximumFractionDigits: 0,
-                        }).format(product.price)}
+                        {formatCurrencyVND(product.price)}
                       </span>
                       <span className="text-gray-500 line-through text-sm">
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                          maximumFractionDigits: 0,
-                        }).format(product.compareAtPrice)}
+                        {formatCurrencyVND(product.compareAtPrice)}
                       </span>
                     </>
                   ) : (
                     <span className="font-semibold text-gray-900">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                        maximumFractionDigits: 0,
-                      }).format(product.price)}
+                      {formatCurrencyVND(product.price)}
                     </span>
                   )}
                 </div>

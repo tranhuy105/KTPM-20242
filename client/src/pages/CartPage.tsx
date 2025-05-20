@@ -12,21 +12,12 @@ import {
 } from "lucide-react";
 import Breadcrumb from "../components/common/Breadcrumb";
 import toast from "react-hot-toast";
-
+import { formatCurrencyVND } from "../lib/utils";
 const CartPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { cart, updateQuantity, removeItem } = useCartContext();
   const { isAuthenticated } = useAuthContext();
-
-  // Format price in VND
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
 
   // Handle remove item with toast notification
   const handleRemoveItem = (productId: string, variantId?: string) => {
@@ -222,7 +213,7 @@ const CartPage = () => {
                             {t("cart.price")}:
                           </span>
                           <span className="text-gray-800 font-medium text-center block">
-                            {formatPrice(item.price)}
+                            {formatCurrencyVND(item.price)}
                           </span>
                         </div>
 
@@ -273,7 +264,7 @@ const CartPage = () => {
                             {t("cart.total")}:
                           </span>
                           <span className="text-gray-800 font-medium md:text-right block">
-                            {formatPrice(item.price * item.quantity)}
+                            {formatCurrencyVND(item.price * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -294,7 +285,7 @@ const CartPage = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">{t("cart.subtotal")}</span>
                     <span className="text-gray-800 font-medium">
-                      {formatPrice(cart.totalPrice)}
+                      {formatCurrencyVND(cart.totalPrice)}
                     </span>
                   </div>
 
@@ -318,7 +309,7 @@ const CartPage = () => {
                         {t("cart.total")}
                       </span>
                       <span className="text-lg font-medium text-amber-700">
-                        {formatPrice(cart.totalPrice)}
+                        {formatCurrencyVND(cart.totalPrice)}
                       </span>
                     </div>
                   </div>

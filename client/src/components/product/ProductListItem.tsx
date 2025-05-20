@@ -2,6 +2,10 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Star, ShoppingCart } from "lucide-react";
 import type { Product } from "../../types";
+import {
+  calculateDiscountPercentage,
+  formatCurrencyVND,
+} from "../../lib/utils";
 
 interface ProductListItemProps {
   product: Product;
@@ -10,22 +14,10 @@ interface ProductListItemProps {
 const ProductListItem = ({ product }: ProductListItemProps) => {
   const { t } = useTranslation();
 
-  // Calculate discount percentage if compareAtPrice exists
-  const discountPercentage = product.compareAtPrice
-    ? Math.round(
-        ((product.compareAtPrice - product.price) / product.compareAtPrice) *
-          100
-      )
-    : 0;
-
-  // Format price in VND with thousands separator
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  const discountPercentage = calculateDiscountPercentage(
+    product.compareAtPrice || 0,
+    product.price
+  );
 
   // Get the image URL from the product images
   const getImageUrl = () => {
@@ -122,15 +114,15 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
               product.compareAtPrice > product.price ? (
                 <>
                   <span className="font-semibold text-gray-900 tracking-wide">
-                    {formatPrice(product.price)}
+                    {formatCurrencyVND(product.price)}
                   </span>
                   <span className="text-gray-500 line-through text-sm">
-                    {formatPrice(product.compareAtPrice)}
+                    {formatCurrencyVND(product.compareAtPrice)}
                   </span>
                 </>
               ) : (
                 <span className="font-semibold text-gray-900 tracking-wide">
-                  {formatPrice(product.price)}
+                  {formatCurrencyVND(product.price)}
                 </span>
               )}
             </div>

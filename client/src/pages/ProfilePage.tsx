@@ -2,10 +2,13 @@ import { useAuthContext } from "../context/AuthContext";
 import { useState } from "react";
 import WishlistSection from "../components/profile/WishlistSection";
 import OrdersSection from "../components/profile/OrdersSection";
+import { formatCurrencyVND } from "../lib/utils";
+import { useTranslation } from "react-i18next";
 
 const ProfilePage = () => {
   const { user, logout } = useAuthContext();
   const [activeTab, setActiveTab] = useState("profile");
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -20,9 +23,9 @@ const ProfilePage = () => {
     <div className="max-w-6xl mx-auto py-8 px-4">
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="bg-black text-white p-6">
-          <h1 className="text-2xl font-bold mb-2">My Account</h1>
+          <h1 className="text-2xl font-bold mb-2">{t("profile.myAccount")}</h1>
           <p className="text-gray-300">
-            Manage your account information and orders
+            {t("profile.manageAccountInfoAndOrders")}
           </p>
         </div>
 
@@ -37,7 +40,7 @@ const ProfilePage = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Profile
+              {t("profile.profile")}
             </button>
             <button
               onClick={() => setActiveTab("wishlist")}
@@ -47,7 +50,7 @@ const ProfilePage = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Wishlist
+              {t("profile.wishlist")}
             </button>
             <button
               onClick={() => setActiveTab("orders")}
@@ -57,7 +60,7 @@ const ProfilePage = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Orders
+              {t("profile.orders")}
             </button>
           </nav>
         </div>
@@ -68,12 +71,12 @@ const ProfilePage = () => {
             <>
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-4">
-                  Account Information
+                  {t("profile.accountInformation")}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Username
+                      {t("profile.username")}
                     </label>
                     <div className="p-3 bg-gray-100 rounded-lg">
                       {user.username}
@@ -81,7 +84,7 @@ const ProfilePage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Email
+                      {t("profile.email")}
                     </label>
                     <div className="p-3 bg-gray-100 rounded-lg">
                       {user.email}
@@ -90,7 +93,7 @@ const ProfilePage = () => {
                   {user.fullName && (
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Full Name
+                        {t("profile.fullName")}
                       </label>
                       <div className="p-3 bg-gray-100 rounded-lg">
                         {user.fullName}
@@ -99,16 +102,16 @@ const ProfilePage = () => {
                   )}
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Role
+                      {t("profile.role")}
                     </label>
                     <div className="p-3 bg-gray-100 rounded-lg capitalize">
-                      {user.role || "customer"}
+                      {user.role || t("profile.customer")}
                       {user.isAdmin && " (Admin)"}
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Member Since
+                      {t("profile.memberSince")}
                     </label>
                     <div className="p-3 bg-gray-100 rounded-lg">
                       {new Date(user.createdAt || "").toLocaleDateString()}
@@ -116,7 +119,7 @@ const ProfilePage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Status
+                      {t("profile.status")}
                     </label>
                     <div className="p-3 bg-gray-100 rounded-lg flex items-center">
                       <span
@@ -124,8 +127,10 @@ const ProfilePage = () => {
                           user.isActive ? "bg-green-500" : "bg-red-500"
                         }`}
                       ></span>
-                      {user.isActive ? "Active" : "Inactive"}
-                      {user.isVerified && ", Verified"}
+                      {user.isActive
+                        ? t("profile.active")
+                        : t("profile.inactive")}
+                      {user.isVerified && ", " + t("profile.verified")}
                     </div>
                   </div>
                 </div>
@@ -133,36 +138,38 @@ const ProfilePage = () => {
 
               {user.preferences && (
                 <div className="mb-6 border-t pt-6">
-                  <h2 className="text-xl font-semibold mb-4">Preferences</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    {t("profile.preferences")}
+                  </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Language
+                        {t("profile.language")}
                       </label>
                       <div className="p-3 bg-gray-100 rounded-lg">
-                        {user.preferences.language || "English"}
+                        {user.preferences.language || "Tiếng Việt"}
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Currency
+                        {t("profile.currency")}
                       </label>
                       <div className="p-3 bg-gray-100 rounded-lg">
-                        {user.preferences.currency || "USD"}
+                        {user.preferences.currency || "VND"}
                       </div>
                     </div>
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Notifications
+                        {t("profile.notifications")}
                       </label>
                       <div className="p-3 bg-gray-100 rounded-lg">
                         {user.preferences.notifications?.email
-                          ? "Email notifications enabled"
-                          : "Email notifications disabled"}
+                          ? t("profile.emailNotificationsEnabled")
+                          : t("profile.emailNotificationsDisabled")}
                         <br />
                         {user.preferences.notifications?.marketing
-                          ? "Marketing emails enabled"
-                          : "Marketing emails disabled"}
+                          ? t("profile.marketingEmailsEnabled")
+                          : t("profile.marketingEmailsDisabled")}
                       </div>
                     </div>
                   </div>
@@ -172,12 +179,12 @@ const ProfilePage = () => {
               {user.customerData && (
                 <div className="mb-6 border-t pt-6">
                   <h2 className="text-xl font-semibold mb-4">
-                    Customer Information
+                    {t("profile.customerInformation")}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Total Orders
+                        {t("profile.totalOrders")}
                       </label>
                       <div className="p-3 bg-gray-100 rounded-lg">
                         {user.customerData.orderCount || 0}
@@ -185,10 +192,10 @@ const ProfilePage = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Total Spent
+                        {t("profile.totalSpent")}
                       </label>
                       <div className="p-3 bg-gray-100 rounded-lg">
-                        ${user.customerData.totalSpent?.toFixed(2) || "0.00"}
+                        {formatCurrencyVND(user.customerData.totalSpent || 0)}
                       </div>
                     </div>
                   </div>
@@ -200,7 +207,7 @@ const ProfilePage = () => {
                   onClick={handleLogout}
                   className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
                 >
-                  Logout
+                  {t("profile.logout")}
                 </button>
               </div>
             </>

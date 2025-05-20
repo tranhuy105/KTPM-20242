@@ -1,4 +1,40 @@
 {
+  "profile": {
+    "myAccount": "Tài khoản của tôi",
+    "profile": "Trang cá nhân",
+    "wishlist": "Sản phẩm đã lưu",
+    "orders": "Đơn hàng",
+    "accountInformation": "Thông tin tài khoản",
+    "username": "Tên người dùng",
+    "email": "Địa chỉ email",
+    "fullName": "Họ và tên",
+    "role": "Vai trò",
+    "memberSince": "Thành viên từ",
+    "status": "Trạng thái",
+    "verified": "Đã xác thực",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "preferences": "Sở thích",
+    "language": "Ngôn ngữ",
+    "currency": "Tiền tệ",
+    "notifications": "Thông báo",
+    "marketingEmailsEnabled": "Email marketing được bật",
+    "marketingEmailsDisabled": "Email marketing được tắt",
+    "emailNotificationsEnabled": "Thông báo email được bật",
+    "emailNotificationsDisabled": "Thông báo email được tắt",
+    "customerInformation": "Thông tin khách hàng",
+    "totalOrders": "Tổng đơn hàng",
+    "totalSpent": "Tổng chi tiêu",
+    "logout": "Đăng xuất"
+  },
+  "wishlist": {
+    "title": "Sản phẩm đã lưu",
+    "added": "Đã thêm vào danh sách yêu thích",
+    "removed": "Đã xóa khỏi danh sách yêu thích",
+    "empty": "Danh sách yêu thích trống",
+    "item": "sản phẩm",
+    "items": "sản phẩm"
+  },
   "auth": {
     "login": {
       "title": "Chào mừng trở lại",

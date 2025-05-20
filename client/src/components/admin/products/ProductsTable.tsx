@@ -19,7 +19,7 @@ import {
 import { Badge } from "../../ui/badge";
 import { Edit, MoreHorizontal, Trash, EyeOff, Eye, Star } from "lucide-react";
 import type { Product } from "../../../types";
-
+import { formatCurrencyVND } from "../../../lib/utils";
 interface ProductsTableProps {
   products: Product[];
   onDeleteProduct: (productId: string) => void;
@@ -34,15 +34,6 @@ export function ProductsTable({
   onToggleFeatured,
 }: ProductsTableProps) {
   const navigate = useNavigate();
-
-  // Format price in VND with thousands separator
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
 
   // Helper function to get product thumbnail
   const getProductThumbnail = (product: Product) => {
@@ -107,11 +98,11 @@ export function ProductsTable({
               <TableCell>
                 <div>
                   <div className="font-medium">
-                    {formatPrice(product.price)}
+                    {formatCurrencyVND(product.price)}
                   </div>
                   {product.compareAtPrice && (
                     <div className="text-sm line-through text-muted-foreground">
-                      {formatPrice(product.compareAtPrice)}
+                      {formatCurrencyVND(product.compareAtPrice)}
                     </div>
                   )}
                 </div>
