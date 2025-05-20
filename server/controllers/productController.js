@@ -1,5 +1,5 @@
 const productService = require("../services/productService");
-
+const userService = require("../services/userService");
 /**
  * Product Controller - Handles HTTP requests and responses for products
  */
@@ -484,6 +484,28 @@ class ProductController {
       console.error("Error fetching product by slug for admin:", error);
 
       if (error.message === "Product not found") {
+        return res.status(404).json({ error: error.message });
+      }
+
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+
+  async toggleProductInWishlist(req, res) {
+    try {
+      const currentUser = await userService.getUserById(req.user.id);
+      const result = await productService.toggleProductInWishlist(
+        req.params.id,
+        currentUser
+      );
+      res.json(result);
+    } catch (error) {
+      console.error("Error toggling product in wishlist:", error);
+
+      if (
+        error.message === "Invalid product ID format" ||
+        error.message === "Product not found"
+      ) {
         return res.status(404).json({ error: error.message });
       }
 

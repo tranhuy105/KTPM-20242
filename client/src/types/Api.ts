@@ -1,5 +1,5 @@
 import type { Order } from "./Order";
-import type { User } from "./User";
+import type { User, WishlistItem } from "./User";
 
 export interface ApiResponse<T> {
   message?: string;
@@ -25,3 +25,10 @@ export interface Pagination {
   hasNextPage: boolean;
   hasPrevPage: boolean;
 }
+
+export interface WishlistResponse {
+  message: string;
+  success: boolean;
+  wishlist: WishlistItem[];
+}
+

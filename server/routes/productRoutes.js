@@ -218,3 +218,16 @@ router.post(
 );
 
 module.exports = router;
+
+
+/**
+ * @route   POST /api/products/:id/wishlist
+ * @desc    Toggle product in wishlist
+ * @access  Private
+ */
+router.post(
+  "/:id/wishlist",
+  authMiddleware,
+  productValidator.validateProductId,
+  productController.toggleProductInWishlist
+);

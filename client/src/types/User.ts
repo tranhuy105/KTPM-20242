@@ -12,9 +12,9 @@ export interface Address {
 }
 
 export interface WishlistItem {
-  _id?: string;
-  product: string;
+  _id: string;
   addedAt?: string;
+  product: string;
 }
 
 export interface User {

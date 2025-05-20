@@ -1,4 +1,4 @@
-const { Product } = require("../models");
+const { Product, User } = require("../models");
 const mongoose = require("mongoose");
 
 /**
@@ -842,6 +842,62 @@ class ProductService {
       }
 
       return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Toggle product in wishlist
+   * @param {String} productId - Product ID
+   * @param {Object} currentUser - Current user
+   * @returns {Object} Updated user wishlist
+   */
+  async toggleProductInWishlist(productId, currentUser) {
+    try {
+      // Check if product exists
+      await this.getProductById(productId);
+
+      // Check if product is already in wishlist
+      const isCurrentlyInWishlist = currentUser.wishlist.some(
+        (item) => item.product && item.product.toString() === productId
+      );
+
+      // Update the user's wishlist
+      if (isCurrentlyInWishlist) {
+        // Remove from wishlist
+        currentUser.wishlist = currentUser.wishlist.filter(
+          (item) => !item.product || item.product.toString() !== productId
+        );
+
+        await User.findByIdAndUpdate(currentUser._id, {
+          wishlist: currentUser.wishlist,
+        });
+
+        return {
+          success: true,
+          message: "Product removed from wishlist",
+          wishlist: currentUser.wishlist,
+        };
+      } else {
+        // Add to wishlist
+        const newWishlistItem = {
+          product: productId,
+          addedAt: new Date(),
+        };
+
+        currentUser.wishlist.push(newWishlistItem);
+
+        await User.findByIdAndUpdate(currentUser._id, {
+          wishlist: currentUser.wishlist,
+        });
+
+        return {
+          success: true,
+          message: "Product added to wishlist",
+          wishlist: currentUser.wishlist,
+        };
+      }
     } catch (error) {
       throw error;
     }

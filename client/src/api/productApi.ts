@@ -5,6 +5,7 @@ import type {
   ApiResponse,
   ProductListResponse,
   AvailableProductFilters,
+  WishlistResponse,
 } from "../types";
 
 const productApi = {
@@ -261,6 +262,20 @@ const productApi = {
     const response = await axiosInstance.put<
       ApiResponse<{ productId: string; isPublished: boolean }>
     >(`/products/${productId}/published`, { isPublished });
+    return response.data;
+  },
+
+  /**
+   * Toggle product in wishlist
+   * @param productId Product ID
+   * @returns Updated wishlist response
+   */
+  toggleProductInWishlist: async (
+    productId: string
+  ): Promise<WishlistResponse> => {
+    const response = await axiosInstance.post<WishlistResponse>(
+      `/products/${productId}/wishlist`
+    );
     return response.data;
   },
 };
