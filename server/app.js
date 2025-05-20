@@ -54,27 +54,6 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/brands", brandRoutes);
 
-// Helpful redirects for common misrouted paths
-app.get("/products", (req, res) => {
-    res.status(301).json({
-        status: "redirect",
-        message:
-            "This endpoint has moved. Please use the API versioned endpoint.",
-        redirectTo: "/api/v1/products",
-        documentation: "/api/v1/docs",
-    });
-});
-
-app.get("/categories", (req, res) => {
-    res.status(301).json({
-        status: "redirect",
-        message:
-            "This endpoint has moved. Please use the API versioned endpoint.",
-        redirectTo: "/api/v1/categories",
-        documentation: "/api/v1/docs",
-    });
-});
-
 // Base route for API health check
 app.get("/", (req, res) => {
     res.json({
@@ -193,4 +172,4 @@ startServer().catch((err) =>
     logger.error("Error starting server:", err)
 );
 
-module.exports = app; // Export for testing
+module.exports = app;
