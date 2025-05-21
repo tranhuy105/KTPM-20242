@@ -20,8 +20,8 @@ const CartPage = () => {
   const { isAuthenticated } = useAuthContext();
 
   // Handle remove item with toast notification
-  const handleRemoveItem = (productId: string, variantId?: string) => {
-    removeItem(productId, variantId);
+  const handleRemoveItem = (productId: string) => {
+    removeItem(productId);
     toast(
       <div className="flex items-center gap-2">
         <Trash2 size={18} />
@@ -37,10 +37,9 @@ const CartPage = () => {
   const handleUpdateQuantity = (
     productId: string,
     newQuantity: number,
-    oldQuantity: number,
-    variantId?: string
+    oldQuantity: number
   ) => {
-    updateQuantity(productId, newQuantity, variantId);
+    updateQuantity(productId, newQuantity);
 
     // Only show toast for significant quantity changes (e.g., more than doubling or halving)
     if (newQuantity >= oldQuantity * 2) {
@@ -168,7 +167,7 @@ const CartPage = () => {
                   <div className="divide-y divide-gray-200">
                     {cart.items.map((item) => (
                       <div
-                        key={`${item.productId}-${item.variantId || ""}`}
+                        key={`${item.productId}`}
                         className="py-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-center"
                       >
                         {/* Product */}
@@ -190,15 +189,8 @@ const CartPage = () => {
                             >
                               {item.name}
                             </Link>
-                            {item.variantName && (
-                              <p className="text-sm text-gray-500 mt-1">
-                                {item.variantName}
-                              </p>
-                            )}
                             <button
-                              onClick={() =>
-                                handleRemoveItem(item.productId, item.variantId)
-                              }
+                              onClick={() => handleRemoveItem(item.productId)}
                               className="flex items-center text-sm text-red-600 hover:text-red-800 mt-2 transition-colors"
                             >
                               <Trash2 className="h-4 w-4 mr-1" />
@@ -228,8 +220,7 @@ const CartPage = () => {
                                 handleUpdateQuantity(
                                   item.productId,
                                   Math.max(1, item.quantity - 1),
-                                  item.quantity,
-                                  item.variantId
+                                  item.quantity
                                 )
                               }
                               className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100"
@@ -247,8 +238,7 @@ const CartPage = () => {
                                 handleUpdateQuantity(
                                   item.productId,
                                   item.quantity + 1,
-                                  item.quantity,
-                                  item.variantId
+                                  item.quantity
                                 )
                               }
                               className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100"

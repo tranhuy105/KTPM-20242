@@ -8,7 +8,6 @@ import type { Product } from "../types";
 import ProductGallery from "../components/product/ProductGallery";
 import ProductInfo from "../components/product/ProductInfo";
 import ProductDescription from "../components/product/ProductDescription";
-import ProductVariantSelector from "../components/product/ProductVariantSelector";
 import ProductReviews from "../components/product/ProductReviews";
 import RelatedProducts from "../components/product/RelatedProducts";
 import Breadcrumb from "../components/common/Breadcrumb";
@@ -23,7 +22,6 @@ const ProductDetailPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string>("details");
 
   useEffect(() => {
@@ -38,15 +36,6 @@ const ProductDetailPage = () => {
 
         const productData = await productApi.getProductBySlug(slug);
         setProduct(productData);
-
-        // Set default variant if product has variants
-        if (
-          productData.hasVariants &&
-          productData.variants &&
-          productData.variants.length > 0
-        ) {
-          setSelectedVariant(productData.variants[0]._id);
-        }
       } catch (err) {
         console.error("Error fetching product:", err);
         setError(t("products.errors.fetchFailed"));
@@ -57,20 +46,6 @@ const ProductDetailPage = () => {
 
     fetchProduct();
   }, [slug, t]);
-
-  // Get the selected variant object
-  const getSelectedVariantObject = () => {
-    if (!product || !product.variants || !selectedVariant) return null;
-    return (
-      product.variants.find((variant) => variant._id === selectedVariant) ||
-      null
-    );
-  };
-
-  // Handle variant selection
-  const handleVariantChange = (variantId: string) => {
-    setSelectedVariant(variantId);
-  };
 
   // Scroll to a section
   const scrollToSection = (sectionId: string) => {
@@ -167,8 +142,6 @@ const ProductDetailPage = () => {
       </div>
     );
   }
-
-  const selectedVariantObj = getSelectedVariantObject();
 
   // Hero image for background
   const heroImage =
@@ -317,25 +290,9 @@ const ProductDetailPage = () => {
 
               {/* Product Information */}
               <div className="bg-white">
-                <ProductInfo
-                  product={product}
-                  selectedVariant={selectedVariantObj}
-                />
+                <ProductInfo product={product} />
               </div>
             </div>
-
-            {/* Product Variant Selector */}
-            {product.hasVariants &&
-              product.variants &&
-              product.variants.length > 0 && (
-                <div className="mt-12 bg-gradient-to-br from-amber-50 to-white p-8 rounded-lg shadow-lg">
-                  <ProductVariantSelector
-                    variants={product.variants}
-                    selectedVariantId={selectedVariant}
-                    onVariantChange={handleVariantChange}
-                  />
-                </div>
-              )}
           </section>
 
           {/* Product Description Section */}

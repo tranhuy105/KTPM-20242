@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import type { Product, ProductVariant } from "../../types";
+import type { Product } from "../../types";
 import { useCartContext } from "../../context/CartContext";
 import { useAuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
@@ -12,31 +12,25 @@ import { calculateDiscountPercentage, formatCurrency } from "../../lib/utils";
 
 interface ProductInfoProps {
   product: Product;
-  selectedVariant: ProductVariant | null;
 }
 
-const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
+const ProductInfo = ({ product }: ProductInfoProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { addItem } = useCartContext();
   const { isAuthenticated } = useAuthContext();
   const [quantity, setQuantity] = useState(1);
 
-  // Get the current price (either from selected variant or base product)
-  const currentPrice = selectedVariant ? selectedVariant.price : product.price;
-  const currentComparePrice = selectedVariant
-    ? selectedVariant.compareAtPrice
-    : product.compareAtPrice;
+  const price = product.price;
+  const compareAtPrice = product.compareAtPrice;
 
   const discountPercentage = calculateDiscountPercentage(
-    currentComparePrice || 0,
-    currentPrice
+    compareAtPrice || 0,
+    price
   );
 
-  // Get inventory quantity (either from selected variant or base product)
-  const inventoryQuantity = selectedVariant
-    ? selectedVariant.inventoryQuantity
-    : product.inventoryQuantity;
+  // Get inventory quantity
+  const inventoryQuantity = product.inventoryQuantity;
 
   // Determine stock status
   const isInStock = inventoryQuantity > 0;
@@ -86,11 +80,9 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
       productId: product._id,
       slug: product.slug,
       name: product.name,
-      price: currentPrice,
+      price: price,
       quantity: quantity,
       image: imageUrl,
-      variantId: selectedVariant?._id,
-      variantName: selectedVariant?.name,
     });
 
     // Show toast notification
@@ -123,23 +115,16 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
         {product.name}
       </h1>
 
-      {/* Selected Variant Name (if applicable) */}
-      {selectedVariant && (
-        <div className="mb-6 text-gray-700 italic border-l-4 border-amber-200 pl-3 py-1">
-          {selectedVariant.name}
-        </div>
-      )}
-
       {/* Price Display - Luxurious Style */}
       <div className="mb-8">
         <div className="flex items-center space-x-4">
           <span className="text-3xl font-serif font-semibold text-amber-800">
-            {formatCurrency(currentPrice)}
+            {formatCurrency(price)}
           </span>
-          {currentComparePrice && currentComparePrice > currentPrice && (
+          {compareAtPrice && compareAtPrice > price && (
             <>
               <span className="text-gray-500 line-through text-lg">
-                {formatCurrency(currentComparePrice)}
+                {formatCurrency(compareAtPrice)}
               </span>
               <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold">
                 -{discountPercentage}%
@@ -292,14 +277,6 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
                 {t("products.brand")}
               </span>
               <span className="text-gray-800">{product.brandName}</span>
-            </div>
-          )}
-          {selectedVariant && selectedVariant.sku && (
-            <div className="flex py-2 border-b border-gray-100">
-              <span className="text-gray-600 w-32 font-medium">
-                {t("products.sku")}
-              </span>
-              <span className="text-gray-800">{selectedVariant.sku}</span>
             </div>
           )}
           {typeof product.category === "object" && (

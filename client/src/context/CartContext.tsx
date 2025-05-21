@@ -12,10 +12,10 @@ const initialState: Cart = {
 // Action types
 type CartAction =
   | { type: "ADD_ITEM"; payload: CartItem }
-  | { type: "REMOVE_ITEM"; payload: { productId: string; variantId?: string } }
+  | { type: "REMOVE_ITEM"; payload: { productId: string } }
   | {
       type: "UPDATE_QUANTITY";
-      payload: { productId: string; variantId?: string; quantity: number };
+      payload: { productId: string; quantity: number };
     }
   | { type: "CLEAR_CART" };
 
@@ -24,9 +24,7 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
   switch (action.type) {
     case "ADD_ITEM": {
       const existingItemIndex = state.items.findIndex(
-        (item) =>
-          item.productId === action.payload.productId &&
-          item.variantId === action.payload.variantId
+        (item) => item.productId === action.payload.productId
       );
 
       let newItems;
@@ -55,11 +53,7 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
 
     case "REMOVE_ITEM": {
       const newItems = state.items.filter(
-        (item) =>
-          !(
-            item.productId === action.payload.productId &&
-            item.variantId === action.payload.variantId
-          )
+        (item) => item.productId !== action.payload.productId
       );
 
       // Calculate totals
@@ -74,10 +68,7 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
 
     case "UPDATE_QUANTITY": {
       const newItems = state.items.map((item) => {
-        if (
-          item.productId === action.payload.productId &&
-          item.variantId === action.payload.variantId
-        ) {
+        if (item.productId === action.payload.productId) {
           return { ...item, quantity: action.payload.quantity };
         }
         return item;
@@ -111,12 +102,8 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
 interface CartContextType {
   cart: Cart;
   addItem: (item: CartItem) => void;
-  removeItem: (productId: string, variantId?: string) => void;
-  updateQuantity: (
-    productId: string,
-    quantity: number,
-    variantId?: string
-  ) => void;
+  removeItem: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
 }
 
@@ -142,18 +129,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     dispatch({ type: "ADD_ITEM", payload: item });
   };
 
-  const removeItem = (productId: string, variantId?: string) => {
-    dispatch({ type: "REMOVE_ITEM", payload: { productId, variantId } });
+  const removeItem = (productId: string) => {
+    dispatch({ type: "REMOVE_ITEM", payload: { productId } });
   };
 
-  const updateQuantity = (
-    productId: string,
-    quantity: number,
-    variantId?: string
-  ) => {
+  const updateQuantity = (productId: string, quantity: number) => {
     dispatch({
       type: "UPDATE_QUANTITY",
-      payload: { productId, variantId, quantity },
+      payload: { productId, quantity },
     });
   };
 

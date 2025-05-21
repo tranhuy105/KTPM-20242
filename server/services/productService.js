@@ -124,46 +124,26 @@ class ProductService {
    * @param {Object} filters - User provided filters
    */
   applyAttributeFilters(filter, filters) {
-    // Color filter - check both main product and variants
+    // Color filter
     if (filters.color && filters.color.trim() !== "") {
-      filter.$and.push({
-        $or: [
-          { color: filters.color.trim() },
-          { "variants.attributes.color": filters.color.trim() },
-        ],
-      });
+      filter.color = filters.color.trim();
     }
 
-    // Size filter - check both main product and variants
+    // Size filter
     if (filters.size && filters.size.trim() !== "") {
-      filter.$and.push({
-        $or: [
-          { size: filters.size.trim() },
-          { "variants.attributes.size": filters.size.trim() },
-        ],
-      });
+      filter.size = filters.size.trim();
     }
 
-    // Material filter - check both main product and variants
+    // Material filter
     if (filters.material && filters.material.trim() !== "") {
-      filter.$and.push({
-        $or: [
-          { material: filters.material.trim() },
-          { "variants.attributes.material": filters.material.trim() },
-        ],
-      });
+      filter.material = filters.material.trim();
     }
 
     // Dynamic attributes filter
     if (filters.attributes && typeof filters.attributes === "object") {
       for (const [key, value] of Object.entries(filters.attributes)) {
         if (value && value.trim() !== "") {
-          filter.$and.push({
-            $or: [
-              { [`attributes.${key}`]: value },
-              { [`variants.attributes.${key}`]: value },
-            ],
-          });
+          filter[`attributes.${key}`] = value;
         }
       }
     }
@@ -471,29 +451,12 @@ class ProductService {
    * Update product inventory
    * @param {String} productId - Product ID
    * @param {Number} quantity - New inventory quantity
-   * @param {String} variantId - Variant ID (optional, for variant products)
    * @returns {Object} Updated product
    */
-  async updateProductInventory(productId, quantity, variantId = null) {
+  async updateProductInventory(productId, quantity) {
     try {
       const product = await this.getProductById(productId);
-
-      if (product.hasVariants && !variantId) {
-        throw new Error("Variant ID required for variant products");
-      }
-
-      if (product.hasVariants && variantId) {
-        // Find the variant
-        const variant = product.variants.id(variantId);
-        if (!variant) {
-          throw new Error("Variant not found");
-        }
-        variant.inventoryQuantity = Math.max(0, quantity);
-      } else {
-        // Update main product inventory
-        product.inventoryQuantity = Math.max(0, quantity);
-      }
-
+      product.inventoryQuantity = Math.max(0, quantity);
       await product.save();
       return product;
     } catch (error) {
@@ -692,7 +655,6 @@ class ProductService {
       compareAtPrice: 1,
       images: 1,
       inventoryQuantity: 1,
-      hasVariants: 1,
       category: 1,
       brand: 1,
       brandName: 1,

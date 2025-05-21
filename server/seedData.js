@@ -394,10 +394,10 @@ async function seedUsers() {
 
     // Create admin user
     const adminUser = new User({
-      firstName: "Admin",
-      lastName: "User",
-      username: "admin",
-      email: "admin@example.com",
+      firstName: "Trần",
+      lastName: "Huy",
+      username: "tranhuy105",
+      email: "admin@gmail.com",
       password: await bcrypt.hash("admin123", 10),
       role: "admin",
       isActive: true,
@@ -736,36 +736,6 @@ async function seedProducts(categories, categoryMap, brands, users) {
         });
       }
 
-      // Generate variants (30% of products have variants)
-      const hasVariants = Math.random() > 0.7;
-      const variants = [];
-
-      if (hasVariants) {
-        const numVariants = Math.floor(Math.random() * 5) + 2;
-        for (let v = 0; v < numVariants; v++) {
-          // Generate a variant price that's either higher or lower than base price but still positive
-          const priceAdjustment =
-            Math.random() > 0.5 ? 10000000 : -Math.min(5000000, price * 0.5);
-          const variantPrice = Math.max(1000000, price + priceAdjustment);
-
-          variants.push({
-            name: `Phiên bản ${v + 1}`,
-            sku: `${slug.substring(0, 8)}-V${v + 1}`,
-            attributes: {
-              color: getRandomItems(PRODUCT_COLORS, 1)[0],
-              size: getRandomItems(PRODUCT_SIZES, 1)[0],
-            },
-            price: variantPrice,
-            compareAtPrice: hasDiscount
-              ? variantPrice + Math.abs(generateLuxuryPrice(5000000, 20000000))
-              : null,
-            inventoryQuantity: Math.floor(Math.random() * 50),
-            weight: Math.floor(Math.random() * 1000) + 100,
-            weightUnit: "g",
-          });
-        }
-      }
-
       // Random tags
       const tags = getRandomItems(
         LUXURY_TAGS,
@@ -790,7 +760,6 @@ async function seedProducts(categories, categoryMap, brands, users) {
         tags,
         price,
         compareAtPrice,
-        variants,
         seo: {
           title: productName,
           description: `${productName} - ${category.name} cao cấp từ ${brand.name}`,
@@ -798,7 +767,6 @@ async function seedProducts(categories, categoryMap, brands, users) {
         },
         isPublished: Math.random() > 0.2,
         isFeatured: Math.random() > 0.8,
-        hasVariants,
         inventoryQuantity,
         color,
         size,
@@ -879,6 +847,7 @@ async function seedDatabase() {
     const { categories, categoryMap } = await seedCategories();
     const brands = await seedBrands();
     const products = await seedProducts(categories, categoryMap, brands, users);
+    await Order.deleteMany({});
 
     console.log("Database seeded successfully!");
     process.exit(0);

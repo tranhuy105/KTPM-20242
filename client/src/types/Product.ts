@@ -8,17 +8,6 @@ export interface ProductImage {
   isDefault?: boolean;
 }
 
-export interface ProductVariant {
-  _id: string;
-  name: string;
-  sku: string;
-  attributes: Record<string, string>;
-  price: number;
-  compareAtPrice: number | null;
-  inventoryQuantity: number;
-  weight: number;
-  weightUnit: string;
-}
 
 export interface UserProductReview {
   _id: string;
@@ -78,7 +67,6 @@ export interface Product {
   status: string;
   isPublished?: boolean;
   isFeatured?: boolean;
-  hasVariants: boolean;
   inventoryQuantity: number;
   inventoryTracking?: boolean;
   averageRating: number;
@@ -95,7 +83,6 @@ export interface Product {
     [key: string]: string | undefined;
   };
   releaseDate?: string;
-  variants?: ProductVariant[];
   reviews?: ProductReview[];
   seo?: ProductSEO;
   createdAt: string;

@@ -327,24 +327,19 @@ class ProductController {
     try {
       const product = await productService.updateProductInventory(
         req.params.id,
-        req.body.quantity,
-        req.body.variantId
+        req.body.quantity
       );
       res.json({
         message: "Inventory updated successfully",
         productId: product._id,
-        inventoryQuantity: req.body.variantId
-          ? product.variants.id(req.body.variantId).inventoryQuantity
-          : product.inventoryQuantity,
+        inventoryQuantity: product.inventoryQuantity,
       });
     } catch (error) {
       console.error("Error updating product inventory:", error);
 
       if (
         error.message === "Invalid product ID format" ||
-        error.message === "Product not found" ||
-        error.message === "Variant not found" ||
-        error.message === "Variant ID required for variant products"
+        error.message === "Product not found"
       ) {
         return res.status(400).json({ error: error.message });
       }

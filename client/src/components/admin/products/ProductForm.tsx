@@ -62,7 +62,6 @@ const productSchema = z.object({
   size: z.string().optional(),
   material: z.string().optional(),
   attributes: z.record(z.string(), z.string().optional()).optional(),
-  hasVariants: z.boolean().default(false),
   inventoryTracking: z.boolean().default(true),
   seo: z
     .object({
@@ -126,7 +125,6 @@ const ProductForm = ({ product, isEdit = false }: ProductFormProps) => {
       size: product?.size || "",
       material: product?.material || "",
       attributes: product?.attributes || {},
-      hasVariants: product?.hasVariants || false,
       inventoryTracking: product?.inventoryTracking || true,
       seo: product?.seo || {
         title: "",
@@ -701,27 +699,6 @@ const ProductForm = ({ product, isEdit = false }: ProductFormProps) => {
                     )}
                   />
                 </div>
-
-                <FormField
-                  control={form.control}
-                  name="hasVariants"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Has Variants</FormLabel>
-                        <FormDescription>
-                          This product has multiple variants (size, color, etc.)
-                        </FormDescription>
-                      </div>
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
