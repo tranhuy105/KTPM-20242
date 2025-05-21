@@ -288,7 +288,14 @@
     "orderSummary": "Order Summary",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
-    "tax": "Tax"
+    "tax": "Tax",
+    "cancelOrderTitle": "Cancel Order",
+    "cancelOrderDescription": "Are you sure you want to cancel this order?",
+    "cancelOrderButton": "Cancel Order",
+    "cancelOrderSuccess": "Order cancelled successfully",
+    "cancelOrderError": "An error occurred while cancelling the order",
+    "cancelReasonPlaceholder": "Enter the reason for cancelling the order",
+    "confirmCancellation": "Confirm Cancellation"
   },
   "common": {
     "update": "Update",

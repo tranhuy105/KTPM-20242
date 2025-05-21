@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Eye, ExternalLink } from "lucide-react";
+import { Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,12 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { formatCurrency, formatDate } from "../../lib/utils";
 import { OrderStatusBadge } from "../admin/orders/OrderStatusBadge";
@@ -22,10 +16,9 @@ import type { Order } from "../../types";
 
 interface OrderTableProps {
   orders: Order[];
-  onCancelOrder: (orderId: string) => void;
 }
 
-export function OrderTable({ orders, onCancelOrder }: OrderTableProps) {
+export function OrderTable({ orders }: OrderTableProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -83,35 +76,13 @@ export function OrderTable({ orders, onCancelOrder }: OrderTableProps) {
                 {formatCurrency(order.totalAmount)}
               </TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                      <span className="sr-only">{t("orders.viewOrder")}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => navigate(`/profile/orders/${order._id}`)}
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      {t("orders.viewDetails")}
-                    </DropdownMenuItem>
-
-                    {/* Show cancel option only for orders that can be cancelled */}
-                    {["pending", "processing", "payment_pending"].includes(
-                      order.status
-                    ) && (
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={() => onCancelOrder(order._id)}
-                      >
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        {t("orders.cancelOrder")}
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate(`/profile/orders/${order._id}`)}
+                >
+                  <Eye className="h-6 w-6" />
+                </Button>
               </TableCell>
             </TableRow>
           ))}

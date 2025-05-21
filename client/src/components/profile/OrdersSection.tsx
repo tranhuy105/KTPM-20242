@@ -81,15 +81,6 @@ const OrdersSection = () => {
     setFilters({ ...filters, sort, page: 1 });
   };
 
-  // Open cancel dialog
-  const handleCancelOrder = (orderId: string) => {
-    setCancelDialog({
-      isOpen: true,
-      orderId,
-      isLoading: false,
-    });
-  };
-
   // Process order cancellation
   const processCancelOrder = async (orderId: string, reason: string) => {
     setCancelDialog((prev) => ({ ...prev, isLoading: true }));
@@ -140,7 +131,7 @@ const OrdersSection = () => {
             onSortChange={handleSortChange}
           />
 
-          <OrderTable orders={orders} onCancelOrder={handleCancelOrder} />
+          <OrderTable orders={orders} />
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (

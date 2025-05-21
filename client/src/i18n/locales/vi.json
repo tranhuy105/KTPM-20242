@@ -288,7 +288,14 @@
     "orderSummary": "Tóm tắt đơn hàng",
     "subtotal": "Tạm tính",
     "shipping": "Phí vận chuyển",
-    "tax": "Thuế"
+    "tax": "Thuế",
+    "cancelOrderTitle": "Hủy đơn hàng",
+    "cancelOrderDescription": "Bạn có chắc chắn muốn hủy đơn hàng này không?",
+    "cancelOrderButton": "Hủy đơn hàng",
+    "cancelOrderSuccess": "Đơn hàng đã được hủy thành công",
+    "cancelOrderError": "Đã xảy ra lỗi khi hủy đơn hàng",
+    "cancelReasonPlaceholder": "Nhập lý do hủy đơn hàng",
+    "confirmCancellation": "Xác nhận hủy đơn hàng"
   },
 
   "common": {

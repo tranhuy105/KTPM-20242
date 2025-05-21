@@ -22,7 +22,6 @@ import {
   MoreHorizontal,
   Truck,
   CheckCircle,
-  Ban,
   FileText,
 } from "lucide-react";
 import type { Order } from "../../../types";
@@ -198,15 +197,6 @@ export function OrdersTable({ orders, onUpdateStatus }: OrdersTableProps) {
                       >
                         <CheckCircle className="mr-2 h-4 w-4" />
                         Mark as Delivered
-                      </DropdownMenuItem>
-                    )}
-                    {["pending", "processing"].includes(order.status) && (
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={() => onUpdateStatus(order._id, "cancelled")}
-                      >
-                        <Ban className="mr-2 h-4 w-4" />
-                        Cancel Order
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
