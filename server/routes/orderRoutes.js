@@ -26,7 +26,7 @@ router.get(
  * @access  Private
  */
 router.get(
-  "/my",
+  "/me",
   authMiddleware,
   orderValidator.validateOrderQuery,
   orderController.getMyOrders
@@ -96,19 +96,6 @@ router.put(
 );
 
 /**
- * @route   POST /api/orders/transaction
- * @desc    Add transaction to order
- * @access  Private/Admin
- */
-router.post(
-  "/transaction",
-  authMiddleware,
-  adminMiddleware,
-  orderValidator.validateTransaction,
-  orderController.addOrderTransaction
-);
-
-/**
  * @route   PUT /api/orders/:id/tracking
  * @desc    Add tracking information to order
  * @access  Private/Admin
@@ -147,19 +134,6 @@ router.post(
   orderValidator.validateOrderId,
   orderValidator.validateOrderNote,
   orderController.addOrderNote
-);
-
-/**
- * @route   POST /api/orders/refund
- * @desc    Process a refund
- * @access  Private/Admin
- */
-router.post(
-  "/refund",
-  authMiddleware,
-  adminMiddleware,
-  orderValidator.validateRefund,
-  orderController.refundOrder
 );
 
 module.exports = router;

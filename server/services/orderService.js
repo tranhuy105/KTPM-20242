@@ -154,7 +154,14 @@ class OrderService {
             );
         }
 
-        return order;
+        // Get valid next statuses for this order (useful for the frontend)
+        const validNextStatuses = order.getValidNextStatuses();
+
+        // Convert to plain object to add additional properties
+        const orderObject = order.toObject();
+        orderObject.validNextStatuses = validNextStatuses;
+
+        return orderObject;
     }
 
     /**
@@ -207,195 +214,158 @@ class OrderService {
      * @returns {Promise<Object>} - Created order
      */
     async createOrder(orderData, userId) {
-        // Validate products input
-        if (
-            !orderData.products ||
-            orderData.products.length === 0
-        ) {
+      // Validate products input
+      if (!orderData.products || orderData.products.length === 0) {
+        throw new Error("Order must contain at least one product");
+      }
+
+      // Get user data
+      const userData = await User.findById(userId);
+      if (!userData) {
+        throw new Error("User not found");
+      }
+
+      // Create basic order structure
+      const newOrderData = {
+        orderNumber: generateOrderNumber(),
+        user: userId,
+        userSnapshot: {
+          email: userData.email,
+          name: userData.fullName || userData.username,
+        },
+        products: [],
+        shipping: orderData.shipping,
+        billing: orderData.billing,
+        customerNote: orderData.customerNote,
+        ipAddress: orderData.ipAddress,
+      };
+
+      // Process each product
+      let subtotal = 0;
+      for (const item of orderData.products) {
+        const product = await Product.findById(item.productId);
+        if (!product) {
+          throw new Error(`Product with ID ${item.productId} not found`);
+        }
+
+        // Check if the product is published and active
+        if (!product.isPublished) {
+          throw new Error(
+            `Product "${product.name}" is not available for purchase`
+          );
+        }
+
+        let price, variantData, inventoryCheck;
+
+        // Handle variants if specified
+        if (item.variantId) {
+          if (!product.hasVariants) {
+            throw new Error(`Product "${product.name}" does not have variants`);
+          }
+
+          const variant = product.variants.id(item.variantId);
+          if (!variant) {
+            throw new Error(`Variant not found for product "${product.name}"`);
+          }
+
+          price = variant.price;
+          variantData = variant;
+          inventoryCheck = variant.inventoryQuantity >= item.quantity;
+        } else {
+          if (product.hasVariants) {
             throw new Error(
-                "Order must contain at least one product"
+              `Must specify a variant for product "${product.name}"`
             );
+          }
+
+          price = product.price;
+          inventoryCheck = product.inventoryQuantity >= item.quantity;
         }
 
-        // Get user data
-        const userData = await User.findById(userId);
-        if (!userData) {
-            throw new Error("User not found");
+        // Check inventory if tracking is enabled
+        if (product.inventoryTracking && !inventoryCheck) {
+          throw new Error(`Not enough inventory for product "${product.name}"`);
         }
 
-        // Create basic order structure
-        const newOrderData = {
-            orderNumber: generateOrderNumber(),
-            user: userId,
-            userSnapshot: {
-                email: userData.email,
-                name:
-                    userData.fullName || userData.username,
+        // Calculate item total
+        const itemTotal = price * item.quantity;
+        subtotal += itemTotal;
+
+        // Add to order products
+        newOrderData.products.push({
+          product: product._id,
+          variant: item.variantId,
+          productSnapshot: {
+            name: product.name,
+            description: product.shortDescription || product.description || "",
+            sku: item.variantId ? variantData.sku : product.sku,
+            imageUrl:
+              product.images && product.images.length > 0
+                ? product.images.find((img) => img.isDefault)?.url ||
+                  product.images[0].url
+                : null,
+          },
+          variantAttributes: item.variantId ? variantData.attributes : null,
+          quantity: item.quantity,
+          price: price,
+          itemTotal: itemTotal,
+        });
+      }
+
+      // Set financial details
+      newOrderData.subtotal = subtotal;
+      newOrderData.shippingCost = orderData.shipping?.cost || 0;
+      newOrderData.taxAmount = orderData.taxAmount || 0;
+      newOrderData.discountTotal = orderData.discountTotal || 0;
+      newOrderData.totalAmount =
+        subtotal +
+        newOrderData.shippingCost +
+        newOrderData.taxAmount -
+        newOrderData.discountTotal;
+
+      // Apply coupon code if provided
+      if (orderData.couponCode) {
+        newOrderData.couponCode = orderData.couponCode;
+      }
+
+      // Create the order
+      const order = new Order(newOrderData);
+
+      // hiện tại mock payment feature nên set payment status thành paid luôn
+      order.paymentStatus = "paid";
+
+      const savedOrder = await order.save();
+
+      // Update inventory
+      for (const item of newOrderData.products) {
+        if (item.variant) {
+          await Product.updateOne(
+            {
+              _id: item.product,
+              "variants._id": item.variant,
             },
-            products: [],
-            shipping: orderData.shipping,
-            billing: orderData.billing,
-            customerNote: orderData.customerNote,
-            ipAddress: orderData.ipAddress,
-        };
-
-        // Process each product
-        let subtotal = 0;
-        for (const item of orderData.products) {
-            const product = await Product.findById(
-                item.productId
-            );
-            if (!product) {
-                throw new Error(
-                    `Product with ID ${item.productId} not found`
-                );
+            {
+              $inc: {
+                "variants.$.inventoryQuantity": -item.quantity,
+              },
             }
-
-            // Check if the product is published and active
-            if (!product.isPublished) {
-              throw new Error(
-                `Product "${product.name}" is not available for purchase`
-              );
+          );
+        } else {
+          await Product.updateOne(
+            { _id: item.product },
+            {
+              $inc: {
+                inventoryQuantity: -item.quantity,
+              },
             }
-
-            let price, variantData, inventoryCheck;
-
-            // Handle variants if specified
-            if (item.variantId) {
-                if (!product.hasVariants) {
-                    throw new Error(
-                        `Product "${product.name}" does not have variants`
-                    );
-                }
-
-                const variant = product.variants.id(
-                    item.variantId
-                );
-                if (!variant) {
-                    throw new Error(
-                        `Variant not found for product "${product.name}"`
-                    );
-                }
-
-                price = variant.price;
-                variantData = variant;
-                inventoryCheck =
-                    variant.inventoryQuantity >=
-                    item.quantity;
-            } else {
-                if (product.hasVariants) {
-                    throw new Error(
-                        `Must specify a variant for product "${product.name}"`
-                    );
-                }
-
-                price = product.price;
-                inventoryCheck =
-                    product.inventoryQuantity >=
-                    item.quantity;
-            }
-
-            // Check inventory if tracking is enabled
-            if (
-                product.inventoryTracking &&
-                !inventoryCheck
-            ) {
-                throw new Error(
-                    `Not enough inventory for product "${product.name}"`
-                );
-            }
-
-            // Calculate item total
-            const itemTotal = price * item.quantity;
-            subtotal += itemTotal;
-
-            // Add to order products
-            newOrderData.products.push({
-                product: product._id,
-                variant: item.variantId,
-                productSnapshot: {
-                    name: product.name,
-                    description:
-                        product.shortDescription ||
-                        product.description ||
-                        "",
-                    sku: item.variantId
-                        ? variantData.sku
-                        : product.sku,
-                    imageUrl:
-                        product.images &&
-                        product.images.length > 0
-                            ? product.images.find(
-                                  (img) => img.isDefault
-                              )?.url ||
-                              product.images[0].url
-                            : null,
-                },
-                variantAttributes: item.variantId
-                    ? variantData.attributes
-                    : null,
-                quantity: item.quantity,
-                price: price,
-                itemTotal: itemTotal,
-            });
+          );
         }
+      }
 
-        // Set financial details
-        newOrderData.subtotal = subtotal;
-        newOrderData.shippingCost =
-            orderData.shipping?.cost || 0;
-        newOrderData.taxAmount = orderData.taxAmount || 0;
-        newOrderData.discountTotal =
-            orderData.discountTotal || 0;
-        newOrderData.totalAmount =
-            subtotal +
-            newOrderData.shippingCost +
-            newOrderData.taxAmount -
-            newOrderData.discountTotal;
+      // Update user's customer data
+      await userData.updateCustomerData(newOrderData.totalAmount);
 
-        // Apply coupon code if provided
-        if (orderData.couponCode) {
-            newOrderData.couponCode = orderData.couponCode;
-        }
-
-        // Create the order
-        const order = new Order(newOrderData);
-        const savedOrder = await order.save();
-
-        // Update inventory
-        for (const item of newOrderData.products) {
-            if (item.variant) {
-                await Product.updateOne(
-                    {
-                        _id: item.product,
-                        "variants._id": item.variant,
-                    },
-                    {
-                        $inc: {
-                            "variants.$.inventoryQuantity":
-                                -item.quantity,
-                        },
-                    }
-                );
-            } else {
-                await Product.updateOne(
-                    { _id: item.product },
-                    {
-                        $inc: {
-                            inventoryQuantity:
-                                -item.quantity,
-                        },
-                    }
-                );
-            }
-        }
-
-        // Update user's customer data
-        await userData.updateCustomerData(
-            newOrderData.totalAmount
-        );
-
-        return savedOrder;
+      return savedOrder;
     }
 
     /**
@@ -407,98 +377,46 @@ class OrderService {
      * @returns {Promise<Object>} - Updated order
      */
     async updateOrderStatus(id, status, comment, userId) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw new Error("Invalid order ID format");
-        }
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new Error("Invalid order ID format");
+      }
 
-        const order = await Order.findById(id);
-        if (!order) {
-            throw new Error("Order not found");
-        }
+      const order = await Order.findById(id);
+      if (!order) {
+        throw new Error("Order not found");
+      }
 
-        // Update status
-        order.status = status;
+      // Validate status transition
+      if (!order.canTransitionTo(status)) {
+        throw new Error(
+          `Invalid status transition from '${order.status}' to '${status}'`
+        );
+      }
 
-        // Add to status history
-        order.statusHistory.push({
-            status,
-            comment,
-            updatedBy: userId,
-        });
+      // Update status
+      order.status = status;
 
-        // Update fulfillment status if applicable
-        if (status === "shipped") {
-            order.fulfillmentStatus = "fulfilled";
-        } else if (status === "delivered") {
-            order.fulfillmentStatus = "fulfilled";
-        } else if (status === "cancelled") {
-            order.fulfillmentStatus = "unfulfilled";
-        }
+      // Add to status history
+      order.statusHistory.push({
+        status,
+        comment,
+        updatedBy: userId,
+      });
 
-        await order.save();
-        return order;
-    }
+      // Update fulfillment status if applicable
+      if (status === "shipped") {
+        order.fulfillmentStatus = "fulfilled";
+      } else if (status === "delivered") {
+        order.fulfillmentStatus = "fulfilled";
+      } else if (status === "cancelled") {
+        order.fulfillmentStatus = "unfulfilled";
+      }
 
-    /**
-     * Add a transaction to an order
-     * @param {Object} transactionData - Transaction data
-     * @param {string} userId - User ID of admin
-     * @returns {Promise<Object>} - Updated order
-     */
-    async addOrderTransaction(transactionData, userId) {
-        const {
-            orderId,
-            type,
-            status,
-            gateway,
-            amount,
-            currency,
-            gatewayTransactionId,
-            gatewayResponse,
-        } = transactionData;
+      // Hard code payment status to paid for now
+      order.paymentStatus = "paid";
 
-        if (!mongoose.Types.ObjectId.isValid(orderId)) {
-            throw new Error("Invalid order ID format");
-        }
-
-        const order = await Order.findById(orderId);
-        if (!order) {
-            throw new Error("Order not found");
-        }
-
-        // Add transaction
-        order.transactions.push({
-            type,
-            status,
-            gateway,
-            amount,
-            currency: currency || order.currency,
-            gatewayTransactionId,
-            gatewayResponse,
-        });
-
-        // Update payment status based on transactions
-        await order.updatePaymentStatus();
-
-        // If it's a completed payment and equals total amount, update order status
-        if (
-            type === "payment" &&
-            status === "completed" &&
-            Math.abs(amount - order.totalAmount) < 0.01 &&
-            order.status === "pending"
-        ) {
-            order.status = "processing";
-
-            // Add to status history
-            order.statusHistory.push({
-                status: "processing",
-                comment: "Payment received",
-                updatedBy: userId,
-            });
-        }
-
-        await order.save();
-        return order;
+      await order.save();
+      return order;
     }
 
     /**
@@ -522,6 +440,13 @@ class OrderService {
         const order = await Order.findById(id);
         if (!order) {
             throw new Error("Order not found");
+        }
+
+        // Validate if order can transition to shipped status
+        if (!order.canTransitionTo("shipped")) {
+            throw new Error(
+                `Cannot add tracking to order with status '${order.status}'. The order must be in a state that can transition to 'shipped'.`
+            );
         }
 
         // Add tracking information
@@ -559,16 +484,10 @@ class OrderService {
             );
         }
 
-        // Check if order can be canceled (only pending or processing orders)
-        if (
-            ![
-                "pending",
-                "processing",
-                "payment_pending",
-            ].includes(order.status)
-        ) {
+        // Check if order can be canceled using state machine
+        if (!order.canTransitionTo('cancelled')) {
             throw new Error(
-                `Cannot cancel order with status ${order.status}`
+                `Cannot cancel order with status '${order.status}'. Invalid state transition.`
             );
         }
 
@@ -637,101 +556,6 @@ class OrderService {
         // Add note
         await order.addNote(note, userId);
 
-        return order;
-    }
-
-    /**
-     * Process a refund for an order
-     * @param {Object} refundData - Refund data
-     * @param {string} userId - User ID of admin
-     * @returns {Promise<Object>} - Updated order
-     */
-    async refundOrder(refundData, userId) {
-        const {
-            orderId,
-            amount,
-            reason,
-            gateway,
-            gatewayTransactionId,
-            gatewayResponse,
-        } = refundData;
-
-        if (!mongoose.Types.ObjectId.isValid(orderId)) {
-            throw new Error("Invalid order ID format");
-        }
-
-        const order = await Order.findById(orderId);
-        if (!order) {
-            throw new Error("Order not found");
-        }
-
-        // Check if order can be refunded (must be paid)
-        if (
-            order.paymentStatus !== "paid" &&
-            order.paymentStatus !== "partially_refunded"
-        ) {
-            throw new Error(
-                `Cannot refund order with payment status ${order.paymentStatus}`
-            );
-        }
-
-        // Add refund transaction
-        order.transactions.push({
-            type: "refund",
-            status: "completed",
-            gateway:
-                gateway ||
-                order.transactions[0]?.gateway ||
-                "manual",
-            amount,
-            currency: order.currency,
-            gatewayTransactionId,
-            gatewayResponse,
-            createdAt: new Date(),
-        });
-
-        // Update payment status
-        await order.updatePaymentStatus();
-
-        // Update order status if full refund
-        const totalPaid = order.transactions
-            .filter(
-                (t) =>
-                    t.type === "payment" &&
-                    t.status === "completed"
-            )
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        const totalRefunded = order.transactions
-            .filter(
-                (t) =>
-                    t.type === "refund" &&
-                    t.status === "completed"
-            )
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        if (Math.abs(totalPaid - totalRefunded) < 0.01) {
-            order.status = "refunded";
-
-            // Add to status history
-            order.statusHistory.push({
-                status: "refunded",
-                comment: reason || "Order refunded",
-                updatedBy: userId,
-            });
-        } else if (order.status !== "partially_refunded") {
-            order.status = "partially_refunded";
-
-            // Add to status history
-            order.statusHistory.push({
-                status: "partially_refunded",
-                comment:
-                    reason || "Order partially refunded",
-                updatedBy: userId,
-            });
-        }
-
-        await order.save();
         return order;
     }
 
