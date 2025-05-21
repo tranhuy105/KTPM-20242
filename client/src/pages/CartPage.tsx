@@ -174,7 +174,7 @@ const CartPage = () => {
                         {/* Product */}
                         <div className="col-span-6 flex items-center space-x-4">
                           <Link
-                            to={`/products/${item.productId}`}
+                            to={`/products/${item.slug}`}
                             className="shrink-0"
                           >
                             <img
@@ -185,7 +185,7 @@ const CartPage = () => {
                           </Link>
                           <div>
                             <Link
-                              to={`/products/${item.productId}`}
+                              to={`/products/${item.slug}`}
                               className="text-gray-800 font-medium hover:text-amber-600 transition-colors"
                             >
                               {item.name}

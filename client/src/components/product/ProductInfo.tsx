@@ -84,6 +84,7 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
     // Add item to cart
     addItem({
       productId: product._id,
+      slug: product.slug,
       name: product.name,
       price: currentPrice,
       quantity: quantity,

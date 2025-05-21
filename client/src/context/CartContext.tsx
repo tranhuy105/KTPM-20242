@@ -107,7 +107,7 @@ const cartReducer = (state: Cart, action: CartAction): Cart => {
   }
 };
 
-// Context
+// Contexta
 interface CartContextType {
   cart: Cart;
   addItem: (item: CartItem) => void;

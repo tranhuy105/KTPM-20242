@@ -37,16 +37,21 @@ const CheckoutPage = () => {
     "shipping"
   );
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Get default address if available
+  const defaultAddress =
+    user?.addresses?.find((addr) => addr.isDefault) || user?.addresses?.[0];
+
   const [formData, setFormData] = useState<CheckoutFormData>({
-    fullName: user?.fullName || "",
+    fullName: defaultAddress?.fullName || user?.fullName || "",
     email: user?.email || "",
-    phone: "",
-    addressLine1: user?.addresses?.[0]?.addressLine1 || "",
-    addressLine2: user?.addresses?.[0]?.addressLine2 || "",
-    city: user?.addresses?.[0]?.city || "",
-    state: user?.addresses?.[0]?.state || "",
-    postalCode: user?.addresses?.[0]?.postalCode || "",
-    country: "Vietnam",
+    phone: defaultAddress?.phone || "",
+    addressLine1: defaultAddress?.addressLine1 || "",
+    addressLine2: defaultAddress?.addressLine2 || "",
+    city: defaultAddress?.city || "",
+    state: defaultAddress?.state || "",
+    postalCode: defaultAddress?.postalCode || "",
+    country: defaultAddress?.country || "Vietnam",
     cardName: "",
     cardNumber: "",
     expiryDate: "",

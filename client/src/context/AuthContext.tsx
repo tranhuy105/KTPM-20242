@@ -195,21 +195,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log("updateUserData", userData);
 
       // make sure dont update id and _id and other properties
-      const updatedUser = {
+      let updatedUser = {
         ...authState.user,
         id: authState.user?.id,
         _id: authState.user?._id,
         ...userData,
       } as User;
 
+      if (userData._id || userData.id) {
+        const result = await authApi.updateProfile(
+          updatedUser._id,
+          updatedUser
+        );
+        console.log(result);
+        updatedUser = result;
+      }
+
       setAuthState((prev) => ({
         ...prev,
         user: updatedUser,
       }));
-
-      if (userData._id || userData.id) {
-        await authApi.updateProfile(updatedUser._id, updatedUser);
-      }
 
       return updatedUser;
     } catch (error) {
