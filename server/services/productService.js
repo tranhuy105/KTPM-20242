@@ -438,9 +438,49 @@ class ProductService {
    */
   async addProductReview(productId, reviewData) {
     try {
+      // Verify that the product exists
       const product = await this.getProductById(productId);
+
+      // Verify if user has purchased this product with a delivered order
+      const userId = reviewData.user;
+
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      // Check if user has already reviewed this product
+      const hasExistingReview = product.reviews.some(
+        (review) => review.user && review.user.toString() === userId
+      );
+
+      if (hasExistingReview) {
+        throw new Error("You have already reviewed this product");
+      }
+
+      // Find all delivered orders for this user that contain this product
+      const Order = mongoose.model("Order");
+      const deliveredOrders = await Order.find({
+        user: userId,
+        status: "delivered",
+        "products.product": productId,
+      }).lean();
+
+      // If no delivered orders found, user can't review
+      if (deliveredOrders.length === 0) {
+        throw new Error(
+          "You can only review products you have purchased and received"
+        );
+      }
+
+      // Set verified purchase flag
+      reviewData.isVerifiedPurchase = true;
+
+      // Add the review to the product
       product.reviews.push(reviewData);
-      await product.save();
+
+      // Update average rating
+      await product.updateAverageRating();
+
       return product;
     } catch (error) {
       throw error;

@@ -139,8 +139,6 @@ const productValidator = {
   validateProductReview: [
     param("id").isMongoId().withMessage("Invalid product ID format"),
 
-    body("user").isMongoId().withMessage("Invalid user ID format"),
-
     body("rating")
       .isInt({ min: 1, max: 5 })
       .withMessage("Rating must be between 1 and 5"),
@@ -157,11 +155,6 @@ const productValidator = {
       .withMessage("Review content is required")
       .isLength({ min: 10, max: 1000 })
       .withMessage("Review content must be between 10 and 1000 characters"),
-
-    body("isVerifiedPurchase")
-      .optional()
-      .isBoolean()
-      .withMessage("isVerifiedPurchase must be a boolean"),
 
     // Apply validation
     (req, res, next) => {
