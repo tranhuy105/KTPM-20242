@@ -404,7 +404,17 @@
       "ratingDistribution": "Rating Distribution",
       "verifiedPurchase": "Verified Purchase",
       "helpful": "Helpful",
-      "reply": "Reply"
+      "reply": "Reply",
+      "checkingEligibility": "Checking eligibility",
+      "cannotReview": "You cannot review this product",
+      "loginToReview": "Login to review",
+      "sortNewest": "Newest",
+      "sortOldest": "Oldest",
+      "sortHighestRated": "Highest Rated",
+      "sortLowestRated": "Lowest Rated",
+      "customerReviews": "Customer Reviews",
+      "eligiblePromptTitle": "You can review this product!!!!!!!!!!!!!!!",
+      "eligiblePromptMessage": "The system has successfully recorded that you have received this product. Please share your experience with this product to help others make a more informed decision when shopping."
     },
     "errors": {
       "notFound": "Product not found",
