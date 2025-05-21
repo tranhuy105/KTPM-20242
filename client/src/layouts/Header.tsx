@@ -29,6 +29,7 @@ const Header = () => {
     // Add or update the search parameter
     currentParams.set("search", searchTerm.trim());
 
+    setSearchTerm("");
     // Navigate to products page with all parameters
     navigate(`/products?${currentParams.toString()}`);
   };
