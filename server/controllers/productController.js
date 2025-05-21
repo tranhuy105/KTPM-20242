@@ -218,10 +218,20 @@ class ProductController {
    */
   async addProductReview(req, res) {
     try {
+      // Get user ID from authenticated user
+      const userId = req.user.id;
+
+      // Add user ID to review data
+      const reviewData = {
+        ...req.body,
+        user: userId,
+      };
+
       const product = await productService.addProductReview(
         req.params.id,
-        req.body
+        reviewData
       );
+
       res.status(201).json({
         message: "Review added successfully",
         product: {
@@ -521,6 +531,68 @@ class ProductController {
     } catch (error) {
       console.error("Error fetching wishlist products:", error);
       res.status(500).json({ error: "Failed to fetch wishlist products" });
+    }
+  }
+
+  /**
+   * Check if the current user can review a product
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async canReviewProduct(req, res) {
+    try {
+      // Get user ID from authenticated user
+      const userId = req.user.id;
+
+      // Get product ID from params
+      const productId = req.params.id;
+
+      // First check if product exists
+      const product = await productService.getProductById(productId);
+
+      // Check if user has already reviewed this product
+      const hasExistingReview = product.reviews.some(
+        (review) => review.user && review.user.toString() === userId
+      );
+
+      if (hasExistingReview) {
+        return res
+          .status(200)
+          .json({ canReview: false, reason: "alreadyReviewed" });
+      }
+
+      // Find all delivered orders for this user that contain this product
+      const Order = require("../models").Order;
+      const deliveredOrders = await Order.find({
+        user: userId,
+        status: "delivered",
+        "products.product": productId,
+      }).lean();
+
+      // Check if user can review
+      const canReview = deliveredOrders.length > 0;
+      const reason = canReview ? null : "noDeliveredOrder";
+
+      res.status(200).json({ canReview, reason });
+    } catch (error) {
+      console.error("Error checking if user can review:", error);
+
+      if (
+        error.message === "Invalid product ID format" ||
+        error.message === "Product not found"
+      ) {
+        return res.status(404).json({
+          canReview: false,
+          reason: "productNotFound",
+          error: error.message,
+        });
+      }
+
+      res.status(500).json({
+        canReview: false,
+        reason: "serverError",
+        error: error.message,
+      });
     }
   }
 }

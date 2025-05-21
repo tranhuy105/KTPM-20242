@@ -241,4 +241,16 @@ router.post(
   productController.toggleProductInWishlist
 );
 
+/**
+ * @route   GET /api/products/:id/can-review
+ * @desc    Check if the current user can review a product
+ * @access  Private
+ */
+router.get(
+  "/:id/can-review",
+  authMiddleware,
+  productValidator.validateProductId,
+  productController.canReviewProduct
+);
+
 module.exports = router;

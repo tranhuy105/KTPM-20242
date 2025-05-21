@@ -145,7 +145,11 @@ const productApi = {
    */
   addProductReview: async (
     productId: string,
-    reviewData: { rating: number; comment: string; userId: string }
+    reviewData: {
+      rating: number;
+      title: string;
+      content: string;
+    }
   ): Promise<ApiResponse<Product>> => {
     const response = await axiosInstance.post<ApiResponse<Product>>(
       `/products/${productId}/reviews`,
@@ -285,6 +289,20 @@ const productApi = {
    */
   getWishlistProducts: async (): Promise<Product[]> => {
     const response = await axiosInstance.get<Product[]>("/products/wishlist");
+    return response.data;
+  },
+
+  /**
+   * Check if the current user can review a product
+   * @param productId Product ID
+   * @returns Whether the user can review the product
+   */
+  canReviewProduct: async (
+    productId: string
+  ): Promise<{ canReview: boolean }> => {
+    const response = await axiosInstance.get<{ canReview: boolean }>(
+      `/products/${productId}/can-review`
+    );
     return response.data;
   },
 };

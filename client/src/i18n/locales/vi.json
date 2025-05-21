@@ -404,8 +404,16 @@
       "titlePlaceholder": "Đặt tiêu đề cho đánh giá của bạn",
       "ratingDistribution": "Phân bố xếp hạng",
       "verifiedPurchase": "Đã xác nhận mua hàng",
-      "helpful": "Hữu ích",
-      "reply": "Trả lời"
+      "checkingEligibility": "Kiểm tra khả năng đánh giá",
+      "cannotReview": "Không thể đánh giá sản phẩm này",
+      "loginToReview": "Đăng nhập để đánh giá",
+      "sortNewest": "Mới nhất",
+      "sortOldest": "Cũ nhất",
+      "sortHighestRated": "Đánh giá cao nhất",
+      "sortLowestRated": "Đánh giá thấp nhất",
+      "customerReviews": "Đánh giá của khách hàng chọn mua sản phẩm này",
+      "eligiblePromptTitle": "Bạn có thể đánh giá sản phẩm này!!!!!!!!!!!!!!!",
+      "eligiblePromptMessage": "Hệ thống ghi nhận bạn đã thành công nhận được sản phẩm này. Hãy chia sẻ trải nghiệm của bạn với sản phẩm này để giúp người khác dễ quyết định hơn khi mua hàng nhé."
     },
     "errors": {
       "notFound": "Không tìm thấy sản phẩm",
