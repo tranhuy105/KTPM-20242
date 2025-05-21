@@ -11,8 +11,9 @@ import {
   Edit,
   Save,
   X,
+  Upload,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
 const ProfileInfo = () => {
@@ -20,6 +21,8 @@ const ProfileInfo = () => {
   const { t, i18n } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
@@ -27,6 +30,7 @@ const ProfileInfo = () => {
     currency: user?.preferences?.currency || "VND",
     emailNotifications: user?.preferences?.notifications?.email || false,
     marketingEmails: user?.preferences?.notifications?.marketing || false,
+    avatar: user?.avatar || "",
   });
 
   // Set initial language from user preferences
@@ -70,6 +74,33 @@ const ProfileInfo = () => {
     }
   };
 
+  const handleAvatarClick = () => {
+    if (isEditing && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // File size validation (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error(
+        t("profile.avatarSizeError") || "Avatar must be less than 2MB"
+      );
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64String = event.target?.result as string;
+      setAvatarPreview(base64String);
+      setFormData((prev) => ({ ...prev, avatar: base64String }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -83,6 +114,11 @@ const ProfileInfo = () => {
       // Update the specific fields
       updatedUser.firstName = formData.firstName;
       updatedUser.lastName = formData.lastName;
+
+      // Update avatar if changed
+      if (avatarPreview) {
+        updatedUser.avatar = formData.avatar;
+      }
 
       // Ensure preferences object exists
       if (!updatedUser.preferences) {
@@ -115,6 +151,7 @@ const ProfileInfo = () => {
         t("profile.updateSuccess") || "Profile updated successfully"
       );
       setIsEditing(false);
+      setAvatarPreview(null);
     } catch (error) {
       console.error("Failed to update profile:", error);
       toast.error(t("profile.updateError") || "Failed to update profile");
@@ -132,6 +169,7 @@ const ProfileInfo = () => {
       currency: user?.preferences?.currency || "VND",
       emailNotifications: user?.preferences?.notifications?.email || false,
       marketingEmails: user?.preferences?.notifications?.marketing || false,
+      avatar: user?.avatar || "",
     });
 
     // Reset language to user's saved preference if changed during editing
@@ -139,6 +177,7 @@ const ProfileInfo = () => {
       i18n.changeLanguage(user.preferences.language);
     }
 
+    setAvatarPreview(null);
     setIsEditing(false);
   };
 
@@ -151,15 +190,46 @@ const ProfileInfo = () => {
       {/* Account Summary Card */}
       <div className="mb-8 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-          <div className="m-6 text-white rounded-full shadow-md">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt="Avatar"
-                className="w-24 h-24 rounded-full"
-              />
+          <div className="m-6 text-white rounded-full shadow-md relative">
+            {avatarPreview || user.avatar ? (
+              <div
+                className="w-24 h-24 rounded-full overflow-hidden relative"
+                onClick={handleAvatarClick}
+                style={{ cursor: isEditing ? "pointer" : "default" }}
+              >
+                <img
+                  src={avatarPreview || user.avatar}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <Upload size={24} className="text-white" />
+                  </div>
+                )}
+              </div>
             ) : (
-              <User size={48} className="text-amber-600" />
+              <div
+                className="w-24 h-24 bg-amber-200 rounded-full flex items-center justify-center"
+                onClick={handleAvatarClick}
+                style={{ cursor: isEditing ? "pointer" : "default" }}
+              >
+                <User size={48} className="text-amber-600" />
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full">
+                    <Upload size={24} className="text-white" />
+                  </div>
+                )}
+              </div>
+            )}
+            {isEditing && (
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarChange}
+                accept="image/*"
+                className="hidden"
+              />
             )}
           </div>
           <div className="flex-1 text-center md:text-left">

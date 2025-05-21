@@ -48,8 +48,6 @@ const userValidator = {
 
     body("phone").optional().trim(),
 
-    body("avatar").optional().isURL().withMessage("Avatar must be a valid URL"),
-
     (req, res, next) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -131,8 +129,6 @@ const userValidator = {
       .withMessage("Last name must be between 2 and 50 characters"),
 
     body("phone").optional().trim(),
-
-    body("avatar").optional().isURL().withMessage("Avatar must be a valid URL"),
 
     body("preferences")
       .optional()
