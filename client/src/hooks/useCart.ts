@@ -3,6 +3,7 @@ import type { Product, ProductVariant } from "../types";
 
 interface CartItem {
   id: string;
+  slug: string;
   productId: string;
   name: string;
   price: number;
@@ -95,7 +96,7 @@ const useCart = (): CartState & CartFunctions => {
   const addItem = useCallback(
     (product: Product, quantity: number, variant?: ProductVariant) => {
       setCart((prevCart) => {
-        const price = variant?.price ?? product.salePrice ?? product.price;
+        const price = variant?.price ?? product.price;
         const existingItemIndex = prevCart.items.findIndex(
           (item) =>
             item.productId === product._id &&
@@ -115,11 +116,12 @@ const useCart = (): CartState & CartFunctions => {
           // Add new item
           const newItem: CartItem = {
             id: variant ? `${product._id}-${variant._id}` : product._id,
+            slug: product.slug,
             productId: product._id,
             name: product.name,
             price,
             quantity,
-            image: variant?.images?.[0] ?? product.images[0],
+            image: product.images[0].url,
             variantId: variant?._id,
             variantName: variant?.name,
           };

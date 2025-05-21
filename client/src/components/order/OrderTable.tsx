@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { formatCurrencyVND, formatDate } from "../../lib/utils";
+import { formatCurrency, formatDate } from "../../lib/utils";
 import { OrderStatusBadge } from "../admin/orders/OrderStatusBadge";
 import type { Order } from "../../types";
 
@@ -80,7 +80,7 @@ export function OrderTable({ orders, onCancelOrder }: OrderTableProps) {
                 <OrderStatusBadge status={order.status} />
               </TableCell>
               <TableCell className="text-right">
-                {formatCurrencyVND(order.totalAmount)}
+                {formatCurrency(order.totalAmount)}
               </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>

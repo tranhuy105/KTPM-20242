@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, Ban, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { formatDate, formatCurrencyVND } from "../../lib/utils";
+import { formatDate, formatCurrency } from "../../lib/utils";
 import { OrderStatusBadge } from "../admin/orders/OrderStatusBadge";
 import { OrderItems } from "../admin/orders/OrderItems";
 import { AddressInfo } from "../admin/orders/AddressInfo";
@@ -109,7 +109,7 @@ export function OrderDetails({
                 {t("orders.total")}
               </p>
               <p className="mt-1 font-medium">
-                {formatCurrencyVND(order.totalAmount)}
+                {formatCurrency(order.totalAmount)}
               </p>
             </div>
           </div>
@@ -122,18 +122,18 @@ export function OrderDetails({
               <span className="text-muted-foreground">
                 {t("orders.subtotal")}
               </span>
-              <span>{formatCurrencyVND(order.subtotal)}</span>
+              <span>{formatCurrency(order.subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">
                 {t("orders.shipping")}
               </span>
-              <span>{formatCurrencyVND(order.shippingCost)}</span>
+              <span>{formatCurrency(order.shippingCost)}</span>
             </div>
             {order.taxAmount > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("orders.tax")}</span>
-                <span>{formatCurrencyVND(order.taxAmount)}</span>
+                <span>{formatCurrency(order.taxAmount)}</span>
               </div>
             )}
             {order.discountTotal > 0 && (
@@ -141,13 +141,13 @@ export function OrderDetails({
                 <span className="text-muted-foreground">
                   {t("orders.discount")}
                 </span>
-                <span>-{formatCurrencyVND(order.discountTotal)}</span>
+                <span>-{formatCurrency(order.discountTotal)}</span>
               </div>
             )}
             <div className="border-t pt-2 mt-2">
               <div className="flex justify-between font-medium">
                 <span>{t("orders.total")}</span>
-                <span>{formatCurrencyVND(order.totalAmount)}</span>
+                <span>{formatCurrency(order.totalAmount)}</span>
               </div>
             </div>
           </div>

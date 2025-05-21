@@ -13,7 +13,7 @@ import ProductReviews from "../components/product/ProductReviews";
 import RelatedProducts from "../components/product/RelatedProducts";
 import Breadcrumb from "../components/common/Breadcrumb";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import { formatCurrencyVND } from "../lib/utils";
+import { formatCurrency } from "../lib/utils";
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -219,12 +219,12 @@ const ProductDetailPage = () => {
             {/* Display price in hero section */}
             <div className="flex items-center">
               <span className="text-white text-2xl font-medium mr-2">
-                {formatCurrencyVND(product.price)}
+                {formatCurrency(product.price)}
               </span>
               {product.compareAtPrice &&
                 product.compareAtPrice > product.price && (
                   <span className="text-amber-300 line-through text-lg">
-                    {formatCurrencyVND(product.compareAtPrice)}
+                    {formatCurrency(product.compareAtPrice)}
                   </span>
                 )}
             </div>

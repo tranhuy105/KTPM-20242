@@ -9,6 +9,10 @@ import AuthPage from "./pages/AuthPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
+import ProfileInfoPage from "./pages/ProfileInfoPage";
+import ProfileOrdersPage from "./pages/ProfileOrdersPage";
+import ProfileWishlistPage from "./pages/ProfileWishlistPage";
+import ProfileAddressesPage from "./pages/ProfileAddressesPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
@@ -86,6 +90,24 @@ const routes: RouteObject[] = [
           {
             path: "profile",
             element: <ProfilePage />,
+            children: [
+              {
+                index: true,
+                element: <ProfileInfoPage />,
+              },
+              {
+                path: "addresses",
+                element: <ProfileAddressesPage />,
+              },
+              {
+                path: "orders",
+                element: <ProfileOrdersPage />,
+              },
+              {
+                path: "wishlist",
+                element: <ProfileWishlistPage />,
+              },
+            ],
           },
           {
             path: "profile/orders/:id",

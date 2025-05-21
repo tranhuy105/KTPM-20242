@@ -5,7 +5,7 @@ import { Loader2, ShoppingBag, Heart } from "lucide-react";
 import type { Product } from "../../types";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
-import { formatCurrencyVND } from "../../lib/utils";
+import { formatCurrency } from "../../lib/utils";
 import toast from "react-hot-toast";
 
 interface WishlistProduct extends Product {
@@ -169,15 +169,15 @@ const WishlistSection = () => {
                   product.compareAtPrice > product.price ? (
                     <>
                       <span className="font-semibold text-gray-900">
-                        {formatCurrencyVND(product.price)}
+                        {formatCurrency(product.price)}
                       </span>
                       <span className="text-gray-500 line-through text-sm">
-                        {formatCurrencyVND(product.compareAtPrice)}
+                        {formatCurrency(product.compareAtPrice)}
                       </span>
                     </>
                   ) : (
                     <span className="font-semibold text-gray-900">
-                      {formatCurrencyVND(product.price)}
+                      {formatCurrency(product.price)}
                     </span>
                   )}
                 </div>

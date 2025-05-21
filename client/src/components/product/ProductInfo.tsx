@@ -8,10 +8,7 @@ import toast from "react-hot-toast";
 import { ShoppingBag, LogIn } from "lucide-react";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import AddToWishlistButton from "../common/AddToWishlistButton";
-import {
-  calculateDiscountPercentage,
-  formatCurrencyVND,
-} from "../../lib/utils";
+import { calculateDiscountPercentage, formatCurrency } from "../../lib/utils";
 
 interface ProductInfoProps {
   product: Product;
@@ -87,6 +84,7 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
     // Add item to cart
     addItem({
       productId: product._id,
+      slug: product.slug,
       name: product.name,
       price: currentPrice,
       quantity: quantity,
@@ -136,12 +134,12 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
       <div className="mb-8">
         <div className="flex items-center space-x-4">
           <span className="text-3xl font-serif font-semibold text-amber-800">
-            {formatCurrencyVND(currentPrice)}
+            {formatCurrency(currentPrice)}
           </span>
           {currentComparePrice && currentComparePrice > currentPrice && (
             <>
               <span className="text-gray-500 line-through text-lg">
-                {formatCurrencyVND(currentComparePrice)}
+                {formatCurrency(currentComparePrice)}
               </span>
               <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold">
                 -{discountPercentage}%

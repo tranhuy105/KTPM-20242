@@ -26,7 +26,7 @@ import {
   FileText,
 } from "lucide-react";
 import type { Order } from "../../../types";
-import { formatCurrencyVND, formatDate } from "../../../lib/utils";
+import { formatCurrency, formatDate } from "../../../lib/utils";
 
 interface OrdersTableProps {
   orders: Order[];
@@ -151,7 +151,7 @@ export function OrdersTable({ orders, onUpdateStatus }: OrdersTableProps) {
               </TableCell>
               <TableCell>{formatDate(order.createdAt)}</TableCell>
               <TableCell className="font-medium">
-                {formatCurrencyVND(order.totalAmount)}
+                {formatCurrency(order.totalAmount)}
               </TableCell>
               <TableCell>{renderStatusBadge(order.status)}</TableCell>
               <TableCell>

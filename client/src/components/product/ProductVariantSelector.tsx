@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { ProductVariant } from "../../types";
-import { formatCurrencyVND } from "../../lib/utils";
+import { formatCurrency } from "../../lib/utils";
 
 interface ProductVariantSelectorProps {
   variants: ProductVariant[];
@@ -204,7 +204,7 @@ const ProductVariantSelector = ({
                       <span className="block font-medium">{value}</span>
                       {variantWithThisValue && (
                         <span className="text-xs text-gray-500 mt-1">
-                          {formatCurrencyVND(variantWithThisValue.price)}
+                          {formatCurrency(variantWithThisValue.price)}
                         </span>
                       )}
                     </div>

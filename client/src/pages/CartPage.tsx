@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Breadcrumb from "../components/common/Breadcrumb";
 import toast from "react-hot-toast";
-import { formatCurrencyVND } from "../lib/utils";
+import { formatCurrency } from "../lib/utils";
 const CartPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -174,7 +174,7 @@ const CartPage = () => {
                         {/* Product */}
                         <div className="col-span-6 flex items-center space-x-4">
                           <Link
-                            to={`/products/${item.productId}`}
+                            to={`/products/${item.slug}`}
                             className="shrink-0"
                           >
                             <img
@@ -185,7 +185,7 @@ const CartPage = () => {
                           </Link>
                           <div>
                             <Link
-                              to={`/products/${item.productId}`}
+                              to={`/products/${item.slug}`}
                               className="text-gray-800 font-medium hover:text-amber-600 transition-colors"
                             >
                               {item.name}
@@ -213,7 +213,7 @@ const CartPage = () => {
                             {t("cart.price")}:
                           </span>
                           <span className="text-gray-800 font-medium text-center block">
-                            {formatCurrencyVND(item.price)}
+                            {formatCurrency(item.price)}
                           </span>
                         </div>
 
@@ -264,7 +264,7 @@ const CartPage = () => {
                             {t("cart.total")}:
                           </span>
                           <span className="text-gray-800 font-medium md:text-right block">
-                            {formatCurrencyVND(item.price * item.quantity)}
+                            {formatCurrency(item.price * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -285,7 +285,7 @@ const CartPage = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">{t("cart.subtotal")}</span>
                     <span className="text-gray-800 font-medium">
-                      {formatCurrencyVND(cart.totalPrice)}
+                      {formatCurrency(cart.totalPrice)}
                     </span>
                   </div>
 
@@ -309,7 +309,7 @@ const CartPage = () => {
                         {t("cart.total")}
                       </span>
                       <span className="text-lg font-medium text-amber-700">
-                        {formatCurrencyVND(cart.totalPrice)}
+                        {formatCurrency(cart.totalPrice)}
                       </span>
                     </div>
                   </div>
