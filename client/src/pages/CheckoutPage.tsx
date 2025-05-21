@@ -13,7 +13,7 @@ import EmptyCartView from "../components/checkout/EmptyCartView";
 import type { CheckoutFormData, OrderData } from "../types/Checkout";
 import orderApi from "../api/orderApi";
 import { AxiosError } from "axios";
-import { formatCurrencyVND } from "../lib/utils";
+import { formatCurrency } from "../lib/utils";
 import { useAuthContext } from "../context/AuthContext";
 
 // Error interface for API validation errors
@@ -252,7 +252,7 @@ const CheckoutPage = () => {
 
             {/* Order summary */}
             <div className="lg:col-span-1">
-              <OrderSummary cart={cart} formatPrice={formatCurrencyVND} />
+              <OrderSummary cart={cart} formatPrice={formatCurrency} />
             </div>
           </div>
         </div>

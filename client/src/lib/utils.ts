@@ -6,6 +6,40 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Exchange rate for VND to USD (approximate)
+const VND_TO_USD_RATE = 0.000041; // ~24,400 VND = 1 USD
+
+// Get user's preferred currency from local storage or context
+export function getUserCurrency(): string {
+  // Try to get from localStorage first
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    try {
+      const userData = JSON.parse(storedUser);
+      if (userData?.preferences?.currency) {
+        return userData.preferences.currency;
+      }
+    } catch (e) {
+      console.error("Error parsing user data from localStorage:", e);
+    }
+  }
+  
+  // Default to VND if no preference found
+  return "VND";
+}
+
+// Format currency based on user preference
+export function formatCurrency(value: number, forceCurrency?: string): string {
+  const currency = forceCurrency || getUserCurrency();
+  
+  if (currency === "USD") {
+    return formatCurrencyUSD(value);
+  }
+  
+  // Default to VND
+  return formatCurrencyVND(value);
+}
+
 export function formatCurrencyVND(value: number) {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -15,11 +49,14 @@ export function formatCurrencyVND(value: number) {
 }
 
 export function formatCurrencyUSD(value: number) {
+  // Convert from VND to USD if needed
+  const usdValue = value * VND_TO_USD_RATE;
+  
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(usdValue);
 }
 
 export function formatDate(date: string) {

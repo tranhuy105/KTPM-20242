@@ -1,10 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { Product } from "../../types";
-import {
-  calculateDiscountPercentage,
-  formatCurrencyVND,
-} from "../../lib/utils";
+import { calculateDiscountPercentage, formatCurrency } from "../../lib/utils";
 import { Heart } from "lucide-react";
 import { useAuthContext } from "../../context/AuthContext";
 import { useMemo } from "react";
@@ -112,15 +109,15 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
             product.compareAtPrice > product.price ? (
               <>
                 <span className="font-semibold text-gray-900 tracking-wide">
-                  {formatCurrencyVND(product.price)}
+                  {formatCurrency(product.price)}
                 </span>
                 <span className="text-gray-500 line-through text-sm">
-                  {formatCurrencyVND(product.compareAtPrice)}
+                  {formatCurrency(product.compareAtPrice)}
                 </span>
               </>
             ) : (
               <span className="font-semibold text-gray-900 tracking-wide">
-                {formatCurrencyVND(product.price)}
+                {formatCurrency(product.price)}
               </span>
             )}
           </div>

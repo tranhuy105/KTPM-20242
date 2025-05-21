@@ -19,7 +19,7 @@ import {
 import { Badge } from "../../ui/badge";
 import { Edit, MoreHorizontal, Trash, EyeOff, Eye, Star } from "lucide-react";
 import type { Product } from "../../../types";
-import { formatCurrencyVND } from "../../../lib/utils";
+import { formatCurrency } from "../../../lib/utils";
 interface ProductsTableProps {
   products: Product[];
   onDeleteProduct: (productId: string) => void;
@@ -98,11 +98,11 @@ export function ProductsTable({
               <TableCell>
                 <div>
                   <div className="font-medium">
-                    {formatCurrencyVND(product.price)}
+                    {formatCurrency(product.price)}
                   </div>
                   {product.compareAtPrice && (
                     <div className="text-sm line-through text-muted-foreground">
-                      {formatCurrencyVND(product.compareAtPrice)}
+                      {formatCurrency(product.compareAtPrice)}
                     </div>
                   )}
                 </div>

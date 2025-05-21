@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
-import { formatCurrencyVND } from "../../../lib/utils";
+import { formatCurrency } from "../../../lib/utils";
 import type { Order } from "../../../types";
 
 interface OrderItemsProps {
@@ -66,9 +66,9 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
                   </div>
                 </TableCell>
                 <TableCell>{item.quantity}</TableCell>
-                <TableCell>{formatCurrencyVND(item.price)}</TableCell>
+                <TableCell>{formatCurrency(item.price)}</TableCell>
                 <TableCell className="text-right">
-                  {formatCurrencyVND(item.itemTotal)}
+                  {formatCurrency(item.itemTotal)}
                 </TableCell>
               </TableRow>
             ))}
@@ -79,27 +79,27 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>{formatCurrencyVND(order.subtotal)}</span>
+              <span>{formatCurrency(order.subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Shipping</span>
-              <span>{formatCurrencyVND(order.shippingCost)}</span>
+              <span>{formatCurrency(order.shippingCost)}</span>
             </div>
             {order.taxAmount > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Tax</span>
-                <span>{formatCurrencyVND(order.taxAmount)}</span>
+                <span>{formatCurrency(order.taxAmount)}</span>
               </div>
             )}
             {order.discountTotal > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Discount</span>
-                <span>-{formatCurrencyVND(order.discountTotal)}</span>
+                <span>-{formatCurrency(order.discountTotal)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold pt-2 border-t">
               <span>Total</span>
-              <span>{formatCurrencyVND(order.totalAmount)}</span>
+              <span>{formatCurrency(order.totalAmount)}</span>
             </div>
           </div>
         </div>

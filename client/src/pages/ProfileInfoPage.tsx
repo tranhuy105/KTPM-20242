@@ -1,5 +1,5 @@
 import { useAuthContext } from "../context/AuthContext";
-import { formatCurrencyVND } from "../lib/utils";
+import { formatCurrency } from "../lib/utils";
 import { useTranslation } from "react-i18next";
 import {
   User,
@@ -12,22 +12,41 @@ import {
   Save,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const ProfileInfoPage = () => {
   const { user, logout, updateUserData } = useAuthContext();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
-    language: user?.preferences?.language || "vn",
+    language: user?.preferences?.language || "vi",
     currency: user?.preferences?.currency || "VND",
     emailNotifications: user?.preferences?.notifications?.email || false,
     marketingEmails: user?.preferences?.notifications?.marketing || false,
   });
+
+  // Set initial language from user preferences
+  useEffect(() => {
+    if (
+      user?.preferences?.language &&
+      user.preferences.language !== i18n.language
+    ) {
+      i18n.changeLanguage(user.preferences.language);
+    }
+
+    // Update user data in localStorage for currency preference
+    if (user) {
+      try {
+        localStorage.setItem("user", JSON.stringify(user));
+      } catch (e) {
+        console.error("Error storing user data in localStorage:", e);
+      }
+    }
+  }, [user, user?.preferences?.language, i18n]);
 
   const handleLogout = () => {
     logout();
@@ -43,6 +62,11 @@ const ProfileInfoPage = () => {
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    // Immediately change language when the language dropdown changes
+    if (name === "language") {
+      i18n.changeLanguage(value);
     }
   };
 
@@ -79,6 +103,14 @@ const ProfileInfoPage = () => {
 
       // Update user data
       await updateUserData(updatedUser);
+
+      // Update localStorage for currency preference
+      try {
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      } catch (e) {
+        console.error("Error storing user data in localStorage:", e);
+      }
+
       toast.success(
         t("profile.updateSuccess") || "Profile updated successfully"
       );
@@ -96,11 +128,17 @@ const ProfileInfoPage = () => {
     setFormData({
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
-      language: user?.preferences?.language || "vn",
+      language: user?.preferences?.language || "vi",
       currency: user?.preferences?.currency || "VND",
       emailNotifications: user?.preferences?.notifications?.email || false,
       marketingEmails: user?.preferences?.notifications?.marketing || false,
     });
+
+    // Reset language to user's saved preference if changed during editing
+    if (user?.preferences?.language) {
+      i18n.changeLanguage(user.preferences.language);
+    }
+
     setIsEditing(false);
   };
 
@@ -169,7 +207,7 @@ const ProfileInfoPage = () => {
                   {t("profile.totalSpent")}
                 </p>
                 <p className="text-lg font-semibold">
-                  {formatCurrencyVND(user.customerData.totalSpent || 0)}
+                  {formatCurrency(user.customerData.totalSpent || 0)}
                 </p>
               </div>
             </div>
@@ -335,7 +373,7 @@ const ProfileInfoPage = () => {
                     onChange={handleInputChange}
                     className="p-3 bg-white rounded-lg border border-gray-300 font-medium w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   >
-                    <option value="vn">Tiếng Việt</option>
+                    <option value="vi">Tiếng Việt</option>
                     <option value="en">English</option>
                   </select>
                 ) : (
@@ -369,6 +407,10 @@ const ProfileInfoPage = () => {
                     {user.preferences?.currency || "VND"}
                   </div>
                 )}
+                <p className="text-xs text-gray-500">
+                  {t("profile.currencyNote") ||
+                    "All prices are stored in VND and converted for display purposes only."}
+                </p>
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
