@@ -241,5 +241,4 @@ router.post(
   productController.toggleProductInWishlist
 );
 
-
 module.exports = router;

@@ -1,53 +1,6 @@
 const mongoose = require("mongoose");
 
 /**
- * Product variant schema - represents different options of the same product
- * (e.g., different sizes, colors, etc.)
- */
-const productVariantSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  sku: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  attributes: {
-    type: Object,
-    default: {},
-  },
-  price: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  compareAtPrice: {
-    type: Number,
-    min: 0,
-    default: null,
-  },
-  inventoryQuantity: {
-    type: Number,
-    required: true,
-    min: 0,
-    default: 0,
-  },
-  weight: {
-    type: Number,
-    min: 0,
-    default: 0,
-  },
-  weightUnit: {
-    type: String,
-    enum: ["g", "kg", "lb", "oz"],
-    default: "g",
-  },
-});
-
-/**
  * Review schema for product reviews
  */
 const reviewSchema = new mongoose.Schema(
@@ -165,8 +118,6 @@ const productSchema = new mongoose.Schema(
       min: 0,
       default: null,
     },
-    // For products with variants
-    variants: [productVariantSchema],
     // SEO fields
     seo: {
       title: {
@@ -196,10 +147,6 @@ const productSchema = new mongoose.Schema(
       index: true,
     },
     // Inventory management
-    hasVariants: {
-      type: Boolean,
-      default: false,
-    },
     inventoryQuantity: {
       type: Number,
       min: 0,
@@ -287,9 +234,6 @@ const productSchema = new mongoose.Schema(
 
 // Virtual for checking if product is in stock
 productSchema.virtual("inStock").get(function () {
-  if (this.hasVariants) {
-    return this.variants.some((variant) => variant.inventoryQuantity > 0);
-  }
   return this.inventoryQuantity > 0;
 });
 
@@ -328,21 +272,8 @@ productSchema.methods.updateAverageRating = async function () {
 };
 
 // Method to update inventory
-productSchema.methods.updateInventory = async function (
-  quantity,
-  variantId = null
-) {
-  if (this.hasVariants && variantId) {
-    const variant = this.variants.id(variantId);
-    if (variant) {
-      variant.inventoryQuantity = Math.max(
-        0,
-        variant.inventoryQuantity - quantity
-      );
-    }
-  } else {
-    this.inventoryQuantity = Math.max(0, this.inventoryQuantity - quantity);
-  }
+productSchema.methods.updateInventory = async function (quantity) {
+  this.inventoryQuantity = Math.max(0, this.inventoryQuantity - quantity);
   await this.save();
 };
 

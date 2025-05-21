@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Product, ProductVariant } from "../types";
+import type { Product } from "../types";
 
 interface CartItem {
   id: string;
@@ -9,8 +9,6 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  variantId?: string;
-  variantName?: string;
 }
 
 interface CartState {
@@ -23,15 +21,11 @@ interface CartState {
 }
 
 interface CartFunctions {
-  addItem: (
-    product: Product,
-    quantity: number,
-    variant?: ProductVariant
-  ) => void;
+  addItem: (product: Product, quantity: number) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
-  isInCart: (productId: string, variantId?: string) => boolean;
+  isInCart: (productId: string) => boolean;
 }
 
 const initialCartState: CartState = {
@@ -94,13 +88,11 @@ const useCart = (): CartState & CartFunctions => {
 
   // Add an item to the cart
   const addItem = useCallback(
-    (product: Product, quantity: number, variant?: ProductVariant) => {
+    (product: Product, quantity: number) => {
       setCart((prevCart) => {
-        const price = variant?.price ?? product.price;
+        const price = product.price;
         const existingItemIndex = prevCart.items.findIndex(
-          (item) =>
-            item.productId === product._id &&
-            item.variantId === (variant?._id ?? undefined)
+          (item) => item.productId === product._id
         );
 
         let newItems: CartItem[];
@@ -115,15 +107,13 @@ const useCart = (): CartState & CartFunctions => {
         } else {
           // Add new item
           const newItem: CartItem = {
-            id: variant ? `${product._id}-${variant._id}` : product._id,
+            id: product._id,
             slug: product.slug,
             productId: product._id,
             name: product.name,
             price,
             quantity,
             image: product.images[0].url,
-            variantId: variant?._id,
-            variantName: variant?.name,
           };
           newItems = [...prevCart.items, newItem];
         }
@@ -180,10 +170,8 @@ const useCart = (): CartState & CartFunctions => {
 
   // Check if a product is already in the cart
   const isInCart = useCallback(
-    (productId: string, variantId?: string) => {
-      return cart.items.some(
-        (item) => item.productId === productId && item.variantId === variantId
-      );
+    (productId: string) => {
+      return cart.items.some((item) => item.productId === productId);
     },
     [cart.items]
   );
