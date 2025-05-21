@@ -12,6 +12,7 @@ import ProfilePage from "./pages/ProfilePage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import { OrderDetailsPage } from "./components/order/OrderDetailsPage";
 
 // Admin imports
 import AdminOrderDetailsPage from "./pages/admin/AdminOrderDetailsPage";
@@ -85,6 +86,10 @@ const routes: RouteObject[] = [
           {
             path: "profile",
             element: <ProfilePage />,
+          },
+          {
+            path: "profile/orders/:id",
+            element: <OrderDetailsPage />,
           },
           {
             path: "checkout",

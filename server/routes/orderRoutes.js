@@ -26,7 +26,7 @@ router.get(
  * @access  Private
  */
 router.get(
-  "/my",
+  "/me",
   authMiddleware,
   orderValidator.validateOrderQuery,
   orderController.getMyOrders
