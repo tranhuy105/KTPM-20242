@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ProductImage {
   url: string;
   alt?: string;
+  isDefault?: boolean;
+  _id?: string;
 }
 
 interface ProductGalleryProps {
@@ -32,7 +34,25 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
       ? `${productName} - Image ${index + 1}`
       : image.alt || `${productName} - Image ${index + 1}`;
 
-  const processedImages = images.filter((img) => getImageUrl(img));
+  // Filter valid images and sort to put default image first
+  const processedImages = images
+    .filter((img) => getImageUrl(img))
+    .sort((a, b) => {
+      if (typeof a !== "string" && typeof b !== "string") {
+        // If a is default and b is not, a comes first
+        if (a.isDefault && !b.isDefault) return -1;
+        // If b is default and a is not, b comes first
+        if (!a.isDefault && b.isDefault) return 1;
+      } else if (typeof a !== "string" && a.isDefault) {
+        // If a is an object with isDefault true, it comes first
+        return -1;
+      } else if (typeof b !== "string" && b.isDefault) {
+        // If b is an object with isDefault true, it comes first
+        return 1;
+      }
+      // Otherwise, maintain original order
+      return 0;
+    });
 
   // Preload images
   useEffect(() => {
@@ -51,14 +71,21 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
     });
   }, [processedImages]);
 
-  // Handle zoom effect
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Handle zoom effect with bounds checking
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } =
       e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
+
+    // Calculate position in percentage (0-100)
+    let x = ((e.clientX - left) / width) * 100;
+    let y = ((e.clientY - top) / height) * 100;
+
+    // Clamp the values between 0 and 100
+    x = Math.max(0, Math.min(100, x));
+    y = Math.max(0, Math.min(100, y));
+
     setZoomPosition({ x, y });
-  };
+  }, []);
 
   // Navigation
   const goToPrevious = () => {
@@ -112,18 +139,19 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
             }`}
           />
 
-          {/* Zoom Square */}
+          {/* Zoom Square with boundary protection */}
           {showZoom && !isLoading && (
             <div
               className="absolute w-48 h-48 border-4 border-blue-400 rounded-xl pointer-events-none bg-white/70 shadow-lg"
               style={{
-                top: `calc(${zoomPosition.y}% - 96px)`,
-                left: `calc(${zoomPosition.x}% - 96px)`,
+                top: `clamp(0px, calc(${zoomPosition.y}% - 96px), calc(100% - 192px))`,
+                left: `clamp(0px, calc(${zoomPosition.x}% - 96px), calc(100% - 192px))`,
                 backgroundImage: `url(${getImageUrl(
                   processedImages[selectedImageIndex]
                 )})`,
                 backgroundSize: "300%",
                 backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                backgroundRepeat: "no-repeat",
               }}
             />
           )}
