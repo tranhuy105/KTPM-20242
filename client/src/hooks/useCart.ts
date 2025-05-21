@@ -121,7 +121,7 @@ const useCart = (): CartState & CartFunctions => {
             name: product.name,
             price,
             quantity,
-            image: variant?.images?.[0] ?? product.images[0],
+            image: product.images[0].url,
             variantId: variant?._id,
             variantName: variant?.name,
           };
