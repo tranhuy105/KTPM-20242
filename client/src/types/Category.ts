@@ -23,7 +23,7 @@ export interface Category {
     _id: string;
     name: string;
     slug: string;
-    id: string;
+    id?: string;
   };
   ancestors?: CategoryAncestor[];
   isActive?: boolean;
@@ -32,7 +32,9 @@ export interface Category {
   createdAt?: string;
   updatedAt?: string;
   seo?: {
-    keywords: string[];
+    title?: string;
+    description?: string;
+    keywords?: string[];
   };
 }
 
