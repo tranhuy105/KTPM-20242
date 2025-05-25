@@ -7,11 +7,13 @@ import type { ProductImage } from "../../types";
 interface ImageUploadProps {
   onImagesUpload: (images: ProductImage[]) => void;
   maxImages?: number;
+  compact?: boolean; // Add compact mode for single image uploads
 }
 
 export const ImageUpload = ({
   onImagesUpload,
   maxImages = 5,
+  compact = false,
 }: ImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,20 +70,61 @@ export const ImageUpload = ({
     }
   };
 
+  if (compact) {
+    return (
+      <div className="relative">
+        <Input
+          type="file"
+          accept="image/*"
+          multiple={maxImages > 1}
+          onChange={handleUpload}
+          disabled={isUploading}
+          className="hidden"
+          id="image-upload-compact"
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById("image-upload-compact")?.click();
+          }}
+          disabled={isUploading}
+          className="w-full"
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <UploadCloud className="h-4 w-4 mr-2" />
+              {maxImages > 1 ? "Upload Images" : "Upload Image"}
+            </>
+          )}
+        </Button>
+        {error && <div className="text-destructive text-xs mt-1">{error}</div>}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 text-center">
         <UploadCloud className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
         <p className="mb-2 text-sm text-muted-foreground">
-          Drag and drop images, or click to select files
+          Drag and drop {maxImages > 1 ? "images" : "an image"}, or click to
+          select {maxImages > 1 ? "files" : "a file"}
         </p>
         <p className="text-xs text-muted-foreground mb-4">
-          PNG, JPG, or WEBP up to {maxImages} images, 2MB each
+          PNG, JPG, or WEBP {maxImages > 1 ? `up to ${maxImages} images` : ""},
+          2MB each
         </p>
         <Input
           type="file"
           accept="image/*"
-          multiple
+          multiple={maxImages > 1}
           onChange={handleUpload}
           disabled={isUploading}
           className="hidden"
@@ -97,7 +140,11 @@ export const ImageUpload = ({
           className="relative"
         >
           {isUploading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          {isUploading ? "Uploading..." : "Select Images"}
+          {isUploading
+            ? "Uploading..."
+            : maxImages > 1
+            ? "Select Images"
+            : "Select Image"}
         </Button>
       </div>
 

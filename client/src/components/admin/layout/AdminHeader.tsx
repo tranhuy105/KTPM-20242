@@ -1,5 +1,4 @@
-import { Bell, Search } from "lucide-react";
-import { Input } from "../../ui/input";
+import { Bell } from "lucide-react";
 import { Button } from "../../ui/button";
 
 export function AdminHeader() {
@@ -9,14 +8,7 @@ export function AdminHeader() {
         <h1 className="text-lg font-semibold hidden md:block">
           Admin Dashboard
         </h1>
-        <div className="relative max-w-md flex-1 hidden md:flex">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="pl-8 bg-background w-full"
-          />
-        </div>
+        <div className="relative max-w-md flex-1 hidden md:flex"></div>
       </div>
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" className="relative">

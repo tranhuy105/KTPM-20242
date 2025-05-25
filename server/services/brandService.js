@@ -160,32 +160,6 @@ class BrandService {
   }
 
   /**
-   * Delete a brand
-   * @param {string} id - Brand ID
-   * @returns {Promise<void>}
-   */
-  async deleteBrand(id) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("Invalid brand ID format");
-    }
-
-    // Check if brand exists
-    const brand = await Brand.findById(id);
-    if (!brand) {
-      throw new Error("Brand not found");
-    }
-
-    // Check if brand has products
-    const productsCount = await Product.countDocuments({ brand: id });
-    if (productsCount > 0) {
-      throw new Error("Cannot delete brand with associated products");
-    }
-
-    // Delete the brand
-    await Brand.findByIdAndDelete(id);
-  }
-
-  /**
    * Get brands with product counts
    * @returns {Promise<Array>} - Array of brands with product counts
    */
@@ -199,6 +173,14 @@ class BrandService {
 
     return brands;
   }
+
+  /**
+   * Delete a brand - REMOVED
+   * For data integrity, brands are never deleted, only disabled via the updateBrand method
+   * This ensures all historical data and relationships remain intact
+   */
+  // Method removed to prevent accidental data deletion
+  // Instead, use updateBrand with isActive: false to disable brands
 }
 
 module.exports = new BrandService();

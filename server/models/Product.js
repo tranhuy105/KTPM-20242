@@ -286,6 +286,7 @@ productSchema.statics.getAvailableFilters = async function () {
     .model("Brand")
     .find({
       _id: { $in: brandIds },
+      isActive: true,
     })
     .select("_id name slug logo")
     .sort({ name: 1 });
@@ -298,6 +299,7 @@ productSchema.statics.getAvailableFilters = async function () {
     .model("Category")
     .find({
       _id: { $in: categoryIds },
+      isActive: true,
     })
     .select("_id name slug image parent ancestors")
     .sort({ name: 1 });

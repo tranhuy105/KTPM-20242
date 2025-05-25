@@ -1,5 +1,5 @@
 import axiosInstance from "./axiosInstance";
-import type { Brand, ApiResponse, ProductFilterBrand } from "../types";
+import type { Brand, ProductFilterBrand } from "../types";
 
 interface BrandListResponse {
   brands: Brand[];
@@ -94,16 +94,10 @@ const brandApi = {
   },
 
   /**
-   * Delete a brand
-   * @param brandId Brand ID
-   * @returns Success message
+   * Delete a brand - DEPRECATED
+   * For data integrity, brands should be disabled (isActive: false) rather than deleted
+   * Use updateBrand method with { isActive: false } instead
    */
-  deleteBrand: async (brandId: string): Promise<ApiResponse<string>> => {
-    const response = await axiosInstance.delete<ApiResponse<string>>(
-      `/brands/${brandId}`
-    );
-    return response.data;
-  },
 };
 
 export default brandApi;

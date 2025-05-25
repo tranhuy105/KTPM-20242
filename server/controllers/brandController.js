@@ -117,30 +117,18 @@ class BrandController {
   }
 
   /**
-   * Delete a brand
+   * Delete a brand - DEPRECATED
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object
    */
   async deleteBrand(req, res) {
-    try {
-      await brandService.deleteBrand(req.params.id);
-      res.status(200).json({ message: "Brand deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting brand:", error);
-
-      if (
-        error.message === "Invalid brand ID format" ||
-        error.message === "Brand not found"
-      ) {
-        return res.status(404).json({ error: error.message });
-      }
-
-      if (error.message === "Cannot delete brand with associated products") {
-        return res.status(400).json({ error: error.message });
-      }
-
-      res.status(500).json({ error: "Server error" });
-    }
+    // For data integrity reasons, deletion is no longer supported
+    // This method is kept for backward compatibility but will return an error
+    return res.status(405).json({
+      error:
+        "Deletion of brands is not supported. Use the update endpoint to set isActive: false instead.",
+      message: "For data integrity, brands can be disabled but not deleted.",
+    });
   }
 
   /**

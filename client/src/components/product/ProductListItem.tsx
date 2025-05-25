@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Star, ShoppingCart } from "lucide-react";
-import type { Product } from "../../types";
+import type { Product, Brand } from "../../types";
 import { calculateDiscountPercentage, formatCurrency } from "../../lib/utils";
 
 interface ProductListItemProps {
@@ -40,6 +40,25 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
     }
     return "";
   };
+
+  // Get the brand name
+  const getBrandName = () => {
+    if (product.brandName) {
+      return product.brandName;
+    }
+    if (product.brand) {
+      if (typeof product.brand === "object") {
+        const brand = product.brand as Brand;
+        return brand.name || "";
+      } else if (typeof product.brand === "string" && product.brandName) {
+        return product.brandName;
+      }
+    }
+    return "";
+  };
+
+  const hasBrand = !!getBrandName();
+  const hasCategory = !!getCategoryName();
 
   // Generate star rating display
   const renderStars = () => {
@@ -87,9 +106,23 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
 
         <div className="ml-6 flex-1 flex flex-col">
           <div className="mb-auto">
-            <div className="text-xs text-amber-700 uppercase tracking-wider mb-1 font-medium">
-              {getCategoryName()}
+            {/* Category and Brand Section */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {hasCategory && (
+                <div className="text-xs text-amber-700 uppercase tracking-wider font-medium">
+                  {getCategoryName()}
+                </div>
+              )}
+              {hasBrand && hasCategory && (
+                <div className="text-xs text-gray-400">•</div>
+              )}
+              {hasBrand && (
+                <div className="text-xs text-gray-600 uppercase tracking-wider font-medium">
+                  {getBrandName()}
+                </div>
+              )}
             </div>
+
             <h3 className="text-lg font-medium text-gray-900 mb-2 transition-colors duration-300 ease-out group-hover:text-amber-800">
               {product.name}
             </h3>
