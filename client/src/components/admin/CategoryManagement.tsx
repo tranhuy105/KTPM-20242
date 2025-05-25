@@ -36,18 +36,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { useToast } from "../ui/use-toast";
+import { toast } from "react-hot-toast";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import categoryApi from "../../api/categoryApi";
 import type { Category, CategoryFilters } from "../../types";
 import { ImageUpload } from "./ImageUpload";
@@ -76,7 +66,6 @@ const CategoryManagement = () => {
   const [parentCategories, setParentCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
@@ -86,7 +75,6 @@ const CategoryManagement = () => {
     currentPage: 1,
     limit: 10,
   });
-  const { toast } = useToast();
 
   // Setup form with zod resolver
   const form = useForm<CategoryFormValues>({
@@ -131,11 +119,7 @@ const CategoryManagement = () => {
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load categories. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to load categories. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -189,32 +173,22 @@ const CategoryManagement = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDeleteCategory = (category: Category) => {
-    setSelectedCategory(category);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const confirmDeleteCategory = async () => {
-    if (!selectedCategory) return;
-
+  const toggleCategoryStatus = async (category: Category) => {
     setIsLoading(true);
     try {
-      await categoryApi.deleteCategory(selectedCategory._id);
-      toast({
-        title: "Success",
-        description: `Category "${selectedCategory.name}" has been deleted.`,
-      });
+      const updatedCategory = { ...category, isActive: !category.isActive };
+      await categoryApi.updateCategory(updatedCategory._id, updatedCategory);
+      toast.success(
+        `Category "${category.name}" has been ${
+          category.isActive ? "disabled" : "enabled"
+        }.`
+      );
       fetchCategories();
     } catch (error) {
-      console.error("Error deleting category:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete category. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Error updating category status:", error);
+      toast.error("Failed to update category status. Please try again.");
     } finally {
       setIsLoading(false);
-      setIsDeleteDialogOpen(false);
     }
   };
 
@@ -227,34 +201,24 @@ const CategoryManagement = () => {
         // Only include parent if it's not empty and not the "none" placeholder
         parent:
           data.parent && data.parent !== "" && data.parent !== "none"
-            ? data.parent
+            ? ({ _id: data.parent } as Category["parent"])
             : undefined,
       };
 
       if (selectedCategory) {
         // Update existing category
         await categoryApi.updateCategory(selectedCategory._id, categoryData);
-        toast({
-          title: "Success",
-          description: `Category "${data.name}" has been updated.`,
-        });
+        toast.success(`Category "${data.name}" has been updated.`);
       } else {
         // Create new category
         await categoryApi.createCategory(categoryData);
-        toast({
-          title: "Success",
-          description: `Category "${data.name}" has been created.`,
-        });
+        toast.success(`Category "${data.name}" has been created.`);
       }
       setIsDialogOpen(false);
       fetchCategories();
     } catch (error) {
       console.error("Error saving category:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save category. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to save category. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -338,12 +302,11 @@ const CategoryManagement = () => {
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant={category.isActive ? "destructive" : "outline"}
                         size="sm"
-                        className="text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteCategory(category)}
+                        onClick={() => toggleCategoryStatus(category)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {category.isActive ? "Disable" : "Enable"}
                       </Button>
                     </div>
                   </TableCell>
@@ -529,36 +492,6 @@ const CategoryManagement = () => {
           </Form>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the category "
-              {selectedCategory?.name}"? This action cannot be undone and may
-              affect products associated with this category.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteCategory}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Delete"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

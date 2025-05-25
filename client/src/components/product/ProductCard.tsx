@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { Product } from "../../types";
+import type { Product, Brand } from "../../types";
 import { calculateDiscountPercentage, formatCurrency } from "../../lib/utils";
 import { Heart } from "lucide-react";
 import { useAuthContext } from "../../context/AuthContext";
@@ -69,6 +69,25 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
     return "";
   };
 
+  // Get the brand name
+  const getBrandName = () => {
+    if (product.brandName) {
+      return product.brandName;
+    }
+    if (product.brand) {
+      if (typeof product.brand === "object") {
+        const brand = product.brand as Brand;
+        return brand.name || "";
+      } else if (typeof product.brand === "string" && product.brandName) {
+        return product.brandName;
+      }
+    }
+    return "";
+  };
+
+  const hasBrand = !!getBrandName();
+  const hasCategory = !!getCategoryName();
+
   return (
     <div className="group relative overflow-hidden border border-transparent hover:border-amber-100 hover:shadow-xl transition-all duration-300 ease-out bg-white">
       <div className="absolute inset-0 bg-gradient-to-b from-amber-50/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out pointer-events-none"></div>
@@ -97,9 +116,23 @@ const ProductCard = ({ product, isMasonry = true }: ProductCardProps) => {
         </div>
 
         <div className="transform transition-all duration-300 ease-out group-hover:-translate-y-2 px-2">
-          <div className="text-xs text-amber-700 uppercase tracking-wider mb-2 font-medium">
-            {getCategoryName()}
+          {/* Category and Brand Section */}
+          <div className="flex flex-wrap gap-2 mb-2">
+            {hasCategory && (
+              <div className="text-xs text-amber-700 uppercase tracking-wider font-medium">
+                {getCategoryName()}
+              </div>
+            )}
+            {hasBrand && hasCategory && (
+              <div className="text-xs text-gray-400">•</div>
+            )}
+            {hasBrand && (
+              <div className="text-xs text-gray-600 uppercase tracking-wider font-medium">
+                {getBrandName()}
+              </div>
+            )}
           </div>
+
           <h3 className="text-base font-medium text-gray-900 mb-2 transition-colors duration-300 ease-out group-hover:text-amber-800">
             {product.name}
           </h3>

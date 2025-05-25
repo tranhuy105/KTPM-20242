@@ -18,14 +18,14 @@ const HomePage = () => {
       {/* New Arrivals Section */}
       <ProductSection
         title={t("home.newArrivals.title")}
-        viewAllLink="/products?category=new-arrivals"
+        viewAllLink="/products"
         fetchProducts={productApi.getNewArrivals}
       />
 
       {/* Top Selling Section */}
       <ProductSection
         title={t("home.topSelling.title")}
-        viewAllLink="/products?category=best-sellers"
+        viewAllLink="/products"
         fetchProducts={productApi.getBestSellers}
       />
 

@@ -10,6 +10,7 @@ import ProductInfo from "../components/product/ProductInfo";
 import ProductDescription from "../components/product/ProductDescription";
 import ProductReviews from "../components/product/ProductReviews";
 import RelatedProducts from "../components/product/RelatedProducts";
+import BrandSection from "../components/product/BrandSection";
 import Breadcrumb from "../components/common/Breadcrumb";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { formatCurrency } from "../lib/utils";
@@ -77,7 +78,7 @@ const ProductDetailPage = () => {
   // Handle scroll to update active section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["details", "description", "reviews"];
+      const sections = ["details", "brand", "description", "reviews"];
 
       for (const section of sections) {
         const element = document.getElementById(section);
@@ -220,6 +221,16 @@ const ProductDetailPage = () => {
               {t("products.details")}
             </button>
             <button
+              onClick={() => scrollToSection("brand")}
+              className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${
+                activeSection === "brand"
+                  ? "text-amber-800 border-b-2 border-amber-600"
+                  : "text-gray-500 hover:text-amber-600"
+              }`}
+            >
+              {t("products.brand")}
+            </button>
+            <button
               onClick={() => scrollToSection("description")}
               className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${
                 activeSection === "description"
@@ -293,6 +304,11 @@ const ProductDetailPage = () => {
                 <ProductInfo product={product} />
               </div>
             </div>
+          </section>
+
+          {/* Brand Section */}
+          <section id="brand" className="scroll-mt-24">
+            <BrandSection brand={product.brand} brandName={product.brandName} />
           </section>
 
           {/* Product Description Section */}

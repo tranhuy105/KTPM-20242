@@ -29,22 +29,12 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Textarea } from "../ui/textarea";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { useToast } from "../ui/use-toast";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import brandApi from "../../api/brandApi";
 import type { Brand } from "../../types";
 import { ImageUpload } from "./ImageUpload";
 import type { ProductImage } from "../../types";
+import { toast } from "react-hot-toast";
 
 // Define the form schema for brand creation/editing
 const brandFormSchema = z.object({
@@ -72,14 +62,12 @@ const BrandManagement = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
     limit: 10,
   });
-  const { toast } = useToast();
 
   // Setup form with zod resolver
   const form = useForm<BrandFormValues>({
@@ -117,11 +105,7 @@ const BrandManagement = () => {
       });
     } catch (error) {
       console.error("Error fetching brands:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load brands. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to load brands. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -160,32 +144,23 @@ const BrandManagement = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDeleteBrand = (brand: Brand) => {
-    setSelectedBrand(brand);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const confirmDeleteBrand = async () => {
-    if (!selectedBrand) return;
-
+  const toggleBrandStatus = async (brand: Brand) => {
     setIsLoading(true);
     try {
-      await brandApi.deleteBrand(selectedBrand._id);
-      toast({
-        title: "Success",
-        description: `Brand "${selectedBrand.name}" has been deleted.`,
+      await brandApi.updateBrand(brand._id, {
+        isActive: !brand.isActive,
       });
+      toast.success(
+        `Brand "${brand.name}" has been ${
+          brand.isActive ? "disabled" : "enabled"
+        }.`
+      );
       fetchBrands();
     } catch (error) {
-      console.error("Error deleting brand:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete brand. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Error updating brand status:", error);
+      toast.error("Failed to update brand status. Please try again.");
     } finally {
       setIsLoading(false);
-      setIsDeleteDialogOpen(false);
     }
   };
 
@@ -195,27 +170,17 @@ const BrandManagement = () => {
       if (selectedBrand) {
         // Update existing brand
         await brandApi.updateBrand(selectedBrand._id, data);
-        toast({
-          title: "Success",
-          description: `Brand "${data.name}" has been updated.`,
-        });
+        toast.success(`Brand "${data.name}" has been updated.`);
       } else {
         // Create new brand
         await brandApi.createBrand(data);
-        toast({
-          title: "Success",
-          description: `Brand "${data.name}" has been created.`,
-        });
+        toast.success(`Brand "${data.name}" has been created.`);
       }
       setIsDialogOpen(false);
       fetchBrands();
     } catch (error) {
       console.error("Error saving brand:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save brand. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to save brand. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -304,12 +269,11 @@ const BrandManagement = () => {
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant={brand.isActive ? "destructive" : "outline"}
                         size="sm"
-                        className="text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteBrand(brand)}
+                        onClick={() => toggleBrandStatus(brand)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {brand.isActive ? "Disable" : "Enable"}
                       </Button>
                     </div>
                   </TableCell>
@@ -354,13 +318,10 @@ const BrandManagement = () => {
             </DialogTitle>
           </DialogHeader>
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit as any)}
-              className="space-y-4"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid gap-4 py-2">
                 <FormField
-                  control={form.control as any}
+                  control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
@@ -374,7 +335,7 @@ const BrandManagement = () => {
                 />
 
                 <FormField
-                  control={form.control as any}
+                  control={form.control}
                   name="website"
                   render={({ field }) => (
                     <FormItem>
@@ -392,7 +353,7 @@ const BrandManagement = () => {
                 />
 
                 <FormField
-                  control={form.control as any}
+                  control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
@@ -431,7 +392,7 @@ const BrandManagement = () => {
                 </div>
 
                 <FormField
-                  control={form.control as any}
+                  control={form.control}
                   name="isActive"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -471,35 +432,6 @@ const BrandManagement = () => {
           </Form>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the brand "{selectedBrand?.name}"?
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteBrand}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Delete"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

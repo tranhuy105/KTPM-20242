@@ -110,16 +110,10 @@ const categoryApi = {
   },
 
   /**
-   * Delete a category
-   * @param categoryId Category ID
-   * @returns Success message
+   * Delete a category - DEPRECATED
+   * For data integrity, categories should be disabled (isActive: false) rather than deleted
+   * Use updateCategory method with { isActive: false } instead
    */
-  deleteCategory: async (categoryId: string): Promise<ApiResponse<string>> => {
-    const response = await axiosInstance.delete<ApiResponse<string>>(
-      `/categories/${categoryId}`
-    );
-    return response.data;
-  },
 };
 
 export default categoryApi;
