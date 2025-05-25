@@ -190,7 +190,7 @@ const BrandSection = ({ brand, brandName }: BrandSectionProps) => {
 
           {brandInfo.slug && (
             <Link
-              to={`/brands/${brandInfo.slug}`}
+              to={`/products?brand=${brandInfo._id}`}
               className="text-amber-700 hover:text-amber-800 text-sm font-medium"
             >
               {t("common.learnMore")}
