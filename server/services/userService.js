@@ -2,6 +2,8 @@ const { User } = require("../models");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../utils/jwtUtils");
+const crypto = require("crypto");
+const emailService = require("../utils/emailUtils");
 
 /**
  * User Service - Business logic for user operations
@@ -444,6 +446,112 @@ class UserService {
         user: this.sanitizeUser(user),
         message: "User created successfully",
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Initiate forgot password process
+   * @param {string} email - User email address
+   * @returns {boolean} - Success status
+   */
+  async forgotPassword(email) {
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        // For security reasons, always return success even if email doesn't exist
+        return true;
+      }
+
+      // Check if there was a recent password reset request (15 minutes)
+      const resetCooldown = 1 * 60 * 1000; // 1 minutes in milliseconds
+      if (
+        user.passwordResetExpires &&
+        Date.now() <
+          user.passwordResetExpires -
+            (process.env.PASSWORD_RESET_EXPIRATION || 3600000) +
+            resetCooldown
+      ) {
+        // A reset email was recently sent (within cooldown period)
+        // For security, still return success but don't actually send another email
+        return true;
+      }
+
+      // Generate a reset token and expiration
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const hash = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+      // Calculate reset token expiration (1 hour default)
+      const expiresIn =
+        parseInt(process.env.PASSWORD_RESET_EXPIRATION) || 3600000;
+
+      // Store the hashed token and expiration in the user document
+      user.passwordResetToken = hash;
+      user.passwordResetExpires = new Date(Date.now() + expiresIn);
+      await user.save();
+
+      // Send password reset email - do not await to prevent blocking
+      emailService
+        .sendPasswordResetEmail(user.email, resetToken, user.username)
+        .catch((error) => {
+          console.error("Failed to send password reset email:", error);
+        });
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Reset password using token
+   * @param {string} token - Reset token
+   * @param {string} newPassword - New password
+   * @returns {boolean} - Success status
+   */
+  async resetPassword(token, newPassword) {
+    try {
+      // Hash the token to compare with stored hash
+      const hash = crypto.createHash("sha256").update(token).digest("hex");
+
+      // Find user with matching token and valid expiration
+      const user = await User.findOne({
+        passwordResetToken: hash,
+        passwordResetExpires: { $gt: Date.now() },
+      });
+
+      if (!user) {
+        throw new Error("Invalid or expired token");
+      }
+
+      // Hash the new password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+      // Update user password and clear reset token fields
+      user.password = hashedPassword;
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save();
+
+      // Send confirmation email if user has email notifications enabled
+      if (user.preferences?.notifications?.email !== false) {
+        try {
+          await emailService.sendPasswordResetConfirmation(
+            user.email,
+            user.username
+          );
+        } catch (error) {
+          console.error(
+            "Failed to send password reset confirmation email:",
+            error
+          );
+          // Don't throw here - password was still reset successfully
+        }
+      }
+
+      return true;
     } catch (error) {
       throw error;
     }

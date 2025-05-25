@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { FaEnvelope, FaLock, FaGoogle, FaFacebook } from "react-icons/fa";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuthContext } from "../../context/AuthContext";
 
 interface FormData {
@@ -105,7 +105,7 @@ const LoginForm = () => {
               {t("auth.login.rememberMe")}
             </span>
           </label>
-          <a href="#" className="text-sm text-black underline">
+          <a href="/forgot-password" className="text-sm text-black underline">
             {t("auth.login.forgotPassword")}
           </a>
         </div>
@@ -117,32 +117,6 @@ const LoginForm = () => {
         >
           {loading ? t("auth.login.signingIn") : t("auth.login.signIn")}
         </button>
-
-        <div className="text-center my-4 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative">
-            <span className="bg-white px-3 text-sm text-gray-500">
-              {t("auth.login.orSignInWith")}
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            type="button"
-            className="flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            <FaGoogle className="mr-2" /> {t("auth.login.google")}
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            <FaFacebook className="mr-2" /> {t("auth.login.facebook")}
-          </button>
-        </div>
       </form>
     </div>
   );

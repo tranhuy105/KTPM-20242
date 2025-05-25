@@ -84,6 +84,34 @@
       "emailInvalid": "Địa chỉ email không hợp lệ",
       "passwordLength": "Mật khẩu phải có ít nhất 6 ký tự",
       "passwordsDoNotMatch": "Mật khẩu không khớp"
+    },
+    "forgotPassword": {
+      "pageTitle": "Khôi phục mật khẩu",
+      "tryAgain": "Thử lại",
+      "title": "Khôi phục mật khẩu",
+      "instructions": "Nhập địa chỉ email của bạn để khôi phục mật khẩu. Một email sẽ được gửi đến bạn để xác nhận việc khôi phục mật khẩu.",
+      "emailPlaceholder": "Nhập địa chỉ email của bạn",
+      "sendLink": "Gửi liên kết khôi phục mật khẩu",
+      "backToLogin": "Quay lại trang đăng nhập",
+      "checkEmail": "Kiểm tra email của bạn",
+      "emailSent": "Email khôi phục mật khẩu đã được gửi thành công!",
+      "checkSpam": "Kiểm tra thư mục spam nếu không thấy email trong hộp thư đến.",
+      "followInstructions": "Vui lòng làm theo hướng dẫn trong email để khôi phục mật khẩu của bạn.",
+      "validation": {
+        "emailRequired": "Email là bắt buộc",
+        "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
+        "emailTooLong": "Email quá dài"
+      },
+      "cooldown": {
+        "waitMessage": "Vui lòng chờ {{seconds}} giây trước khi yêu cầu email khôi phục mật khẩu khác.",
+        "nextRequestIn": "Bạn có thể yêu cầu email khôi phục mật khẩu khác trong {{seconds}} giây.",
+        "tryAgainIn": "Thử lại ({{seconds}}s)",
+        "waitSeconds": "Chờ {{seconds}}s",
+        "pleaseWait": "Vui lòng chờ {{seconds}} giây trước khi gửi yêu cầu khác."
+      },
+      "success": {
+        "emailSent": "Email khôi phục mật khẩu đã được gửi thành công!"
+      }
     }
   },
   "header": {

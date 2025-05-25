@@ -17,6 +17,8 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import { OrderDetailsPage } from "./components/order/OrderDetailsPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 // Admin imports
 import AdminOrderDetailsPage from "./pages/admin/AdminOrderDetailsPage";
@@ -80,6 +82,14 @@ const routes: RouteObject[] = [
           {
             path: "auth",
             element: <AuthPage />,
+          },
+          {
+            path: "forgot-password",
+            element: <ForgotPasswordPage />,
+          },
+          {
+            path: "reset-password/:token",
+            element: <ResetPasswordPage />,
           },
         ],
       },

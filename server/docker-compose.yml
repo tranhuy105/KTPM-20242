@@ -29,6 +29,16 @@ services:
       - mongodb
     networks:
       - ecommerce-network
+      
+  maildev:
+    image: maildev/maildev:latest
+    container_name: maildev
+    restart: always
+    ports:
+      - "1025:1025"  # SMTP port
+      - "1080:1080"  # Web interface port
+    networks:
+      - ecommerce-network
 
 networks:
   ecommerce-network:
