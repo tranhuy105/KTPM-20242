@@ -219,53 +219,21 @@ class CategoryController {
   }
 
   /**
-   * Delete a category
+   * Delete a category - DEPRECATED
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object
    */
   async deleteCategory(req, res) {
-    try {
-      await categoryService.deleteCategory(req.params.id);
-
-      // Clear category cache
-      clearCache("/api/v1/categories");
-
-      res.status(200).json({
-        success: true,
-        message: "Category deleted successfully",
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error("Error deleting category:", error);
-
-      if (
-        error.message === "Invalid category ID format" ||
-        error.message === "Category not found"
-      ) {
-        return res.status(404).json({
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      if (
-        error.message === "Cannot delete category with subcategories" ||
-        error.message === "Cannot delete category with associated products"
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        error: "Server error",
-        timestamp: new Date().toISOString(),
-      });
-    }
+    // For data integrity reasons, deletion is no longer supported
+    // This method is kept for backward compatibility but will return an error
+    return res.status(405).json({
+      success: false,
+      error:
+        "Deletion of categories is not supported. Use the update endpoint to set isActive: false instead.",
+      message:
+        "For data integrity, categories can be disabled but not deleted.",
+      timestamp: new Date().toISOString(),
+    });
   }
 }
 

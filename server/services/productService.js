@@ -26,8 +26,8 @@ class ProductService {
 
       // Execute query
       const products = await query.populate([
-        { path: "category", select: "name slug" },
-        { path: "brand", select: "name slug logo" },
+        { path: "category", select: "name slug", match: { isActive: true } },
+        { path: "brand", select: "name slug logo", match: { isActive: true } },
       ]);
 
       // Get cursor values if using cursor-based pagination
@@ -83,12 +83,32 @@ class ProductService {
     if (filters.category && filters.category.trim() !== "") {
       const categoryId = filters.category.trim();
       const categoryIds = await this.getCategoryWithChildren(categoryId);
-      filter.category = { $in: categoryIds };
+      
+      // Get active categories only
+      const Category = mongoose.model("Category");
+      const activeCategories = await Category.find({
+        _id: { $in: categoryIds },
+        isActive: true
+      }).select("_id");
+      
+      const activeCategoryIds = activeCategories.map(cat => cat._id);
+      filter.category = { $in: activeCategoryIds };
     }
 
     // Brand filter
     if (filters.brand && filters.brand.trim() !== "") {
-      filter.brand = filters.brand;
+      const brandId = filters.brand.trim();
+      
+      // Check if brand is active
+      const Brand = mongoose.model("Brand");
+      const brand = await Brand.findOne({ 
+        _id: brandId,
+        isActive: true 
+      });
+      
+      if (brand) {
+        filter.brand = brandId;
+      }
     }
 
     // Featured filter
@@ -364,6 +384,11 @@ class ProductService {
         select: "name slug ancestors",
       })
       .populate({
+        path: "brand",
+        select: "_id name slug logo website description isActive",
+        match: { isActive: true }
+      })
+      .populate({
         path: "reviews.user",
         select: "username firstName lastName avatar",
       });
@@ -618,6 +643,11 @@ class ProductService {
       .populate({
         path: "category",
         select: "name slug",
+      })
+      .populate({
+        path: "brand",
+        select: "name slug logo",
+        match: { isActive: true }
       });
   }
 
@@ -646,6 +676,11 @@ class ProductService {
         .populate({
           path: "category",
           select: "name slug",
+        })
+        .populate({
+          path: "brand",
+          select: "name slug logo",
+          match: { isActive: true }
         });
     } catch (error) {
       throw error;
@@ -754,6 +789,7 @@ class ProductService {
       const Category = mongoose.model("Category");
       const childCategories = await Category.find({
         parent: categoryId,
+        isActive: true
       }).select("_id");
 
       if (!childCategories || childCategories.length === 0) {
@@ -808,6 +844,11 @@ class ProductService {
           select: "name slug ancestors",
         })
         .populate({
+          path: "brand",
+          select: "_id name slug logo website description isActive",
+          match: { isActive: true }
+        })
+        .populate({
           path: "reviews.user",
           select: "username firstName lastName avatar",
         });
@@ -833,6 +874,11 @@ class ProductService {
         .populate({
           path: "category",
           select: "name slug ancestors",
+        })
+        .populate({
+          path: "brand",
+          select: "_id name slug logo website description isActive",
+          match: { isActive: true },
         })
         .populate({
           path: "reviews.user",
