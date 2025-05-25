@@ -44,7 +44,8 @@ export const ImageUpload = ({
             resolve({
               url,
               alt: file.name,
-              isDefault: i === 0, // Make the first image the default
+              // Let the parent component handle default status
+              isDefault: false,
             });
           };
         });

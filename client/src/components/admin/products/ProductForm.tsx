@@ -33,7 +33,7 @@ import {
   CardTitle,
 } from "../../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Plus, X, Check } from "lucide-react";
 import toast from "react-hot-toast";
 import productApi from "../../../api/productApi";
 import brandApi from "../../../api/brandApi";
@@ -169,23 +169,43 @@ const ProductForm = ({ product, isEdit = false }: ProductFormProps) => {
 
   // Handle image upload
   const handleImageUpload = (newImages: ProductImage[]) => {
-    setImages([...images, ...newImages]);
+    // If there are no existing images, mark the first new image as default
+    if (images.length === 0 && newImages.length > 0) {
+      const updatedNewImages = newImages.map((img, index) => ({
+        ...img,
+        isDefault: index === 0, // Mark only the first image as default
+      }));
+      setImages(updatedNewImages);
+    } else {
+      // Otherwise, just add the new images
+      setImages((prevImages) => [...prevImages, ...newImages]);
+    }
   };
 
   // Remove image from the list
   const handleRemoveImage = (index: number) => {
-    const newImages = [...images];
-    newImages.splice(index, 1);
-    setImages(newImages);
+    setImages((prevImages) => {
+      const newImages = [...prevImages];
+      const isRemovingDefault = newImages[index].isDefault;
+      newImages.splice(index, 1);
+
+      // If we removed the default image and there are other images, set a new default
+      if (isRemovingDefault && newImages.length > 0) {
+        newImages[0].isDefault = true;
+      }
+
+      return newImages;
+    });
   };
 
   // Set an image as default
   const handleSetDefaultImage = (index: number) => {
-    const newImages = images.map((img, i) => ({
-      ...img,
-      isDefault: i === index,
-    }));
-    setImages(newImages);
+    setImages((prevImages) =>
+      prevImages.map((img, i) => ({
+        ...img,
+        isDefault: i === index,
+      }))
+    );
   };
 
   // Handle adding tags
@@ -573,20 +593,28 @@ const ProductForm = ({ product, isEdit = false }: ProductFormProps) => {
                             alt={image.alt || "Product image"}
                             className="w-full h-32 object-cover"
                           />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 flex-col p-2">
                             <Button
                               type="button"
                               size="sm"
                               variant="secondary"
+                              className="w-full"
                               onClick={() => handleSetDefaultImage(index)}
                               disabled={image.isDefault}
                             >
-                              Default
+                              {image.isDefault ? (
+                                <>
+                                  <Check className="h-3 w-3 mr-1" /> Default
+                                </>
+                              ) : (
+                                "Set Default"
+                              )}
                             </Button>
                             <Button
                               type="button"
                               size="sm"
                               variant="destructive"
+                              className="w-full"
                               onClick={() => handleRemoveImage(index)}
                             >
                               Remove
