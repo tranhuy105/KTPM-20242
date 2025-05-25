@@ -95,6 +95,7 @@ const authApi = {
       const response = await axiosInstance.post(`/auth/forgot-password`, {
         email,
       });
+      console.log("response.data", response.data);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || error;

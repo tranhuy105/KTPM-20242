@@ -465,7 +465,7 @@ class UserService {
       }
 
       // Check if there was a recent password reset request (15 minutes)
-      const resetCooldown = 15 * 60 * 1000; // 15 minutes in milliseconds
+      const resetCooldown = 1 * 60 * 1000; // 1 minutes in milliseconds
       if (
         user.passwordResetExpires &&
         Date.now() <

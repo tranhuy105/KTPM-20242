@@ -12,10 +12,13 @@ const createForgotPasswordSchema = (t: TFunction) =>
   z.object({
     email: z
       .string()
-      .min(1, t("auth.forgotPassword.validation.emailRequired"))
+      .min(3, t("auth.forgotPassword.validation.emailRequired"))
       .email(t("auth.forgotPassword.validation.emailInvalid"))
       .max(254, t("auth.forgotPassword.validation.emailTooLong")),
   });
+
+const COOLDOWN_DURATION = 60000; // 60 seconds in milliseconds
+const COOLDOWN_KEY = "forgot_password_cooldown";
 
 const ForgotPasswordForm = () => {
   const { t } = useTranslation();
@@ -27,7 +30,40 @@ const ForgotPasswordForm = () => {
     Record<string, string>
   >({});
   const [cooldownTime, setCooldownTime] = useState(0);
-  const [lastRequestTime, setLastRequestTime] = useState<number | null>(null);
+
+  // Get last request time from sessionStorage
+  const getLastRequestTime = (): number | null => {
+    try {
+      const stored = sessionStorage.getItem(COOLDOWN_KEY);
+      return stored ? parseInt(stored, 10) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Set last request time to sessionStorage
+  const setLastRequestTime = (timestamp: number) => {
+    try {
+      sessionStorage.setItem(COOLDOWN_KEY, timestamp.toString());
+    } catch {
+      // Fallback if sessionStorage is not available
+    }
+  };
+
+  // Initialize cooldown time on component mount
+  useEffect(() => {
+    const lastRequestTime = getLastRequestTime();
+    if (lastRequestTime) {
+      const now = Date.now();
+      const timeDifference = now - lastRequestTime;
+      if (timeDifference < COOLDOWN_DURATION) {
+        const remaining = Math.ceil(
+          (COOLDOWN_DURATION - timeDifference) / 1000
+        );
+        setCooldownTime(remaining);
+      }
+    }
+  }, []);
 
   // Cooldown timer effect
   useEffect(() => {
@@ -37,6 +73,12 @@ const ForgotPasswordForm = () => {
       interval = setInterval(() => {
         setCooldownTime((prev) => {
           if (prev <= 1) {
+            // Clear sessionStorage when cooldown ends
+            try {
+              sessionStorage.removeItem(COOLDOWN_KEY);
+            } catch {
+              // Ignore errors
+            }
             return 0;
           }
           return prev - 1;
@@ -52,19 +94,21 @@ const ForgotPasswordForm = () => {
   }, [cooldownTime]);
 
   // Check if we're still in cooldown period
-  const isInCooldown = () => {
+  const isInCooldown = (): boolean => {
+    const lastRequestTime = getLastRequestTime();
     if (!lastRequestTime) return false;
     const now = Date.now();
     const timeDifference = now - lastRequestTime;
-    return timeDifference < 60000; // 60 seconds in milliseconds
+    return timeDifference < COOLDOWN_DURATION;
   };
 
   // Calculate remaining cooldown time
-  const getRemainingCooldownTime = () => {
+  const getRemainingCooldownTime = (): number => {
+    const lastRequestTime = getLastRequestTime();
     if (!lastRequestTime) return 0;
     const now = Date.now();
     const timeDifference = now - lastRequestTime;
-    return Math.max(0, 60 - Math.floor(timeDifference / 1000));
+    return Math.max(0, Math.ceil((COOLDOWN_DURATION - timeDifference) / 1000));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,6 +153,7 @@ const ForgotPasswordForm = () => {
       });
       setError(errorMessage);
       toast.error(errorMessage);
+      setCooldownTime(remaining); // Update UI cooldown time
       return;
     }
 
