@@ -84,6 +84,33 @@
       "emailInvalid": "Invalid email address",
       "passwordLength": "Password must be at least 6 characters",
       "passwordsDoNotMatch": "Passwords do not match"
+    },
+
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "instructions": "Enter your email address to reset your password. A reset link will be sent to you to confirm the password reset.",
+      "emailPlaceholder": "Enter your email address",
+      "sendLink": "Send reset link",
+      "backToLogin": "Back to Login",
+      "checkEmail": "Check your email",
+      "emailSent": "Password reset email sent successfully!",
+      "checkSpam": "Check your spam folder if you don't see the email in your inbox.",
+      "followInstructions": "Please follow the instructions in the email to reset your password.",
+      "validation": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "emailTooLong": "Email is too long"
+      },
+      "cooldown": {
+        "waitMessage": "Please wait {{seconds}} seconds before requesting another reset email.",
+        "nextRequestIn": "You can request another reset email in {{seconds}} seconds.",
+        "tryAgainIn": "Try again ({{seconds}}s)",
+        "waitSeconds": "Wait {{seconds}}s",
+        "pleaseWait": "Please wait {{seconds}} seconds before sending another request."
+      },
+      "success": {
+        "emailSent": "Password reset email sent successfully!"
+      }
     }
   },
   "header": {
