@@ -86,6 +86,8 @@
       "passwordsDoNotMatch": "Mật khẩu không khớp"
     },
     "forgotPassword": {
+      "pageTitle": "Khôi phục mật khẩu",
+      "tryAgain": "Thử lại",
       "title": "Khôi phục mật khẩu",
       "instructions": "Nhập địa chỉ email của bạn để khôi phục mật khẩu. Một email sẽ được gửi đến bạn để xác nhận việc khôi phục mật khẩu.",
       "emailPlaceholder": "Nhập địa chỉ email của bạn",

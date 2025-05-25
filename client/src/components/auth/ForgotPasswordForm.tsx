@@ -305,7 +305,7 @@ const ForgotPasswordForm = () => {
         )}
 
         <div className="text-center mt-4">
-          <Link to="/login" className="text-sm text-black underline">
+          <Link to="/auth" className="text-sm text-black underline">
             {t("auth.forgotPassword.backToLogin")}
           </Link>
         </div>

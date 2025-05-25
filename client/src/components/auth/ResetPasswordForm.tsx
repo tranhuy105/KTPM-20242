@@ -134,7 +134,7 @@ const ResetPasswordForm = () => {
         </button>
 
         <div className="text-center mt-4">
-          <Link to="/login" className="text-sm text-black underline">
+          <Link to="/auth" className="text-sm text-black underline">
             {t("auth.resetPassword.backToLogin")}
           </Link>
         </div>

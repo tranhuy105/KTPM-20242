@@ -87,6 +87,8 @@
     },
 
     "forgotPassword": {
+      "pageTitle": "Forgot Password",
+      "tryAgain": "Try Again",
       "title": "Forgot Password",
       "instructions": "Enter your email address to reset your password. A reset link will be sent to you to confirm the password reset.",
       "emailPlaceholder": "Enter your email address",
