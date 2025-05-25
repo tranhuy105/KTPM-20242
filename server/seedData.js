@@ -438,7 +438,7 @@ async function seedUsers() {
         firstName,
         lastName,
         username: faker.internet.username({ firstName, lastName }),
-        email: faker.internet.email({ firstName, lastName }),
+        email: faker.internet.email({ firstName, lastName }).toLowerCase(),
         password: await bcrypt.hash("password123", 10),
         role: "customer",
         isActive: Math.random() > 0.1, // 90% active
