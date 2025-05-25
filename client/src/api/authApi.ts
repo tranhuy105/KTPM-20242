@@ -88,6 +88,31 @@ const authApi = {
     );
     return response.data;
   },
+
+  // Forgot password request
+  forgotPassword: async (email: string) => {
+    try {
+      const response = await axiosInstance.post(`/auth/forgot-password`, {
+        email,
+      });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Reset password with token
+  resetPassword: async (token: string, password: string) => {
+    try {
+      const response = await axiosInstance.post(`/auth/reset-password`, {
+        token,
+        password,
+      });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+  },
 };
 
 export default authApi;

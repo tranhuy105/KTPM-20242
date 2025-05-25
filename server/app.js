@@ -24,7 +24,7 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const userRoutes = require("./routes/userRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const brandRoutes = require("./routes/brandRoutes");
-
+const authRoutes = require("./routes/authRoutes");
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -53,6 +53,7 @@ app.use("/api/v1/categories", categoryRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/brands", brandRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 // Base route for API health check
 app.get("/", (req, res) => {
