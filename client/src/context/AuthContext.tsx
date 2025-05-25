@@ -7,6 +7,7 @@ import {
 } from "react";
 import type { User, AuthState } from "../types";
 import authApi from "../api/authApi";
+import i18n from "i18next";
 
 // Interface for login credentials
 interface LoginCredentials {
@@ -48,6 +49,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     error: null,
   });
 
+  // Apply user preferences when user data changes
+  const applyUserPreferences = (user: User) => {
+    if (user?.preferences) {
+      // Apply language preference
+      if (user.preferences.language) {
+        if (i18n && i18n.language !== user.preferences.language) {
+          i18n.changeLanguage(user.preferences.language);
+        }
+      }
+
+      // Store user data in localStorage for currency preferences
+      try {
+        localStorage.setItem("user", JSON.stringify(user));
+      } catch (e) {
+        console.error("Error storing user data in localStorage:", e);
+      }
+    }
+  };
+
   // Load user data if token exists - only once on initial mount
   useEffect(() => {
     const loadUser = async () => {
@@ -63,6 +83,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const userData = await authApi.getCurrentUser();
 
         ensureUserConsistency(userData);
+
+        // Apply user preferences when loading user data
+        applyUserPreferences(userData);
 
         setAuthState({
           user: userData,
@@ -113,6 +136,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem("userEmail");
       }
 
+      // Apply user preferences immediately after login
+      applyUserPreferences(user);
+
       setAuthState({
         user,
         token,
@@ -148,6 +174,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // Save token to localStorage
       localStorage.setItem("token", token);
+
+      // Apply user preferences immediately after registration
+      applyUserPreferences(user);
 
       setAuthState({
         user,
@@ -210,6 +239,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.log(result);
         updatedUser = result;
       }
+
+      // Apply user preferences when updating user data
+      applyUserPreferences(updatedUser);
 
       setAuthState((prev) => ({
         ...prev,

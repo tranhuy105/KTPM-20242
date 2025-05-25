@@ -35,12 +35,8 @@ const ProfileInfo = () => {
 
   // Set initial language from user preferences
   useEffect(() => {
-    if (
-      user?.preferences?.language &&
-      user.preferences.language !== i18n.language
-    ) {
-      i18n.changeLanguage(user.preferences.language);
-    }
+    // Remove the language change code since it's now handled in AuthContext
+    // The language will be set correctly upon login/registration/loading user
 
     // Update user data in localStorage for currency preference
     if (user) {
