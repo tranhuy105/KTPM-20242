@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  FaUser,
-  FaEnvelope,
-  FaLock,
-  FaGoogle,
-  FaFacebook,
-} from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuthContext } from "../../context/AuthContext";
 
 interface FormData {
@@ -163,32 +157,6 @@ const RegisterForm = () => {
             ? t("auth.register.creatingAccount")
             : t("auth.register.createAccount")}
         </button>
-
-        <div className="text-center my-4 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative">
-            <span className="bg-white px-3 text-sm text-gray-500">
-              {t("auth.register.orSignUpWith")}
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            type="button"
-            className="flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            <FaGoogle className="mr-2" /> {t("auth.register.google")}
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            <FaFacebook className="mr-2" /> {t("auth.register.facebook")}
-          </button>
-        </div>
       </form>
     </div>
   );
