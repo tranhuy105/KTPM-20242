@@ -179,8 +179,8 @@ const userValidator = {
 
     body("role")
       .optional()
-      .isIn(["customer", "admin", "manager"])
-      .withMessage("Role must be one of: customer, admin, manager"),
+      .isIn(["customer", "admin"])
+      .withMessage("Role must be one of: customer, admin"),
 
     body("isActive")
       .optional()
@@ -230,8 +230,8 @@ const userValidator = {
     body("role")
       .notEmpty()
       .withMessage("Role is required")
-      .isIn(["customer", "admin", "manager"])
-      .withMessage("Role must be one of: customer, admin, manager"),
+      .isIn(["customer", "admin"])
+      .withMessage("Role must be one of: customer, admin"),
 
     (req, res, next) => {
       const errors = validationResult(req);
@@ -287,8 +287,8 @@ const userValidator = {
 
     query("role")
       .optional()
-      .isIn(["customer", "admin", "manager"])
-      .withMessage("Role must be one of: customer, admin, manager"),
+      .isIn(["customer", "admin"])
+      .withMessage("Role must be one of: customer, admin"),
 
     query("isActive")
       .optional()

@@ -308,7 +308,7 @@ class UserService {
         throw new Error("Invalid user ID format");
       }
 
-      const validRoles = ["customer", "admin", "manager"];
+      const validRoles = ["customer", "admin"];
       if (!validRoles.includes(role)) {
         throw new Error(
           `Invalid role. Must be one of: ${validRoles.join(", ")}`
@@ -419,7 +419,7 @@ class UserService {
 
       // Validate role if provided
       if (userData.role) {
-        const validRoles = ["customer", "admin", "manager"];
+        const validRoles = ["customer", "admin"];
         if (!validRoles.includes(userData.role)) {
           throw new Error(
             `Invalid role. Must be one of: ${validRoles.join(", ")}`

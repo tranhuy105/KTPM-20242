@@ -67,30 +67,3 @@ const adminMiddleware = (req, res, next) => {
 
   next();
 };
-
-/**
- * Admin or Manager Access Middleware
- */
-const adminOrManagerMiddleware = (req, res, next) => {
-  // Check if user exists and is admin or manager
-  if (
-    !req.user ||
-    !(
-      req.user.isAdmin ||
-      req.user.role === "admin" ||
-      req.user.role === "manager"
-    )
-  ) {
-    return res
-      .status(403)
-      .json({ error: "Access denied. Admin or manager privileges required." });
-  }
-
-  next();
-};
-
-module.exports = {
-  authMiddleware,
-  adminMiddleware,
-  adminOrManagerMiddleware,
-};

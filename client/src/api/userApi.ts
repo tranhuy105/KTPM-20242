@@ -72,7 +72,7 @@ const userApi = {
    */
   changeUserRole: async (
     userId: string,
-    role: "customer" | "admin" | "manager"
+    role: "customer" | "admin"
   ): Promise<User> => {
     const response = await axiosInstance.put<User>(`/users/${userId}/role`, {
       role,

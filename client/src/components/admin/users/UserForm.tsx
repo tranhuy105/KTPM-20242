@@ -47,7 +47,7 @@ const createFormSchema = (isEdit: boolean) =>
       : z
           .string()
           .min(6, { message: "Password must be at least 6 characters" }),
-    role: z.enum(["customer", "admin", "manager"]),
+    role: z.enum(["customer", "admin"]),
     isActive: z.boolean().default(true),
     isVerified: z.boolean().default(false),
   });
@@ -76,7 +76,7 @@ const UserForm = ({ user, isEdit = false }: UserFormProps) => {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       password: "",
-      role: (user?.role as "customer" | "admin" | "manager") || "customer",
+      role: (user?.role as "customer" | "admin") || "customer",
       isActive: user?.isActive ?? true,
       isVerified: user?.isVerified ?? false,
     },
@@ -220,7 +220,6 @@ const UserForm = ({ user, isEdit = false }: UserFormProps) => {
                       <SelectContent>
                         <SelectItem value="customer">Customer</SelectItem>
                         <SelectItem value="admin">Administrator</SelectItem>
-                        <SelectItem value="manager">Manager</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
