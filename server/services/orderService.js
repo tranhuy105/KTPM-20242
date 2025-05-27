@@ -171,40 +171,45 @@ class OrderService {
      * @returns {Promise<Object>} - Orders and pagination data
      */
     async getUserOrders(userId, options = {}) {
-        const page = parseInt(options.page) || 1;
-        const limit = parseInt(options.limit) || 10;
-        const skip = (page - 1) * limit;
+      const page = parseInt(options.page) || 1;
+      const limit = parseInt(options.limit) || 10;
+      const skip = (page - 1) * limit;
 
-        // Build filter for user's orders
-        const filter = { user: userId };
+      // Build filter for user's orders
+      const filter = { user: userId };
 
-        // Add status filter if provided
-        if (options.status) {
-            filter.status = options.status;
-        }
+      // Add status filter if provided
+      if (options.status) {
+        filter.status = options.status;
+      }
 
-        // Get total count for pagination
-        const totalCount = await Order.countDocuments(
-            filter
-        );
+      // Get total count for pagination
+      const totalCount = await Order.countDocuments(filter);
 
-        // Execute query with pagination
-        const orders = await Order.find(filter)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
+      // Determine sort options
+      let sortOptions = { createdAt: -1 }; // Default sort
 
-        return {
-            orders,
-            pagination: {
-                totalCount,
-                currentPage: page,
-                totalPages: Math.ceil(totalCount / limit),
-                hasNextPage:
-                    skip + orders.length < totalCount,
-                hasPrevPage: page > 1,
-            },
-        };
+      if (options.sortBy) {
+        const sortOrder = options.sortOrder === "asc" ? 1 : -1;
+        sortOptions = { [options.sortBy]: sortOrder };
+      }
+
+      // Execute query with pagination
+      const orders = await Order.find(filter)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit);
+
+      return {
+        orders,
+        pagination: {
+          totalCount,
+          currentPage: page,
+          totalPages: Math.ceil(totalCount / limit),
+          hasNextPage: skip + orders.length < totalCount,
+          hasPrevPage: page > 1,
+        },
+      };
     }
 
     /**

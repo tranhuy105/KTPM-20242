@@ -1,11 +1,11 @@
 import axiosInstance from "./axiosInstance";
 import type {
   Order,
-  PaginatedResponse,
   OrderFilters,
   OrderAddress,
   OrderTransaction,
 } from "../types";
+import type { PaginatedOrderResponse } from "../types/Api";
 
 const orderApi = {
   /**
@@ -15,8 +15,8 @@ const orderApi = {
    */
   getAllOrders: async (
     filters?: OrderFilters
-  ): Promise<PaginatedResponse<Order>> => {
-    const response = await axiosInstance.get<PaginatedResponse<Order>>(
+  ): Promise<PaginatedOrderResponse> => {
+    const response = await axiosInstance.get<PaginatedOrderResponse>(
       "/orders",
       {
         params: filters,
@@ -37,15 +37,17 @@ const orderApi = {
 
   /**
    * Get orders for the current user
-   * @param options Optional parameters (page, limit, status)
+   * @param options Optional parameters (page, limit, status, sortBy, sortOrder)
    * @returns Paginated list of orders
    */
   getMyOrders: async (options?: {
     page?: number;
     limit?: number;
     status?: string;
-  }): Promise<PaginatedResponse<Order>> => {
-    const response = await axiosInstance.get<PaginatedResponse<Order>>(
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }): Promise<PaginatedOrderResponse> => {
+    const response = await axiosInstance.get<PaginatedOrderResponse>(
       "/orders/me",
       {
         params: options,

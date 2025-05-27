@@ -291,6 +291,13 @@
   },
   "orders": {
     "title": "Orders",
+    "placedOn": "Placed on",
+    "noOrders": "You have no orders.",
+    "noOrdersDescription": "When you place an order, we will save all of your orders here.",
+    "showing": "Showing",
+    "cancelError": "An error occurred while cancelling the order",
+    "fetchError": "Failed to load orders",
+    "cancelSuccess": "Order cancelled successfully",
     "sortNewest": "Newest",
     "sortOldest": "Oldest",
     "sortTotalHighToLow": "Total: High to Low",

@@ -80,6 +80,8 @@ class OrderController {
         page: req.query.page,
         limit: req.query.limit,
         status: req.query.status,
+        sortBy: req.query.sortBy,
+        sortOrder: req.query.sortOrder,
       };
 
       const result = await orderService.getUserOrders(req.user.id, options);

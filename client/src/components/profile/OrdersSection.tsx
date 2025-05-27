@@ -117,74 +117,77 @@ const OrdersSection = () => {
         {t("orders.title") || "My Orders"}
       </h2>
 
-      {isLoading && orders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">{t("orders.loading")}</p>
-        </div>
-      ) : orders.length > 0 ? (
-        <div className="space-y-4">
-          <OrderFilters
-            status={filters.status}
-            onStatusChange={handleStatusChange}
-            sortBy={filters.sort}
-            onSortChange={handleSortChange}
-          />
+      {/* Always show filters regardless of order existence */}
+      <div className="space-y-4">
+        <OrderFilters
+          status={filters.status}
+          onStatusChange={handleStatusChange}
+          sortBy={filters.sort}
+          onSortChange={handleSortChange}
+        />
 
-          <OrderTable orders={orders} />
+        {isLoading && orders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">{t("orders.loading")}</p>
+          </div>
+        ) : orders.length > 0 ? (
+          <>
+            <OrderTable orders={orders} />
 
-          {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-muted-foreground">
-                {t("orders.showing", {
-                  showing: orders.length,
-                  total: pagination.totalCount,
-                }) ||
-                  `Showing ${orders.length} of ${pagination.totalCount} orders`}
-              </p>
-              <div className="flex items-center space-x-2">
-                <button
-                  className={`px-3 py-1 text-sm rounded-md border ${
-                    pagination.hasPrevPage
-                      ? "hover:bg-gray-100"
-                      : "opacity-50 cursor-not-allowed"
-                  }`}
-                  disabled={!pagination.hasPrevPage}
-                  onClick={() =>
-                    setFilters({ ...filters, page: filters.page - 1 })
-                  }
-                >
-                  {t("common.previous")}
-                </button>
-                <button
-                  className={`px-3 py-1 text-sm rounded-md border ${
-                    pagination.hasNextPage
-                      ? "hover:bg-gray-100"
-                      : "opacity-50 cursor-not-allowed"
-                  }`}
-                  disabled={!pagination.hasNextPage}
-                  onClick={() =>
-                    setFilters({ ...filters, page: filters.page + 1 })
-                  }
-                >
-                  {t("common.next")}
-                </button>
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("orders.showing", {
+                    showing: orders.length,
+                    total: pagination.totalCount,
+                  }) ||
+                    `Showing ${orders.length} of ${pagination.totalCount} orders`}
+                </p>
+                <div className="flex items-center space-x-2">
+                  <button
+                    className={`px-3 py-1 text-sm rounded-md border ${
+                      pagination.hasPrevPage
+                        ? "hover:bg-gray-100"
+                        : "opacity-50 cursor-not-allowed"
+                    }`}
+                    disabled={!pagination.hasPrevPage}
+                    onClick={() =>
+                      setFilters({ ...filters, page: filters.page - 1 })
+                    }
+                  >
+                    {t("common.previous")}
+                  </button>
+                  <button
+                    className={`px-3 py-1 text-sm rounded-md border ${
+                      pagination.hasNextPage
+                        ? "hover:bg-gray-100"
+                        : "opacity-50 cursor-not-allowed"
+                    }`}
+                    disabled={!pagination.hasNextPage}
+                    onClick={() =>
+                      setFilters({ ...filters, page: filters.page + 1 })
+                    }
+                  >
+                    {t("common.next")}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <h3 className="text-lg font-medium text-gray-700 mb-2">
-            {t("orders.noOrders") || "No Orders Found"}
-          </h3>
-          <p className="text-gray-500 max-w-md mx-auto">
-            {t("orders.noOrdersDescription") ||
-              "You haven't placed any orders yet. Start shopping to place your first order."}
-          </p>
-        </div>
-      )}
+            )}
+          </>
+        ) : (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              {t("orders.noOrders") || "No Orders Found"}
+            </h3>
+            <p className="text-gray-500 max-w-md mx-auto">
+              {t("orders.noOrdersDescription") ||
+                "You haven't placed any orders yet. Start shopping to place your first order."}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Cancel Order Dialog */}
       <CancelOrderDialog

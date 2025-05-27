@@ -290,8 +290,13 @@
     "defaultAddress": "Địa chỉ mặc định"
   },
   "orders": {
+    "placedOn": "Đặt hàng vào",
     "noOrders": "Bạn chưa có đơn hàng nào.",
     "noOrdersDescription": "Khi bạn đặt hàng, chúng tôi sẽ lưu lại tất cả các đơn hàng của bạn trong đây.",
+    "showing": "Hiển thị",
+    "cancelError": "Đã xảy ra lỗi khi hủy đơn hàng",
+    "fetchError": "Đã xảy ra lỗi khi lấy danh sách đơn hàng",
+    "cancelSuccess": "Đơn hàng đã được hủy thành công",
     "title": "Đơn hàng",
     "sortNewest": "Mới nhất",
     "sortOldest": "Cũ nhất",
