@@ -40,6 +40,7 @@
     "logout": "Logout"
   },
   "wishlist": {
+    "emptyDescription": "Your wishlist is empty. Add some products to your wishlist to get started.",
     "title": "Wishlist",
     "added": "Added to wishlist",
     "removed": "Removed from wishlist",
@@ -260,6 +261,10 @@
     "addNew": "Add New Address"
   },
   "address": {
+    "setDefault": "Set as Default",
+    "defaultSuccess": "Default address updated successfully",
+    "updateSuccess": "Address updated successfully",
+    "deleteSuccess": "Address deleted successfully",
     "fullName": "Full Name",
     "phone": "Phone",
     "country": "Country",

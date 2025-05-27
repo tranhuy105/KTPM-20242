@@ -40,6 +40,7 @@
     "logout": "Đăng xuất"
   },
   "wishlist": {
+    "emptyDescription": "Danh sách yêu thích của bạn trống. Thêm một số sản phẩm vào danh sách yêu thích để bắt đầu.",
     "title": "Sản phẩm đã lưu",
     "added": "Đã thêm vào danh sách yêu thích",
     "removed": "Đã xóa khỏi danh sách yêu thích",
@@ -259,6 +260,11 @@
     "addNew": "Thêm địa chỉ mới"
   },
   "address": {
+    "title": "Địa chỉ",
+    "setDefault": "Đặt làm địa chỉ mặc định",
+    "updateSuccess": "Địa chỉ đã được cập nhật thành công",
+    "deleteSuccess": "Địa chỉ đã được xóa thành công",
+    "defaultSuccess": "Địa chỉ mặc định đã được cập nhật thành công",
     "fullName": "Họ và tên",
     "phone": "Số điện thoại",
     "country": "Quốc gia",
@@ -284,6 +290,8 @@
     "defaultAddress": "Địa chỉ mặc định"
   },
   "orders": {
+    "noOrders": "Bạn chưa có đơn hàng nào.",
+    "noOrdersDescription": "Khi bạn đặt hàng, chúng tôi sẽ lưu lại tất cả các đơn hàng của bạn trong đây.",
     "title": "Đơn hàng",
     "sortNewest": "Mới nhất",
     "sortOldest": "Cũ nhất",

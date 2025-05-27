@@ -2,49 +2,66 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuthContext } from "../../context/AuthContext";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../../components/ui/form";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Alert, AlertDescription } from "../../components/ui/alert";
 
-interface FormData {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-}
+// Schema matching server-side validation
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Invalid email format")
+    .transform((val) => val.trim().toLowerCase()),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .transform((val) => val.trim()),
+  rememberMe: z.boolean().default(false),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
   const { login, error } = useAuthContext();
   const { t } = useTranslation();
-  const [formData, setFormData] = useState<FormData>({
-    email: "",
-    password: "",
-    rememberMe: false,
-  });
   const [loading, setLoading] = useState(false);
+
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
 
   // Load saved email if exists
   useEffect(() => {
     const savedEmail = localStorage.getItem("userEmail");
     if (savedEmail) {
-      setFormData((prev) => ({
-        ...prev,
-        email: savedEmail,
-        rememberMe: true,
-      }));
+      form.setValue("email", savedEmail);
+      form.setValue("rememberMe", true);
     }
-  }, []);
+  }, [form]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
 
     try {
-      await login(formData);
+      await login(data);
       // Redirect is handled by ProtectedRoute
     } catch {
       // Error is handled by auth context
@@ -58,66 +75,99 @@ const LoginForm = () => {
       <h2 className="text-2xl font-bold mb-6">{t("auth.login.title")}</h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaEnvelope className="text-gray-400" />
-          </div>
-          <input
-            type="email"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
             name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder={t("auth.login.email")}
-            required
-            className="pl-10 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="sr-only">
+                  {t("auth.login.email")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaEnvelope className="text-gray-400" />
+                    </div>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder={t("auth.login.email")}
+                      className="pl-10 focus:ring-2 focus:ring-black"
+                      autoComplete="email"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaLock className="text-gray-400" />
-          </div>
-          <input
-            type="password"
+          <FormField
+            control={form.control}
             name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder={t("auth.login.password")}
-            required
-            className="pl-10 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="sr-only">
+                  {t("auth.login.password")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaLock className="text-gray-400" />
+                    </div>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder={t("auth.login.password")}
+                      className="pl-10 focus:ring-2 focus:ring-black"
+                      autoComplete="current-password"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        <div className="flex justify-between items-center">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
+          <div className="flex justify-between items-center">
+            <FormField
+              control={form.control}
               name="rememberMe"
-              checked={formData.rememberMe}
-              onChange={handleChange}
-              className="mr-2 h-4 w-4"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="text-sm text-gray-600 font-normal">
+                    {t("auth.login.rememberMe")}
+                  </FormLabel>
+                </FormItem>
+              )}
             />
-            <span className="text-sm text-gray-600">
-              {t("auth.login.rememberMe")}
-            </span>
-          </label>
-          <a href="/forgot-password" className="text-sm text-black underline">
-            {t("auth.login.forgotPassword")}
-          </a>
-        </div>
+            <a href="/forgot-password" className="text-sm text-black underline">
+              {t("auth.login.forgotPassword")}
+            </a>
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-black text-white p-3 rounded-lg font-medium hover:bg-gray-900 transition-colors"
-        >
-          {loading ? t("auth.login.signingIn") : t("auth.login.signIn")}
-        </button>
-      </form>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-black text-white hover:bg-gray-900"
+          >
+            {loading ? t("auth.login.signingIn") : t("auth.login.signIn")}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 };

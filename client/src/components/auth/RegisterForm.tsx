@@ -2,57 +2,81 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuthContext } from "../../context/AuthContext";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../../components/ui/form";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Alert, AlertDescription } from "../../components/ui/alert";
 
-interface FormData {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+// Schema matching server-side validation
+const registerSchema = z
+  .object({
+    username: z
+      .string()
+      .min(1, "Username is required")
+      .min(3, "Username must be between 3 and 30 characters")
+      .max(30, "Username must be between 3 and 30 characters")
+      .regex(
+        /^[a-zA-Z0-9_]+$/,
+        "Username can only contain letters, numbers, and underscores"
+      )
+      .transform((val) => val.trim()),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Invalid email format")
+      .transform((val) => val.trim().toLowerCase()),
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .min(6, "Password must be at least 6 characters")
+      .transform((val) => val.trim()),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+    termsAccepted: z
+      .boolean()
+      .refine((val) => val, "You must accept the terms and conditions"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterForm = () => {
   const { register, error } = useAuthContext();
   const { t } = useTranslation();
-  const [formData, setFormData] = useState<FormData>({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
   const [loading, setLoading] = useState(false);
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      termsAccepted: false,
+    },
+  });
 
-    // Check if passwords match when either password field changes
-    if (name === "password" || name === "confirmPassword") {
-      if (name === "password") {
-        setPasswordsMatch(
-          value === formData.confirmPassword || formData.confirmPassword === ""
-        );
-      } else {
-        setPasswordsMatch(value === formData.password);
-      }
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      setPasswordsMatch(false);
-      return;
-    }
-
+  const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
 
     try {
       await register({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
+        username: data.username,
+        email: data.email,
+        password: data.password,
       });
       // Redirect is handled by ProtectedRoute
     } catch {
@@ -67,97 +91,156 @@ const RegisterForm = () => {
       <h2 className="text-2xl font-bold mb-6">{t("auth.register.title")}</h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaUser className="text-gray-400" />
-          </div>
-          <input
-            type="text"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
             name="username"
-            value={formData.username}
-            onChange={handleChange}
-            placeholder={t("auth.register.username")}
-            required
-            className="pl-10 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="sr-only">
+                  {t("auth.register.username")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaUser className="text-gray-400" />
+                    </div>
+                    <Input
+                      {...field}
+                      type="text"
+                      placeholder={t("auth.register.username")}
+                      className="pl-10 focus:ring-2 focus:ring-black"
+                      autoComplete="username"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaEnvelope className="text-gray-400" />
-          </div>
-          <input
-            type="email"
+          <FormField
+            control={form.control}
             name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder={t("auth.register.email")}
-            required
-            className="pl-10 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="sr-only">
+                  {t("auth.register.email")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaEnvelope className="text-gray-400" />
+                    </div>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder={t("auth.register.email")}
+                      className="pl-10 focus:ring-2 focus:ring-black"
+                      autoComplete="email"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaLock className="text-gray-400" />
-          </div>
-          <input
-            type="password"
+          <FormField
+            control={form.control}
             name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder={t("auth.register.password")}
-            required
-            className="pl-10 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="sr-only">
+                  {t("auth.register.password")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaLock className="text-gray-400" />
+                    </div>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder={t("auth.register.password")}
+                      className="pl-10 focus:ring-2 focus:ring-black"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaLock className="text-gray-400" />
-          </div>
-          <input
-            type="password"
+          <FormField
+            control={form.control}
             name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            placeholder={t("auth.register.confirmPassword")}
-            required
-            className={`pl-10 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black ${
-              !passwordsMatch ? "border-red-500" : "border-gray-300"
-            }`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="sr-only">
+                  {t("auth.register.confirmPassword")}
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaLock className="text-gray-400" />
+                    </div>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder={t("auth.register.confirmPassword")}
+                      className="pl-10 focus:ring-2 focus:ring-black"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {!passwordsMatch && (
-            <p className="text-red-500 text-xs mt-1">
-              {t("auth.register.passwordsDoNotMatch")}
-            </p>
-          )}
-        </div>
 
-        <div className="flex items-center">
-          <input type="checkbox" id="terms" className="mr-2 h-4 w-4" required />
-          <label htmlFor="terms" className="text-sm text-gray-600">
-            {t("auth.register.termsAgreement")}{" "}
-            <a href="#" className="underline text-black">
-              {t("auth.register.termsAndConditions")}
-            </a>
-          </label>
-        </div>
+          <FormField
+            control={form.control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm text-gray-600 font-normal">
+                    {t("auth.register.termsAgreement")}{" "}
+                    <a href="#" className="underline text-black">
+                      {t("auth.register.termsAndConditions")}
+                    </a>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
 
-        <button
-          type="submit"
-          disabled={loading || !passwordsMatch}
-          className="w-full bg-black text-white p-3 rounded-lg font-medium hover:bg-gray-900 transition-colors disabled:opacity-70"
-        >
-          {loading
-            ? t("auth.register.creatingAccount")
-            : t("auth.register.createAccount")}
-        </button>
-      </form>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-black text-white hover:bg-gray-900"
+          >
+            {loading
+              ? t("auth.register.creatingAccount")
+              : t("auth.register.createAccount")}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 };
