@@ -57,11 +57,8 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       toast(
         <div className="flex items-center gap-2">
           <LogIn size={18} />
-          <span>Please log in to add items to your cart</span>
-        </div>,
-        {
-          icon: "🔒",
-        }
+          <span>{t("auth.loginRequired")}</span>
+        </div>
       );
       navigate("/auth");
       return;

@@ -37,7 +37,7 @@ const AddToWishlistButton = ({
   const handleAddToWishlist = async () => {
     if (!isAuthenticated) {
       toast.error(t("auth.loginRequired"));
-      navigate("/login", { state: { from: window.location.pathname } });
+      navigate("/auth", { state: { from: window.location.pathname } });
       return;
     }
 
