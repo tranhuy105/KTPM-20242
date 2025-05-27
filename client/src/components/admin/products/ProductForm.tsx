@@ -49,7 +49,7 @@ const productSchema = z.object({
   slug: z.string().optional(),
   description: z.string().optional(),
   shortDescription: z.string().optional(),
-  category: z.string({ required_error: "Category is required" }),
+  category: z.string().min(1, { message: "Category is required" }),
   brand: z.string().optional(),
   price: z.coerce.number().positive({ message: "Price must be positive" }),
   compareAtPrice: z.coerce.number().nonnegative().optional().nullable(),

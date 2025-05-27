@@ -36,7 +36,7 @@ const ProductsPage = () => {
     const searchParams = new URLSearchParams(search);
     return {
       page: parseInt(searchParams.get("page") || "1"),
-      limit: 12,
+      limit: 24,
       sortBy: searchParams.get("sortBy") || "createdAt",
       sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "desc",
       filters: {
