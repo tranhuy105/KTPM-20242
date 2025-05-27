@@ -34,6 +34,8 @@ const Header = () => {
     navigate(`/products?${currentParams.toString()}`);
   };
 
+  const isProductsPage = location.pathname === "/products";
+
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="container mx-auto">
@@ -103,6 +105,7 @@ const Header = () => {
                 } mr-2 h-4 w-4`}
               />
               <input
+                disabled={isProductsPage}
                 type="text"
                 placeholder={t("header.searchPlaceholder")}
                 className="bg-transparent outline-none w-full text-sm"

@@ -13,6 +13,11 @@ import type {
   AvailableProductFilters,
   ProductFilterCategoryHierarchical,
 } from "../../types";
+import { formatCurrency } from "../../lib/utils";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Badge } from "../ui/badge";
 
 interface ProductFiltersProps {
   filters: ProductFiltersType;
@@ -55,22 +60,28 @@ const ProductFilters = ({
   // Update price range when availableFilters changes
   useEffect(() => {
     if (availableFilters?.priceRange) {
-      if (!filters.filters?.minPrice) {
+      // Only set initial values when filters don't have values yet
+      if (filters.filters?.minPrice === undefined) {
         setPriceMin(availableFilters.priceRange.min);
+      } else {
+        setPriceMin(filters.filters.minPrice);
       }
-      if (!filters.filters?.maxPrice) {
+
+      if (filters.filters?.maxPrice === undefined) {
         setPriceMax(availableFilters.priceRange.max);
+      } else {
+        setPriceMax(filters.filters.maxPrice);
       }
     }
   }, [availableFilters, filters.filters?.minPrice, filters.filters?.maxPrice]);
 
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
-    brands: true,
-    price: true,
-    colors: true,
-    sizes: true,
-    materials: true,
+    brands: false,
+    price: false,
+    colors: false,
+    sizes: false,
+    materials: false,
   });
 
   // Track expanded categories for hierarchical view
@@ -102,8 +113,21 @@ const ProductFilters = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Update local state when filters change (e.g., from URL or header search)
+  useEffect(() => {
+    if (
+      filters.filters?.search !== undefined &&
+      filters.filters.search !== searchTerm
+    ) {
+      setSearchTerm(filters.filters.search);
+    }
+  }, [filters.filters?.search]);
+
   const handleFilterChange = (newFilters: Partial<ProductFiltersType>) => {
     onFilterChange(newFilters);
+    // Scroll to top when applying filters
+    // skip the brand section
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCategoryChange = (categoryId: string) => {
@@ -160,6 +184,7 @@ const ProductFilters = ({
     const minPriceRange = availableFilters?.priceRange.min || 0;
     const maxPriceRange = availableFilters?.priceRange.max || 1000000;
 
+    // Always send VND values to the server
     handleFilterChange({
       filters: {
         ...filters.filters,
@@ -223,7 +248,7 @@ const ProductFilters = ({
 
   const filterClasses = isMobile
     ? "w-full bg-white p-4 rounded-lg shadow-lg"
-    : "sticky top-24 w-full bg-white p-6 rounded-lg border border-gray-200 shadow-sm";
+    : "sticky top-24 w-full bg-white p-6 rounded-lg border border-gray-200 shadow-sm max-h-[calc(100vh-120px)] overflow-y-auto";
 
   // Render hierarchical categories recursively
   const renderCategoryTree = (
@@ -293,25 +318,27 @@ const ProductFilters = ({
           {t("products.filters")}
         </h3>
         {hasActiveFilters() && (
-          <button
+          <Button
             onClick={clearAllFilters}
-            className="text-sm text-amber-700 hover:text-amber-900 hover:underline flex items-center"
+            variant="ghost"
+            size="sm"
+            className="text-amber-700 hover:text-amber-900 hover:bg-amber-50"
           >
             <X className="w-4 h-4 mr-1" />
             {t("products.clearAll")}
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Search */}
       <div className="mb-6">
         <div className="relative">
-          <input
+          <Input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t("products.searchPlaceholder")}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="pl-10 pr-8"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           {searchTerm && (
@@ -425,41 +452,50 @@ const ProductFilters = ({
         </button>
 
         {expandedSections.price && (
-          <div className="space-y-4">
-            <div className="flex space-x-4">
-              <div className="w-1/2">
-                <label className="text-xs text-gray-500 block mb-1">
-                  {t("products.minPrice")}
-                </label>
-                <input
-                  type="number"
-                  min={availableFilters.priceRange.min}
-                  max={priceMax}
-                  value={priceMin}
-                  onChange={(e) => setPriceMin(Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
+          <div className="space-y-6">
+            <div className="px-2">
+              <div className="flex justify-between mb-2 text-sm text-gray-500">
+                <span>{formatCurrency(priceMin)}</span>
+                <span>{formatCurrency(priceMax)}</span>
               </div>
-              <div className="w-1/2">
-                <label className="text-xs text-gray-500 block mb-1">
-                  {t("products.maxPrice")}
-                </label>
-                <input
-                  type="number"
-                  min={priceMin}
-                  max={availableFilters.priceRange.max}
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
+
+              <div className="flex space-x-4 mt-4">
+                <div className="w-1/2">
+                  <label className="text-xs text-gray-500 block mb-1">
+                    {t("products.minPrice")}
+                  </label>
+                  <Input
+                    type="number"
+                    min={availableFilters.priceRange.min}
+                    max={priceMax}
+                    value={priceMin}
+                    onChange={(e) => setPriceMin(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label className="text-xs text-gray-500 block mb-1">
+                    {t("products.maxPrice")}
+                  </label>
+                  <Input
+                    type="number"
+                    min={priceMin}
+                    max={availableFilters.priceRange.max}
+                    value={priceMax}
+                    onChange={(e) => setPriceMax(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
               </div>
             </div>
-            <button
+
+            <Button
               onClick={handlePriceChange}
-              className="w-full bg-amber-100 text-amber-800 hover:bg-amber-200 py-2 rounded-md text-sm font-medium transition-colors"
+              variant="outline"
+              className="w-full bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200"
             >
               {t("products.applyPriceFilter")}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -484,19 +520,20 @@ const ProductFilters = ({
           {expandedSections.colors && (
             <div className="flex flex-wrap gap-2">
               {availableFilters.colors.map((color) => (
-                <button
+                <Badge
                   key={color}
                   onClick={() =>
                     handleColorChange(color === selectedColor ? "" : color)
                   }
-                  className={`px-3 py-1 text-sm rounded-full border ${
+                  variant={color === selectedColor ? "default" : "outline"}
+                  className={`cursor-pointer px-3 py-1 ${
                     color === selectedColor
-                      ? "bg-amber-100 border-amber-300 text-amber-800"
-                      : "border-gray-200 hover:border-amber-200 hover:bg-amber-50"
+                      ? "bg-amber-100 hover:bg-amber-200 text-amber-800 border-amber-300"
+                      : "hover:border-amber-200 hover:bg-amber-50"
                   }`}
                 >
                   {color}
-                </button>
+                </Badge>
               ))}
             </div>
           )}
@@ -521,19 +558,20 @@ const ProductFilters = ({
           {expandedSections.sizes && (
             <div className="flex flex-wrap gap-2">
               {availableFilters.sizes.map((size) => (
-                <button
+                <Badge
                   key={size}
                   onClick={() =>
                     handleSizeChange(size === selectedSize ? "" : size)
                   }
-                  className={`px-3 py-1 text-sm rounded-full border ${
+                  variant={size === selectedSize ? "default" : "outline"}
+                  className={`cursor-pointer px-3 py-1 ${
                     size === selectedSize
-                      ? "bg-amber-100 border-amber-300 text-amber-800"
-                      : "border-gray-200 hover:border-amber-200 hover:bg-amber-50"
+                      ? "bg-amber-100 hover:bg-amber-200 text-amber-800 border-amber-300"
+                      : "hover:border-amber-200 hover:bg-amber-50"
                   }`}
                 >
                   {size}
-                </button>
+                </Badge>
               ))}
             </div>
           )}
@@ -560,21 +598,24 @@ const ProductFilters = ({
           {expandedSections.materials && (
             <div className="flex flex-wrap gap-2">
               {availableFilters.materials.map((material) => (
-                <button
+                <Badge
                   key={material}
                   onClick={() =>
                     handleMaterialChange(
                       material === selectedMaterial ? "" : material
                     )
                   }
-                  className={`px-3 py-1 text-sm rounded-full border ${
+                  variant={
+                    material === selectedMaterial ? "default" : "outline"
+                  }
+                  className={`cursor-pointer px-3 py-1 ${
                     material === selectedMaterial
-                      ? "bg-amber-100 border-amber-300 text-amber-800"
-                      : "border-gray-200 hover:border-amber-200 hover:bg-amber-50"
+                      ? "bg-amber-100 hover:bg-amber-200 text-amber-800 border-amber-300"
+                      : "hover:border-amber-200 hover:bg-amber-50"
                   }`}
                 >
                   {material}
-                </button>
+                </Badge>
               ))}
             </div>
           )}
@@ -583,19 +624,20 @@ const ProductFilters = ({
 
       {/* Featured Products */}
       <div className="flex items-center">
-        <input
-          type="checkbox"
-          id="featured-filter"
-          checked={isFeatured}
-          onChange={handleFeaturedToggle}
-          className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-        />
-        <label
-          htmlFor="featured-filter"
-          className="ml-2 text-sm text-gray-700 cursor-pointer"
-        >
-          {t("products.onlyFeatured")}
-        </label>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="featured-filter"
+            checked={isFeatured}
+            onCheckedChange={handleFeaturedToggle}
+            className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+          />
+          <label
+            htmlFor="featured-filter"
+            className="text-sm text-gray-700 cursor-pointer"
+          >
+            {t("products.onlyFeatured")}
+          </label>
+        </div>
       </div>
     </div>
   );
