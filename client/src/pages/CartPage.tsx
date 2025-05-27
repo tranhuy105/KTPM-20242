@@ -26,10 +26,7 @@ const CartPage = () => {
       <div className="flex items-center gap-2">
         <Trash2 size={18} />
         <span>{t("cart.itemRemoved")}</span>
-      </div>,
-      {
-        icon: "🗑️",
-      }
+      </div>
     );
   };
 
@@ -54,10 +51,7 @@ const CartPage = () => {
         <div className="flex items-center gap-2">
           <Minus size={18} />
           <span>{t("cart.quantityDecreased")}</span>
-        </div>,
-        {
-          icon: "📉",
-        }
+        </div>
       );
     }
   };

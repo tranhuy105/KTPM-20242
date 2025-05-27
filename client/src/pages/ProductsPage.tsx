@@ -12,6 +12,7 @@ import ProductsHeader from "../components/product/ProductsHeader";
 import type {
     AvailableProductFilters,
     Product,
+    ProductFilterBrand,
     ProductFilters as ProductFiltersType,
 } from "../types";
 
@@ -40,7 +41,7 @@ const ProductsPage = () => {
     );
     const initialFilters: ProductFiltersType = {
         page: parseInt(searchParams.get("page") || "1"),
-        limit: 24,
+        limit: 12,
         sortBy: searchParams.get("sortBy") || "createdAt",
         sortOrder:
             (searchParams.get("sortOrder") as
@@ -273,6 +274,17 @@ const ProductsPage = () => {
         }
     };
 
+    // Handle clicking on a brand
+    const handleBrandClick = (brandId: string) => {
+        handleFilterChange({
+            filters: {
+                ...filters.filters,
+                brand: brandId,
+            },
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
     // Handle sort changes
     const handleSortChange = (sort: string) => {
         // Parse the sort string (e.g., "-createdAt" to { sortBy: "createdAt", sortOrder: "desc" })
@@ -302,6 +314,18 @@ const ProductsPage = () => {
         setShowMobileFilters(!showMobileFilters);
     };
 
+    // Get top brands with products (sorted by product count)
+    const getTopBrands = (): ProductFilterBrand[] => {
+        if (!availableFilters?.brands) return [];
+
+        // Sort brands by product count (descending) and take the top ones
+        return [...availableFilters.brands]
+            .sort(
+                (a, b) => b.productsCount - a.productsCount
+            )
+            .slice(0, 8); // Display up to 8 top brands
+    };
+
     return (
         <div className="bg-gray-50 py-12">
             <div className="container mx-auto px-4">
@@ -324,6 +348,76 @@ const ProductsPage = () => {
                         </li>
                     </ol>
                 </nav>
+
+                {/* Featured Brands Section */}
+                {!isLoadingFilters &&
+                    availableFilters?.brands &&
+                    availableFilters.brands.length > 0 && (
+                        <div className="mb-12">
+                            <h2 className="text-2xl font-serif font-medium text-gray-900 mb-6">
+                                {t("products.shopByBrand")}
+                            </h2>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                                {getTopBrands().map(
+                                    (brand) => (
+                                        <div
+                                            key={brand._id}
+                                            onClick={() =>
+                                                handleBrandClick(
+                                                    brand._id
+                                                )
+                                            }
+                                            className={`
+                                        flex flex-col items-center justify-center p-4 bg-white border 
+                                        rounded-lg shadow-sm cursor-pointer transition-all duration-300
+                                        hover:shadow-md hover:border-amber-200
+                                        ${
+                                            filters.filters
+                                                ?.brand ===
+                                            brand._id
+                                                ? "border-amber-500 bg-amber-50"
+                                                : "border-gray-200"
+                                        }
+                                    `}
+                                        >
+                                            {brand.logo ? (
+                                                <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                                                    <img
+                                                        src={
+                                                            brand.logo
+                                                        }
+                                                        alt={
+                                                            brand.name
+                                                        }
+                                                        className="max-w-full max-h-full object-contain"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="w-16 h-16 mb-3 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+                                                    <span className="text-xl font-medium">
+                                                        {brand.name.charAt(
+                                                            0
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <span className="text-sm font-medium text-gray-800 text-center">
+                                                {brand.name}
+                                            </span>
+                                            <span className="text-xs text-gray-500 mt-1">
+                                                {
+                                                    brand.productsCount
+                                                }{" "}
+                                                {t(
+                                                    "products.items"
+                                                )}
+                                            </span>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                 {/* Header */}
                 <ProductsHeader

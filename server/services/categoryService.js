@@ -250,36 +250,12 @@ class CategoryService {
   }
 
   /**
-   * Delete a category
-   * @param {string} id - Category ID
-   * @returns {Promise<void>}
+   * Delete a category - REMOVED
+   * For data integrity, categories are never deleted, only disabled via the updateCategory method
+   * This ensures all historical data and relationships remain intact
    */
-  async deleteCategory(id) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("Invalid category ID format");
-    }
-
-    // Check if category exists
-    const category = await Category.findById(id);
-    if (!category) {
-      throw new Error("Category not found");
-    }
-
-    // Check if category has children
-    const childrenCount = await Category.countDocuments({ parent: id });
-    if (childrenCount > 0) {
-      throw new Error("Cannot delete category with subcategories");
-    }
-
-    // Check if category has products
-    const productsCount = await Product.countDocuments({ category: id });
-    if (productsCount > 0) {
-      throw new Error("Cannot delete category with associated products");
-    }
-
-    // Delete the category
-    await Category.findByIdAndDelete(id);
-  }
+  // Method removed to prevent accidental data deletion
+  // Instead, use updateCategory with isActive: false to disable categories
 
   /**
    * Helper method to generate slug from name

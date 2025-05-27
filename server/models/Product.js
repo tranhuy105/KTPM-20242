@@ -277,27 +277,25 @@ productSchema.methods.updateInventory = async function (quantity) {
   await this.save();
 };
 
-// Static method to get available filters
 productSchema.statics.getAvailableFilters = async function () {
-  // Get distinct brand IDs first
-  const brandIds = await this.distinct("brand");
-  // Then populate them with Brand model info and sort alphabetically by name
+  // Get all active brands directly
   const brands = await mongoose
     .model("Brand")
-    .find({
-      _id: { $in: brandIds },
-    })
-    .select("_id name slug logo")
+    .find({ isActive: true })
+    .select("_id name slug logo isActive")
     .sort({ name: 1 });
+
+  console.log("brands", brands.length);
 
   // Get distinct category IDs first
   const categoryIds = await this.distinct("category");
 
-  // Get all categories including parent info for hierarchical organization
+  // Get all active categories including parent info
   const categories = await mongoose
     .model("Category")
     .find({
       _id: { $in: categoryIds },
+      isActive: true,
     })
     .select("_id name slug image parent ancestors")
     .sort({ name: 1 });
@@ -306,7 +304,6 @@ productSchema.statics.getAvailableFilters = async function () {
   const topLevelCategories = [];
   const categoryMap = {};
 
-  // First pass: create a map of categories by ID
   categories.forEach((category) => {
     categoryMap[category._id] = {
       _id: category._id,
@@ -317,7 +314,6 @@ productSchema.statics.getAvailableFilters = async function () {
     };
   });
 
-  // Second pass: organize into hierarchy
   categories.forEach((category) => {
     const categoryId = category._id.toString();
     if (!category.parent) {
@@ -327,8 +323,6 @@ productSchema.statics.getAvailableFilters = async function () {
       if (categoryMap[parentId]) {
         categoryMap[parentId].children.push(categoryMap[categoryId]);
       } else {
-        // If parent is not in our list (not associated with products),
-        // treat as top-level
         topLevelCategories.push(categoryMap[categoryId]);
       }
     }
@@ -337,10 +331,12 @@ productSchema.statics.getAvailableFilters = async function () {
   const colors = await this.distinct("color");
   const sizes = await this.distinct("size");
   const materials = await this.distinct("material");
+
   const minPrice = await this.find()
     .sort({ price: 1 })
     .limit(1)
     .select("price");
+
   const maxPrice = await this.find()
     .sort({ price: -1 })
     .limit(1)
@@ -349,8 +345,8 @@ productSchema.statics.getAvailableFilters = async function () {
   return {
     brands,
     categories: {
-      flat: categories, // Keep flat list for backward compatibility
-      hierarchical: topLevelCategories, // Add hierarchical structure
+      flat: categories,
+      hierarchical: topLevelCategories,
     },
     colors,
     sizes,
@@ -361,5 +357,6 @@ productSchema.statics.getAvailableFilters = async function () {
     },
   };
 };
+
 
 module.exports = mongoose.model("Product", productSchema);

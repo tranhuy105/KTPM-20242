@@ -49,6 +49,7 @@
     "items": "sản phẩm"
   },
   "auth": {
+    "loginRequired": "Vui lòng đăng nhập để sử dụng tính năng này",
     "login": {
       "title": "Chào mừng trở lại",
       "email": "Địa chỉ email",
@@ -112,6 +113,21 @@
       },
       "success": {
         "emailSent": "Email khôi phục mật khẩu đã được gửi thành công!"
+      }
+    },
+    "resetPassword": {
+      "pageTitle": "Khôi phục mật khẩu",
+      "title": "Khôi phục mật khẩu",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu mới",
+      "resetPassword": "Khôi phục mật khẩu",
+      "instructions": "Nhập mật khẩu mới để khôi phục tài khoản của bạn.",
+      "passwordsDoNotMatch": "Mật khẩu không khớp",
+      "backToLogin": "Quay lại trang đăng nhập",
+      "validation": {
+        "required": "Trường này là bắt buộc",
+        "passwordLength": "Mật khẩu phải có ít nhất 6 ký tự",
+        "passwordsDoNotMatch": "Mật khẩu không khớp"
       }
     }
   },
@@ -353,9 +369,25 @@
     "goBack": "Quay lại",
     "loading": "Đang tải...",
     "backToHome": "Trở về trang chủ",
-    "products": "Sản phẩm"
+    "products": "Sản phẩm",
+    "visitWebsite": "Xem trang web",
+    "learnMore": "Tìm hiểu thêm"
   },
   "products": {
+    "authentic": "Chính hãng",
+    "officialDealer": "Đại lý chính thức",
+    "luxuryCollection": "Bộ sưu tập cao cấp",
+    "aboutBrand": "Về thương hiệu",
+    "viewAllBrandProducts": "Xem tất cả sản phẩm của thương hiệu",
+    "brandHighlights": "Điểm nổi bật của thương hiệu",
+    "luxuryMaterials": "Chất liệu cao cấp",
+    "worldwideShipping": "Giao hàng quốc tế",
+    "authenticGuarantee": "Bảo hành chính hãng",
+    "exclusiveDesigns": "Thiết kế độc quyền",
+    "limitedEdition": "Hàng loạt hạn chế",
+    "officialBrand": "Thương hiệu chính thức",
+    "clearAll": "Xóa tất cả",
+    "shopByBrand": "Khám phá các thương hiệu hợp tác với chúng tôi",
     "reviewCount": "Lượt đánh giá",
     "itemsFound": "sản phẩm thỏa mãn bộ lọc",
     "addedToCart": "Đã thêm vào giỏ hàng",

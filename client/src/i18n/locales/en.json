@@ -49,6 +49,7 @@
     "items": "items"
   },
   "auth": {
+    "loginRequired": "Please log in to use this feature",
     "login": {
       "title": "Welcome back",
       "email": "Email Address",
@@ -113,6 +114,21 @@
       },
       "success": {
         "emailSent": "Password reset email sent successfully!"
+      }
+    },
+    "resetPassword": {
+      "pageTitle": "Reset Password",
+      "title": "Reset Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "resetPassword": "Reset Password",
+      "instructions": "Enter your new password to reset your account.",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "backToLogin": "Back to Login",
+      "validation": {
+        "required": "This field is required",
+        "passwordLength": "Password must be at least 6 characters",
+        "passwordsDoNotMatch": "Passwords do not match"
       }
     }
   },
@@ -339,6 +355,8 @@
     "confirmCancellation": "Confirm Cancellation"
   },
   "common": {
+    "learnMore": "Learn more",
+    "visitWebsite": "Visit website",
     "update": "Update",
     "cancel": "Cancel",
     "save": "Save",
@@ -355,6 +373,20 @@
     "products": "Products"
   },
   "products": {
+    "authentic": "Authentic",
+    "officialDealer": "Official Dealer",
+    "luxuryCollection": "Luxury Collection",
+    "aboutBrand": "About Brand",
+    "viewAllBrandProducts": "View all brand products",
+    "brandHighlights": "Brand Highlights",
+    "luxuryMaterials": "Luxury Materials",
+    "worldwideShipping": "Worldwide Shipping",
+    "authenticGuarantee": "Authentic Guarantee",
+    "exclusiveDesigns": "Exclusive Designs",
+    "limitedEdition": "Limited Edition",
+    "officialBrand": "Official Brand",
+    "clearAll": "Clear all",
+    "shopByBrand": "Shop by brand",
     "reviewCount": "Reviews",
     "itemsFound": "items found",
     "addedToCart": "Added to cart",

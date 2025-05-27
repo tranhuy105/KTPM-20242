@@ -50,20 +50,42 @@ const LUXURY_BRANDS = [
 
 // Brand logos (placeholder URLs)
 const BRAND_LOGOS = [
-  "https://example.com/logos/logo1.png",
-  "https://example.com/logos/logo2.png",
-  "https://example.com/logos/logo3.png",
-  "https://example.com/logos/logo4.png",
-  "https://example.com/logos/logo5.png",
+  "https://images.seeklogo.com/logo-png/8/1/louis-vuitton-logo-png_seeklogo-85809.png",
+  "https://images.seeklogo.com/logo-png/6/1/gucci-logo-png_seeklogo-64069.png",
+  "https://images.seeklogo.com/logo-png/4/1/dior-logo-png_seeklogo-41696.png",
+  "https://images.seeklogo.com/logo-png/6/1/hermes-logo-png_seeklogo-66470.png",
+  "https://images.seeklogo.com/logo-png/11/1/prada-logo-png_seeklogo-111420.png",
+  "https://images.seeklogo.com/logo-png/28/1/chanel-logo-png_seeklogo-284915.png",
+  "https://images.seeklogo.com/logo-png/14/1/versace-medusa-logo-png_seeklogo-148376.png",
+  "https://images.seeklogo.com/logo-png/31/1/burberry-logo-png_seeklogo-318144.png",
+  "https://images.seeklogo.com/logo-png/30/1/givenchy-logo-png_seeklogo-304644.png",
+  "https://images.seeklogo.com/logo-png/5/1/fendi-logo-png_seeklogo-53637.png",
+  "https://images.seeklogo.com/logo-png/23/1/bulgari-logo-png_seeklogo-235982.png",
+  "https://images.seeklogo.com/logo-png/2/1/cartier-logo-png_seeklogo-26665.png",
+  "https://images.seeklogo.com/logo-png/11/1/rolex-logo-png_seeklogo-119522.png",
+  "https://images.seeklogo.com/logo-png/10/1/omega-logo-png_seeklogo-102990.png",
+  "https://images.seeklogo.com/logo-png/10/1/patek-philippe-logo-png_seeklogo-106562.png",
+  "https://images.seeklogo.com/logo-png/13/1/tag-heuer-logo-png_seeklogo-135338.png",
 ];
 
 // Brand websites
 const BRAND_WEBSITES = [
-  "https://www.brand-official.com",
-  "https://www.luxury-brand.com",
-  "https://www.premium-collection.com",
-  "https://www.heritage-luxury.com",
-  "https://www.elite-fashion.com",
+  "https://www.louisvuitton.com",
+  "https://www.gucci.com",
+  "https://www.dior.com",
+  "https://www.hermes.com",
+  "https://www.prada.com",
+  "https://www.chanel.com",
+  "https://www.versace.com",
+  "https://www.burberry.com",
+  "https://www.givenchy.com",
+  "https://www.fendi.com",
+  "https://www.bulgari.com",
+  "https://www.cartier.com",
+  "https://www.rolex.com",
+  "https://www.omegawatches.com",
+  "https://www.patek.com",
+  "https://www.tagheuer.com",
 ];
 
 // Luxury product categories
@@ -416,7 +438,7 @@ async function seedUsers() {
         firstName,
         lastName,
         username: faker.internet.username({ firstName, lastName }),
-        email: faker.internet.email({ firstName, lastName }),
+        email: faker.internet.email({ firstName, lastName }).toLowerCase(),
         password: await bcrypt.hash("password123", 10),
         role: "customer",
         isActive: Math.random() > 0.1, // 90% active
@@ -623,16 +645,88 @@ async function seedBrands() {
 
     const brands = [];
 
+    const brandDescriptions = {
+      "Louis Vuitton":
+        "Được thành lập vào năm 1854, Louis Vuitton là nhà mốt xa xỉ Pháp nổi tiếng với biểu tượng LV đặc trưng trên các sản phẩm da, thời trang may sẵn, giày dép, đồng hồ, trang sức, phụ kiện và sách.",
+      Gucci:
+        "Gucci, thương hiệu xa xỉ Ý thành lập năm 1921, nổi danh với thiết kế phóng khoáng, hiện đại, đại diện cho đỉnh cao của nghệ thuật thủ công Ý.",
+      Dior: "Christian Dior SE, thường gọi là Dior, là thương hiệu xa xỉ Pháp ra đời năm 1946, nổi bật với những thiết kế thanh lịch, tinh tế và là biểu tượng thời trang bất biến.",
+      Hermès:
+        "Hermès International S.A., thành lập năm 1837, là nhà sản xuất xa xỉ Pháp chuyên về da, phụ kiện phong cách sống, nội thất, nước hoa, trang sức, đồng hồ và thời trang may sẵn.",
+      Prada:
+        "Prada S.p.A., nhà mốt xa xỉ Ý ra đời năm 1913, nổi tiếng với túi xách da, phụ kiện du lịch, giày dép, thời trang may sẵn và phụ kiện, mang phong cách tối giản với đường nét tinh tế.",
+      Chanel:
+        "Chanel, nhà mốt xa xỉ Pháp do Coco Chanel sáng lập năm 1910, tập trung vào thời trang nữ cao cấp, hàng xa xỉ và phụ kiện, nổi bật với sự thanh lịch vượt thời gian.",
+      Versace:
+        "Versace, thương hiệu xa xỉ Ý do Gianni Versace sáng lập năm 1978, nổi tiếng với thiết kế táo bạo, màu sắc rực rỡ và biểu tượng Medusa, kết hợp di sản Ý với nét quyến rũ hiện đại.",
+      Burberry:
+        "Burberry, nhà mốt xa xỉ Anh thành lập năm 1856, nổi danh với hoa văn kẻ sọc đặc trưng và áo khoác trench coat, hòa quyện thủ công truyền thống với thiết kế sáng tạo.",
+      Givenchy:
+        "Givenchy, nhà mốt xa xỉ và nước hoa Pháp thành lập năm 1952, được ca ngợi bởi thẩm mỹ thanh lịch, quý phái và tinh tế.",
+      Fendi:
+        "Fendi, nhà mốt xa xỉ Ý ra đời năm 1925, nổi tiếng với lông thú, thời trang may sẵn, đồ da, giày dép, nước hoa, kính mắt và phụ kiện, với biểu tượng FF đồng nghĩa với xa xỉ.",
+      Bvlgari:
+        "Bvlgari (hay Bulgari), thương hiệu xa xỉ Ý thành lập năm 1884, nổi danh với trang sức, đồng hồ, nước hoa, phụ kiện và khách sạn, kết hợp nghệ thuật Hy Lạp, La Mã với thiết kế Ý hiện đại.",
+      Cartier:
+        "Cartier, tập đoàn xa xỉ Pháp thành lập năm 1847, chuyên thiết kế, sản xuất và phân phối trang sức, đồ da và đồng hồ, được mệnh danh là 'người thợ kim hoàn của các vị vua và vua của các thợ kim hoàn'.",
+      Rolex:
+        "Rolex SA, nhà sản xuất đồng hồ xa xỉ Thụy Sĩ thành lập năm 1905, nổi tiếng với độ chính xác, độ tin cậy và uy tín, kết hợp chức năng với thẩm mỹ vượt thời gian.",
+      Omega:
+        "Omega SA, thương hiệu đồng hồ xa xỉ Thụy Sĩ ra đời năm 1848, nổi tiếng với độ chính xác, sáng tạo và là đơn vị giữ thời gian chính thức của Thế vận hội, hòa quyện công nghệ với thiết kế tinh tế.",
+      "Patek Philippe":
+        "Patek Philippe SA, nhà sản xuất đồng hồ và đồng hồ treo tường xa xỉ Thụy Sĩ thành lập năm 1839, nổi tiếng với chất lượng vượt trội và thủ công tinh xảo, là một trong những thương hiệu uy tín nhất thế giới.",
+      "Tag Heuer":
+        "TAG Heuer SA, nhà sản xuất đồng hồ xa xỉ Thụy Sĩ thành lập năm 1860, nổi tiếng với đồng hồ thể thao và đồng hồ bấm giờ, kết hợp công nghệ hiệu suất cao với thiết kế tiên phong.",
+      Longines:
+        "Longines, thương hiệu đồng hồ xa xỉ Thụy Sĩ ra đời năm 1832, nổi tiếng với sự thanh lịch và chính xác, kết hợp thủ công truyền thống với thiết kế hiện đại.",
+      Chopard:
+        "Chopard, nhà sản xuất đồng hồ, trang sức và phụ kiện xa xỉ Thụy Sĩ thành lập năm 1860, nổi tiếng với độ chính xác cao và sáng tạo, hòa quyện kỹ thuật xuất sắc với thiết kế nghệ thuật.",
+      Montblanc:
+        "Montblanc International GmbH, nhà sản xuất Đức chuyên về bút viết, đồng hồ, trang sức và đồ da xa xỉ, thành lập năm 1906, nổi tiếng với thủ công tinh xảo và thiết kế vượt thời gian.",
+      "Bottega Veneta":
+        "Bottega Veneta, thương hiệu xa xỉ và thời trang cao cấp Ý ra đời năm 1966, nổi tiếng với đồ da mang thiết kế dệt 'intrecciato' đặc trưng và phong cách thương hiệu tinh tế, không phô trương.",
+      Valentino:
+        "Valentino SpA, nhà mốt xa xỉ Ý thành lập năm 1960, nổi tiếng với thẩm mỹ thanh lịch và lãng mạn, kết hợp thủ công Ý truyền thống với thiết kế hiện đại.",
+      Balenciaga:
+        "Balenciaga, nhà mốt xa xỉ Tây Ban Nha thành lập năm 1919, nổi tiếng với thiết kế mang tính kiến trúc và tư duy đột phá, đồng nghĩa với sự đổi mới trong thời trang.",
+      "Saint Laurent":
+        "Yves Saint Laurent, hay Saint Laurent, là nhà mốt xa xỉ Pháp thành lập năm 1961, nổi tiếng với thiết kế hiện đại và táo bạo, thể hiện tinh thần sang trọng Parisian.",
+      Loewe:
+        "Loewe, nhà mốt xa xỉ Tây Ban Nha ra đời năm 1846, nổi tiếng với đồ da và bộ sưu tập may sẵn, kết hợp thủ công xuất sắc với thẩm mỹ hiện đại.",
+      Celine:
+        "Celine, thương hiệu thời trang may sẵn và đồ da xa xỉ Pháp ra đời năm 1945, nổi tiếng với thiết kế tối giản, chú trọng vào sự đơn giản, chất lượng và thanh lịch.",
+      "Phúc Long Heritage":
+        "Phúc Long Heritage, thương hiệu xa xỉ Việt Nam ra đời năm 1990, chuyên về sản phẩm lụa và thêu tay tinh xảo, hòa quyện thủ công truyền thống Việt Nam với thiết kế hiện đại.",
+      "D'Diamond Palace":
+        "D'Diamond Palace, nhà kim hoàn uy tín Việt Nam thành lập năm 1975, nổi tiếng với các bộ sưu tập kim cương và đá quý xuất sắc, thể hiện tiêu chuẩn cao nhất về chất lượng và thủ công.",
+      "Yen Collection":
+        "Yen Collection, thương hiệu thời trang xa xỉ Việt Nam ra đời năm 2005, được ca ngợi với các thiết kế áo dài thanh lịch và sự cách tân hiện đại từ chất liệu và hoa văn truyền thống Việt Nam.",
+      "Sài Gòn Haute":
+        "Sài Gòn Haute, thương hiệu thời trang cao cấp Việt Nam thành lập năm 2010, chuyên về haute couture, kết hợp sự thanh lịch Pháp với những ảnh hưởng văn hóa Việt Nam.",
+      "Minh Long Royal":
+        "Minh Long Royal, thương hiệu sứ và gốm cao cấp Việt Nam ra đời năm 1970, sản xuất đồ gia dụng thủ công tinh xảo, hòa quyện nghệ thuật truyền thống Việt Nam với thiết kế xa xỉ hiện đại.",
+    };
+
     // Create brands
     for (const brandName of LUXURY_BRANDS) {
       const brandSlug = createSlug(brandName);
+      const logoIndex = Math.min(
+        LUXURY_BRANDS.indexOf(brandName),
+        BRAND_LOGOS.length - 1
+      );
+      const websiteIndex = Math.min(
+        LUXURY_BRANDS.indexOf(brandName),
+        BRAND_WEBSITES.length - 1
+      );
 
       const brand = new Brand({
         name: brandName,
         slug: brandSlug,
-        description: `${brandName} - thương hiệu xa xỉ hàng đầu với những sản phẩm đẳng cấp và tinh tế.`,
-        logo: getRandomItems(BRAND_LOGOS, 1)[0],
-        website: getRandomItems(BRAND_WEBSITES, 1)[0],
+        description:
+          brandDescriptions[brandName] ||
+          `${brandName} - thương hiệu xa xỉ hàng đầu với những sản phẩm đẳng cấp và tinh tế.`,
+        logo: BRAND_LOGOS[logoIndex >= 0 ? logoIndex : 0],
+        website: BRAND_WEBSITES[websiteIndex >= 0 ? websiteIndex : 0],
         isActive: true,
         seo: {
           title: `${brandName} - Thương Hiệu Xa Xỉ Hàng Đầu`,
