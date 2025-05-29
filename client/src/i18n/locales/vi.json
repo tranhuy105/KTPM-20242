@@ -276,6 +276,7 @@
     "addNew": "Thêm địa chỉ mới"
   },
   "address": {
+    "noAddresses": "Bạn chưa có địa chỉ nào được lưu.",
     "title": "Địa chỉ",
     "setDefault": "Đặt làm địa chỉ mặc định",
     "updateSuccess": "Địa chỉ đã được cập nhật thành công",

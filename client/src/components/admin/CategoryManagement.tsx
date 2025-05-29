@@ -198,12 +198,13 @@ const CategoryManagement = () => {
       // Format the data for API
       const categoryData: Partial<Category> = {
         ...data,
-        // Only include parent if it's not empty and not the "none" placeholder
         parent:
           data.parent && data.parent !== "" && data.parent !== "none"
-            ? ({ _id: data.parent } as Category["parent"])
+            ? data.parent // Just send the string ID
             : undefined,
       };
+
+      console.log("Sending category data: ", categoryData);
 
       if (selectedCategory) {
         // Update existing category

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Star, ShoppingCart } from "lucide-react";
+import { Star } from "lucide-react";
 import type { Product, Brand } from "../../types";
 import { calculateDiscountPercentage, formatCurrency } from "../../lib/utils";
 
@@ -156,11 +156,6 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
                 </span>
               )}
             </div>
-
-            <button className="flex items-center space-x-1 bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2 rounded-md transition-colors">
-              <ShoppingCart className="w-4 h-4" />
-              <span className="font-medium">{t("products.addToCart")}</span>
-            </button>
           </div>
         </div>
       </Link>

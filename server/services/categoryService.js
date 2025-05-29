@@ -190,28 +190,47 @@ class CategoryService {
       throw new Error("Category not found");
     }
 
-    // Validate parent relationship to prevent circular references
-    if (categoryData.parent) {
-      if (categoryData.parent.toString() === id) {
-        throw new Error("Category cannot be its own parent");
-      }
-
-      // Check if parent exists
-      if (!mongoose.Types.ObjectId.isValid(categoryData.parent)) {
-        throw new Error("Invalid parent category ID");
-      }
-
-      const parent = await Category.findById(categoryData.parent);
-      if (!parent) {
-        throw new Error("Parent category not found");
-      }
-
-      // Check for circular references in ancestors
+    // Handle parent field - normalize the parent value
+    if (categoryData.hasOwnProperty("parent")) {
+      // If parent is explicitly set to null, undefined, or empty string, clear it
       if (
-        parent.ancestors &&
-        parent.ancestors.some((a) => a._id.toString() === id)
+        !categoryData.parent ||
+        categoryData.parent === "" ||
+        categoryData.parent === "none"
       ) {
-        throw new Error("Circular reference detected in category hierarchy");
+        categoryData.parent = null;
+      } else {
+        // Extract ID if parent is an object, otherwise use as-is
+        const parentId =
+          typeof categoryData.parent === "object" && categoryData.parent._id
+            ? categoryData.parent._id
+            : categoryData.parent;
+
+        // Validate parent relationship to prevent circular references
+        if (parentId.toString() === id) {
+          throw new Error("Category cannot be its own parent");
+        }
+
+        // Check if parent exists
+        if (!mongoose.Types.ObjectId.isValid(parentId)) {
+          throw new Error("Invalid parent category ID");
+        }
+
+        const parent = await Category.findById(parentId);
+        if (!parent) {
+          throw new Error("Parent category not found");
+        }
+
+        // Check for circular references in ancestors
+        if (
+          parent.ancestors &&
+          parent.ancestors.some((a) => a._id.toString() === id)
+        ) {
+          throw new Error("Circular reference detected in category hierarchy");
+        }
+
+        // Set the normalized parent ID
+        categoryData.parent = parentId;
       }
     }
 
@@ -235,6 +254,13 @@ class CategoryService {
         throw new Error("Category with this slug already exists");
       }
     }
+
+    // Log the data being updated for debugging
+    console.log("Updating category with data:", {
+      id,
+      parent: categoryData.parent,
+      name: categoryData.name,
+    });
 
     // Update and return the category
     const updatedCategory = await Category.findByIdAndUpdate(

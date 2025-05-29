@@ -49,6 +49,7 @@ export function ProductsTable({
 
   // Helper function to display category name
   const getCategoryName = (product: Product) => {
+    console.log(product.category);
     if (typeof product.category === "object") {
       return product.category.name;
     }
@@ -207,13 +208,14 @@ export function ProductsTable({
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
+                    {/* tạm ẩn tính năng xóa  */}
+                    {/* <DropdownMenuItem
                       className="text-red-600"
                       onClick={() => onDeleteProduct(product._id)}
                     >
                       <Trash className="mr-2 h-4 w-4" />
                       Delete
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

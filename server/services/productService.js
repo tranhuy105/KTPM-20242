@@ -26,8 +26,8 @@ class ProductService {
 
       // Execute query
       const products = await query.populate([
-        { path: "category", select: "name slug", match: { isActive: true } },
-        { path: "brand", select: "name slug logo", match: { isActive: true } },
+        { path: "category", select: "name slug" },
+        { path: "brand", select: "name slug logo" },
       ]);
 
       // Get cursor values if using cursor-based pagination

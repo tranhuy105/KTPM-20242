@@ -99,33 +99,75 @@ categorySchema.virtual("children", {
   foreignField: "parent",
 });
 
-// Update ancestors array when parent changes
+// Helper function to update ancestors
+async function updateAncestors(categoryId, parentId) {
+  if (!parentId) {
+    // If no parent, clear ancestors
+    return [];
+  }
+
+  const parent = await mongoose.model("Category").findById(parentId);
+  if (!parent) {
+    throw new Error("Parent category not found");
+  }
+
+  // Set ancestors: parent's ancestors + parent itself
+  return [
+    ...(parent.ancestors || []),
+    {
+      _id: parent._id,
+      name: parent.name,
+      slug: parent.slug,
+    },
+  ];
+}
+
+// Update ancestors array when parent changes (for new documents)
 categorySchema.pre("save", async function (next) {
-  // Skip if parent hasn't changed or is null
-  if (!this.isModified("parent") || !this.parent) {
+  // Skip if parent hasn't changed
+  if (!this.isModified("parent")) {
     return next();
   }
 
   try {
-    const parent = await this.constructor.findById(this.parent);
-
-    if (!parent) {
-      return next(new Error("Parent category not found"));
+    // If parent is null, clear ancestors
+    if (!this.parent) {
+      this.ancestors = [];
+      return next();
     }
 
-    // Set ancestors: parent's ancestors + parent itself
-    this.ancestors = [
-      ...(parent.ancestors || []),
-      {
-        _id: parent._id,
-        name: parent.name,
-        slug: parent.slug,
-      },
-    ];
-
+    this.ancestors = await updateAncestors(this._id, this.parent);
     next();
   } catch (error) {
     next(error);
+  }
+});
+
+// Update ancestors array when parent changes (for updates via findOneAndUpdate)
+categorySchema.pre(['findOneAndUpdate', 'updateOne'], async function (next) {
+  const update = this.getUpdate();
+  
+  // Check if parent is being updated
+  if (update.$set && update.$set.hasOwnProperty('parent')) {
+    try {
+      const docToUpdate = await this.model.findOne(this.getQuery());
+      if (!docToUpdate) {
+        return next(new Error("Category not found"));
+      }
+
+      // Update ancestors based on new parent
+      const newAncestors = await updateAncestors(docToUpdate._id, update.$set.parent);
+      
+      // Add ancestors to the update
+      if (!update.$set) update.$set = {};
+      update.$set.ancestors = newAncestors;
+      
+      next();
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    next();
   }
 });
 
@@ -141,28 +183,49 @@ categorySchema.methods.updateProductsCount = async function () {
 categorySchema.post("save", async function () {
   if (this.isModified("name") || this.isModified("slug")) {
     try {
-      // Find all categories that have this category in their ancestors
-      const childCategories = await this.constructor.find({
-        "ancestors._id": this._id,
-      });
-
-      // Update the ancestor data in each child
-      for (const child of childCategories) {
-        // Find and update the ancestor entry
-        const ancestorIndex = child.ancestors.findIndex(
-          (a) => a._id.toString() === this._id.toString()
-        );
-
-        if (ancestorIndex !== -1) {
-          child.ancestors[ancestorIndex].name = this.name;
-          child.ancestors[ancestorIndex].slug = this.slug;
-          await child.save();
-        }
-      }
+      await updateChildrenAncestors(this);
     } catch (error) {
       console.error("Error updating child categories:", error);
     }
   }
 });
+
+// Also handle updates via findOneAndUpdate
+categorySchema.post(['findOneAndUpdate', 'updateOne'], async function (doc) {
+  if (doc && (this.getUpdate().$set?.name || this.getUpdate().$set?.slug)) {
+    try {
+      await updateChildrenAncestors(doc);
+    } catch (error) {
+      console.error("Error updating child categories:", error);
+    }
+  }
+});
+
+// Helper function to update children ancestors
+async function updateChildrenAncestors(parentCategory) {
+  // Find all categories that have this category in their ancestors
+  const childCategories = await mongoose.model("Category").find({
+    "ancestors._id": parentCategory._id,
+  });
+
+  // Update the ancestor data in each child
+  for (const child of childCategories) {
+    // Find and update the ancestor entry
+    const ancestorIndex = child.ancestors.findIndex(
+      (a) => a._id.toString() === parentCategory._id.toString()
+    );
+
+    if (ancestorIndex !== -1) {
+      child.ancestors[ancestorIndex].name = parentCategory.name;
+      child.ancestors[ancestorIndex].slug = parentCategory.slug;
+      
+      // Use updateOne to avoid triggering middleware loops
+      await mongoose.model("Category").updateOne(
+        { _id: child._id },
+        { $set: { ancestors: child.ancestors } }
+      );
+    }
+  }
+}
 
 module.exports = mongoose.model("Category", categorySchema);

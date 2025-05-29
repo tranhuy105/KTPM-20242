@@ -277,6 +277,7 @@
     "addNew": "Add New Address"
   },
   "address": {
+    "noAddresses": "No addresses found",
     "setDefault": "Set as Default",
     "defaultSuccess": "Default address updated successfully",
     "updateSuccess": "Address updated successfully",

@@ -34,6 +34,7 @@ const categoryApi = {
     >("/categories", {
       params: filters,
     });
+    console.log(response.data);
     return response.data;
   },
 

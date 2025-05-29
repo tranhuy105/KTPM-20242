@@ -285,10 +285,8 @@ productSchema.statics.getAvailableFilters = async function () {
     .select("_id name slug logo isActive")
     .sort({ name: 1 });
 
-  console.log("brands", brands.length);
-
   // Get distinct category IDs first
-  const categoryIds = await this.distinct("category");
+  const categoryIds = await mongoose.model("Category").distinct("_id");
 
   // Get all active categories including parent info
   const categories = await mongoose

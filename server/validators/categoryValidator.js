@@ -108,13 +108,28 @@ const categoryValidator = {
     body("parent")
       .optional()
       .custom((value) => {
-        if (value === null) return true;
-        if (!mongoose.Types.ObjectId.isValid(value)) {
+        if (value === null || value === undefined) return true;
+        // Handle both string ID and object with _id
+        const idToCheck =
+          typeof value === "object" && value._id ? value._id : value;
+        if (!mongoose.Types.ObjectId.isValid(idToCheck)) {
           throw new Error("Invalid parent ID format");
         }
         return true;
       }),
-    body("image").optional().isURL().withMessage("Image must be a valid URL"),
+    body("image")
+      .optional()
+      .custom((value) => {
+        if (!value) return true;
+        // Accept both regular URLs and base64 data URLs
+        const urlRegex = /^https?:\/\/.+/;
+        const base64Regex = /^data:image\/(jpeg|jpg|png|gif|webp);base64,/;
+
+        if (urlRegex.test(value) || base64Regex.test(value)) {
+          return true;
+        }
+        throw new Error("Image must be a valid URL or base64 data URL");
+      }),
     body("isActive")
       .optional()
       .isBoolean()

@@ -145,13 +145,14 @@ export function UsersTable({
                         </>
                       )}
                     </DropdownMenuItem>
-                    <DropdownMenuItem
+                    {/* Tạm ẩn tính năng xóa */}
+                    {/* <DropdownMenuItem
                       className="text-red-600"
                       onClick={() => onDeleteUser(user._id)}
                     >
                       <Trash className="mr-2 h-4 w-4" />
                       Delete
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

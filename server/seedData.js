@@ -515,7 +515,7 @@ const CATEGORY_IMAGES = {
   "Ví Da":
     "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=1000&auto=format&fit=crop",
   "Túi Du Lịch":
-    "https://images.unsplash.com/photo-1553808373-92b0bcc3af15?q=80&w=1000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1448582649076-3981753123b5?q=80&w=1000&auto=format&fit=crop",
   "Túi Tote":
     "https://images.unsplash.com/photo-1591561954555-607968c989ab?q=80&w=1000&auto=format&fit=crop",
   "Áo Vest":
